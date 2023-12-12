@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-class MyStore {
+class Store {
   int? id;
   final String name;
   final String branch;
@@ -9,7 +9,7 @@ class MyStore {
   final String phone;
   final int createdDate;
   final int updatedDate;
-  MyStore({
+  Store({
     this.id,
     required this.name,
     required this.branch,
@@ -34,8 +34,8 @@ class MyStore {
   }
 
   // get class object from map
-  static MyStore fromMap(Map<String, dynamic> map) {
-    return MyStore(
+  static Store fromMap(Map<String, dynamic> map) {
+    return Store(
       id: map['id'] as int?,
       name: map['name'] as String,
       branch: map['branch'] as String,

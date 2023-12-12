@@ -3,7 +3,8 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'entities/my_store.dart';
+import 'entities/store.dart';
+import 'entities/user.dart';
 
 /// this class will create the database and will contain
 class MyDatabase {
@@ -152,12 +153,28 @@ class MyDatabase {
     ''');
   }
 
-  static Future<MyStore?> getMyStore() async {
+  static Future<Store?> getStoreData() async {
     var maps = await myDatabase.rawQuery('''
       SELECT * FROM store
     ''');
     if (maps.isEmpty) return null;
-    return MyStore.fromMap(maps.first);
+    return Store.fromMap(maps.first);
+  }
+
+  static Future<void> setStoreData(Store store) async {
+    await MyDatabase.myDatabase.insert(
+      'store',
+      store.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<void> insertUser(User user) async {
+    await MyDatabase.myDatabase.insert(
+      'users',
+      user.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   static Future close() async => MyDatabase.myDatabase.close();

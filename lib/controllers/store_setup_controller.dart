@@ -7,6 +7,8 @@ import 'package:moamri_accounting/database/entities/user.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
 
+import '../dialogs/alerts_dialogs.dart';
+
 class StoreSetupController extends GetxController {
   Rx<bool> creating = false.obs;
   final formKey = GlobalKey<FormState>();
@@ -28,6 +30,17 @@ class StoreSetupController extends GetxController {
       var adminName = adminNameController.text;
       var adminUsername = adminUsernameController.text;
       var adminPassword = adminPasswordController.text;
+      if (storeName.trim().isEmpty ||
+          storeBranch.trim().isEmpty ||
+          storeAddress.trim().isEmpty ||
+          storePhone.trim().isEmpty ||
+          adminName.trim().isEmpty ||
+          adminUsername.trim().isEmpty ||
+          adminPassword.trim().isEmpty) {
+        showErrorDialog("All Feilds Are Required");
+
+        return;
+      }
       // store data
       Store store = Store(
           id: 1,
@@ -49,11 +62,10 @@ class StoreSetupController extends GetxController {
       try {
         await MyDatabase.setStoreData(store);
         await MyDatabase.insertUser(user);
-        Get.showSnackbar(const GetSnackBar(
-          title: "Store created successfully",
-        ));
-        await Future.delayed(const Duration(seconds: 1));
-        Get.off(const HomePage());
+        // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
+        await showSuccessDialog("Store Created Successfully");
+
+        Get.off(() => const HomePage());
       } catch (e) {
         log("Error: $e");
         Get.showSnackbar(GetSnackBar(

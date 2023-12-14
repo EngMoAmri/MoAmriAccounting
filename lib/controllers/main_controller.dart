@@ -2,18 +2,29 @@ import 'package:get/get.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 
 import '../database/entities/store.dart';
+import '../database/entities/user.dart';
+import '../pages/login_page.dart';
+import '../pages/store_setup_page.dart';
 
 class MainController extends GetxController {
-  Rx<bool> loading = true.obs;
+  // Rx<bool> loading = true.obs;
 
   /// this will contain the store information
   Rx<Store?> storeData = Rx(null);
+
+  /// this will contain the store information
+  Rx<User?> currentUser = Rx(null);
 
   @override
   void onInit() async {
     await MyDatabase.open();
     storeData.value = await MyDatabase.getStoreData();
-    loading.value = false;
+    if (storeData.value == null) {
+      Get.off(() => const StoreSetupPage());
+    } else {
+      Get.off(() => const LoginPage());
+    }
+    // loading.value = false;
     super.onInit();
   }
 }

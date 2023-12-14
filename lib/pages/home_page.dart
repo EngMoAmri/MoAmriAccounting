@@ -1,65 +1,305 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_side_menu/flutter_side_menu.dart';
+import 'package:get/get.dart';
+import 'package:window_manager/window_manager.dart';
 
-class HomePage extends StatelessWidget {
-// PageController pageController = PageController();
-// SideMenuController sideMenu = SideMenuController();
+import '../controllers/main_controller.dart';
 
-// List<SideMenuItem> items = [
-//   SideMenuItem(
-//     title: 'Dashboard',
-//     onTap: (index, _) {
-//       sideMenu.changePage(index);
-//     },
-//     icon: Icon(Icons.home),
-//     badgeContent: Text(
-//       '3',
-//       style: TextStyle(color: Colors.white),
-//     ),
-//   ),
-//   SideMenuItem(
-//     title: 'Settings',
-//     onTap: (index, _) {
-//       sideMenu.changePage(index);
-//     },
-//     icon: Icon(Icons.settings),
-//   ),
-//   SideMenuItem(
-//     title: 'Exit',
-//     onTap: () {},
-//     icon: Icon(Icons.exit_to_app),
-//   ),
-// ];
-
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  PageController pageController = PageController();
+  int selectedPage = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Column(children: [
-          OutlinedButton(onPressed: () {}, child: Text("المستودع و الأصناف")),
-          OutlinedButton(onPressed: () {}, child: Text("فواتير المشتريات")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("إدارة مرتجع المشتريات")),
-          OutlinedButton(onPressed: () {}, child: Text("إدارة الموريدين")),
-          OutlinedButton(onPressed: () {}, child: Text("شاشة الاستعلام ")),
-          OutlinedButton(onPressed: () {}, child: Text("البيع والاسترجاع")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-          OutlinedButton(
-              onPressed: () {}, child: Text("جرد وإدارة المستودع أو الأصناف")),
-        ])
-      ],
+    // final HomeController controller = Get.put(HomeController());
+    final MainController mainController = Get.find();
+    WindowOptions windowOptions = const WindowOptions(
+      // size: Size(800, 600),
+      minimumSize: Size(800, 600),
+      center: true,
+      backgroundColor: Colors.white,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+      windowManager.maximize();
+    });
+
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: DragToMoveArea(
+          child: Row(
+            children: [
+              Text(
+                mainController.storeData.value?.name ?? "",
+                style: const TextStyle(color: Colors.black),
+              ),
+            ],
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.grey,
+        elevation: 0,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            systemNavigationBarColor: Colors.transparent,
+            systemNavigationBarIconBrightness: Brightness.dark,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: IconButton.outlined(
+              onPressed: () async {
+                await windowManager.setMinimumSize(Size.zero);
+                await windowManager.minimize();
+              },
+              icon: const Icon(Icons.minimize),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: IconButton(
+              onPressed: () async {
+                if (await windowManager.isMaximized()) {
+                  await windowManager.setMaximumSize(const Size(800, 600));
+                  await windowManager.maximize();
+                } else {
+                  await windowManager.setMaximumSize(Size.infinite);
+                  await windowManager.maximize();
+                }
+              },
+              icon: const Icon(
+                Icons.crop_square,
+                color: Colors.green,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: IconButton.outlined(
+              onPressed: () {
+                exit(0);
+              },
+              icon: const Icon(
+                Icons.close,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SideMenu(
+            mode: SideMenuMode.open,
+            hasResizerToggle: false,
+            hasResizer: false,
+            builder: (data) => SideMenuData(
+              items: [
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 0,
+                  title: 'Inventory',
+                  onTap: () {
+                    pageController.jumpToPage(0);
+                    setState(() {
+                      selectedPage = 0;
+                    });
+                  },
+                  icon: Image.asset('assets/images/inventory.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 1,
+                  title: 'Purchases',
+                  onTap: () {
+                    pageController.jumpToPage(1);
+                    setState(() {
+                      selectedPage = 1;
+                    });
+                  },
+                  icon: Image.asset('assets/images/purchases.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 2,
+                  title: 'Suppliers',
+                  onTap: () {
+                    pageController.jumpToPage(2);
+                    setState(() {
+                      selectedPage = 2;
+                    });
+                  },
+                  icon: Image.asset('assets/images/supplier.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 3,
+                  title: 'Sale',
+                  onTap: () {
+                    pageController.jumpToPage(3);
+                    setState(() {
+                      selectedPage = 3;
+                    });
+                  },
+                  icon: Image.asset('assets/images/cart.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 4,
+                  title: 'Sales',
+                  onTap: () {
+                    pageController.jumpToPage(4);
+                    setState(() {
+                      selectedPage = 4;
+                    });
+                  },
+                  icon: Image.asset('assets/images/sales.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 5,
+                  title: 'Customers',
+                  onTap: () {
+                    pageController.jumpToPage(5);
+                    setState(() {
+                      selectedPage = 5;
+                    });
+                  },
+                  icon: Image.asset('assets/images/customers.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 6,
+                  title: 'Expenses',
+                  onTap: () {
+                    pageController.jumpToPage(6);
+                    setState(() {
+                      selectedPage = 6;
+                    });
+                  },
+                  icon: Image.asset('assets/images/expenses.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 7,
+                  title: 'Reports',
+                  onTap: () {
+                    pageController.jumpToPage(7);
+                    setState(() {
+                      selectedPage = 7;
+                    });
+                  },
+                  icon: Image.asset('assets/images/reports.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 8,
+                  title: 'Notes',
+                  onTap: () {
+                    pageController.jumpToPage(8);
+                    setState(() {
+                      selectedPage = 8;
+                    });
+                  },
+                  icon: Image.asset('assets/images/alarm.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 9,
+                  title: 'Users',
+                  onTap: () {
+                    pageController.jumpToPage(9);
+                    setState(() {
+                      selectedPage = 9;
+                    });
+                  },
+                  icon: Image.asset('assets/images/users.png'),
+                ),
+                SideMenuItemDataTile(
+                  isSelected: selectedPage == 10,
+                  title: 'Settings',
+                  onTap: () {
+                    pageController.jumpToPage(10);
+                    setState(() {
+                      selectedPage = 10;
+                    });
+                  },
+                  icon: Image.asset('assets/images/settings.png'),
+                ),
+              ],
+              footer: const Text('Developed By: MoAmri'), // TODO link
+            ),
+          ),
+          Expanded(
+            child: PageView(
+              controller: pageController,
+              children: [
+                Container(
+                  child: Center(
+                    child: Text('Add Material'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Materials Management'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Purchases'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Add Material'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Materials Management'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Purchases'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Add Material'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Materials Management'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Purchases'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Add Material'),
+                  ),
+                ),
+                Container(
+                  child: Center(
+                    child: Text('Materials Management'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

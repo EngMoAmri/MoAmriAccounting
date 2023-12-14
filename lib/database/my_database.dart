@@ -177,5 +177,15 @@ class MyDatabase {
     );
   }
 
+  static Future<User?> getUser(String username, String password) async {
+    var maps = await MyDatabase.myDatabase.query(
+      'users',
+      where: 'username = ? and password = ?',
+      whereArgs: [username, password],
+    );
+    if (maps.isEmpty) return null;
+    return User.fromMap(maps.first);
+  }
+
   static Future close() async => MyDatabase.myDatabase.close();
 }

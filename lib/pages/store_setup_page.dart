@@ -14,7 +14,9 @@ class StoreSetupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final StoreSetupController controller = Get.put(StoreSetupController());
     WindowOptions windowOptions = const WindowOptions(
-      size: Size(800, 420),
+      size: Size(800, 460),
+      maximumSize: Size(800, 460),
+      minimumSize: Size(800, 460),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -41,9 +43,11 @@ class StoreSetupPage extends StatelessWidget {
             ],
           ),
           centerTitle: true,
-          title: const Text(
-            'Setup Your Store',
-            style: TextStyle(color: Colors.black),
+          title: const DragToMoveArea(
+            child: Text(
+              'Setup Your Store',
+              style: TextStyle(color: Colors.black),
+            ),
           ),
           backgroundColor: Colors.white,
           foregroundColor: Colors.grey,
@@ -76,6 +80,7 @@ class StoreSetupPage extends StatelessWidget {
         body: TabBarView(
           children: [
             Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Form(
                   key: controller.formKey,
@@ -97,178 +102,189 @@ class StoreSetupPage extends StatelessWidget {
                                 shape: BoxShape.rectangle,
                                 color: Colors.white),
                             child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.storeNameController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Name',
-                                      ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
+                              child: FocusTraversalGroup(
+                                policy: OrderedTraversalPolicy(),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.storeBranchController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.storeNameController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Name',
                                         ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Branch',
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
                                       ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.storeAddressController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.storeBranchController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Branch',
                                         ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Address',
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
                                       ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.storePhoneController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.storeAddressController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Address',
                                         ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Phone',
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
                                       ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.storePhoneController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Phone',
+                                        ),
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -303,152 +319,161 @@ class StoreSetupPage extends StatelessWidget {
                                 shape: BoxShape.rectangle,
                                 color: Colors.white),
                             child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.adminNameController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Name',
-                                      ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
+                              child: FocusTraversalGroup(
+                                policy: OrderedTraversalPolicy(),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(children: <Widget>[
-                                    Expanded(
-                                        child: Divider(
-                                      color: Colors.blue[400],
-                                    )),
-                                    const Text("Login Information"),
-                                    Expanded(
-                                        child: Divider(
-                                      color: Colors.blue[400],
-                                    )),
-                                  ]),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.adminUsernameController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.adminNameController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Name',
                                         ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Username',
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
                                       ),
-                                      keyboardType: TextInputType.text,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            MediaQuery.of(context).size.width *
-                                                0.06),
-                                    child: TextFormField(
-                                      textCapitalization:
-                                          TextCapitalization.sentences,
-                                      controller:
-                                          controller.adminPasswordController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                        isDense: true,
-                                        contentPadding:
-                                            const EdgeInsets.all(10),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: const BorderSide(
-                                              color: Colors.green),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(children: <Widget>[
+                                      Expanded(
+                                          child: Divider(
+                                        color: Colors.blue[400],
+                                      )),
+                                      const Text("Login Information"),
+                                      Expanded(
+                                          child: Divider(
+                                        color: Colors.blue[400],
+                                      )),
+                                    ]),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.adminUsernameController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Username',
                                         ),
-                                        border: const OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                        ),
-                                        counterText: "",
-                                        hintText: 'Password',
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
                                       ),
-                                      keyboardType: TextInputType.text,
-                                      obscureText: true,
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return 'This is Required';
-                                        }
-                                        return null;
-                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                ],
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.adminPasswordController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Password',
+                                        ),
+                                        keyboardType: TextInputType.text,
+                                        obscureText: true,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

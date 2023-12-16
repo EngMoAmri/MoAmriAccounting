@@ -51,35 +51,36 @@ class MyDatabase {
       updated_at INTEGER NOT NULL
     )
     ''');
+
     await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS units (
+    CREATE TABLE IF NOT EXISTS materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL
-    )
-    ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS categories (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL
-    )
-    ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      code TEXT NOT NULL,
-      unit_id INTEGER NOT NULL REFERENCES units(id) ON DELETE RESTRICT,
-      category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-      units_in_stock INTEGER NOT NULL,
-      buy_price REAL NOT NULL,
+      name TEXT NOT NULL UNIQUE,
+      barcode TEXT UNIQUE,
+      category TEXT NOT NULL,
+      unit TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      cost_price REAL NOT NULL,
       sell_price REAL NOT NULL,
       discount REAL,
+      tax REAL,
+      note TEXT,
       added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
       updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     )
     ''');
+    await myDatabase.execute(
+        '''UPDATE SQLITE_SEQUENCE SET seq = 10000 WHERE name = 'materials';''');
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS expiries_dates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
+      date INTEGER NOT NULL
+    )
+    ''');
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS customers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -110,7 +111,7 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS sales (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-      product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
       quantity INTEGER NOT NULL,
       unit_price REAL NOT NULL
     )
@@ -145,7 +146,7 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS purchases (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES purchases_invoices(id) ON DELETE CASCADE,
-      product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
       received_date INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
       unit_price REAL NOT NULL

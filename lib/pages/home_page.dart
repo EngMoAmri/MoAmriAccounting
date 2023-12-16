@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controllers/main_controller.dart';
+import 'inventory_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: IconButton.outlined(
+            child: IconButton(
               onPressed: () async {
                 await windowManager.setMinimumSize(Size.zero);
                 await windowManager.minimize();
@@ -76,11 +77,10 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 if (await windowManager.isMaximized()) {
                   await windowManager.setMaximumSize(const Size(800, 600));
-                  await windowManager.maximize();
                 } else {
                   await windowManager.setMaximumSize(Size.infinite);
-                  await windowManager.maximize();
                 }
+                await windowManager.maximize();
               },
               icon: const Icon(
                 Icons.crop_square,
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-            child: IconButton.outlined(
+            child: IconButton(
               onPressed: () {
                 exit(0);
               },
@@ -108,7 +108,7 @@ class _HomePageState extends State<HomePage> {
           SideMenu(
             mode: SideMenuMode.open,
             hasResizerToggle: false,
-            hasResizer: false,
+            maxWidth: 150,
             builder: (data) => SideMenuData(
               items: [
                 SideMenuItemDataTile(
@@ -233,17 +233,16 @@ class _HomePageState extends State<HomePage> {
                   icon: Image.asset('assets/images/settings.png'),
                 ),
               ],
-              footer: const Text('Developed By: MoAmri'), // TODO link
             ),
           ),
           Expanded(
             child: PageView(
               controller: pageController,
               children: [
-                Container(
-                  child: Center(
-                    child: Text('Add Material'),
-                  ),
+                const Row(
+                  children: [
+                    Expanded(child: InventoryPage()),
+                  ],
                 ),
                 Container(
                   child: Center(

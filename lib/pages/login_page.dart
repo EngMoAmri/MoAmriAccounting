@@ -14,9 +14,9 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final LoginController controller = Get.put(LoginController());
     WindowOptions windowOptions = const WindowOptions(
-      size: Size(450, 300),
-      maximumSize: Size(450, 300),
-      minimumSize: Size(450, 300),
+      size: Size(450, 320),
+      maximumSize: Size(450, 320),
+      minimumSize: Size(450, 320),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -31,9 +31,13 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const DragToMoveArea(
-          child: Text(
-            'Login',
-            style: TextStyle(color: Colors.black),
+          child: Row(
+            children: [
+              Text(
+                'Login',
+                style: TextStyle(color: Colors.black),
+              ),
+            ],
           ),
         ),
         backgroundColor: Colors.white,
@@ -48,17 +52,14 @@ class LoginPage extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: IconButton.outlined(
+            child: IconButton(
               onPressed: () {
                 exit(0);
               },
-              style: ButtonStyle(
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  )),
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  foregroundColor: MaterialStateProperty.all(Colors.red[400])),
-              icon: const Icon(Icons.close),
+              icon: const Icon(
+                Icons.close,
+                color: Colors.red,
+              ),
             ),
           ),
         ],

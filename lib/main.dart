@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:moamri_accounting/pages/home_page.dart';
 import 'controllers/main_controller.dart';
-import 'pages/loading_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const LoadingPage(),
+      home: const HomePage(),
     );
   }
 }

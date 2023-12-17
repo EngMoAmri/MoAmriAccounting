@@ -61,7 +61,7 @@ class MyDatabase {
       unit TEXT NOT NULL,
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
-      sell_price REAL NOT NULL,
+      sale_price REAL NOT NULL,
       discount REAL,
       tax REAL,
       note TEXT,
@@ -73,6 +73,14 @@ class MyDatabase {
     ''');
     await myDatabase.execute(
         '''UPDATE SQLITE_SEQUENCE SET seq = 10000 WHERE name = 'materials';''');
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS materials_larger_units (
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
+      larger_material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
+      quantity_supplied INTEGER NOT NULL,
+      PRIMARY KEY(material_id, larger_material_id)
+    )
+    ''');
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS expiries_dates (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

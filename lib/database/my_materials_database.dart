@@ -1,15 +1,25 @@
 import 'package:get/get.dart';
+import 'package:moamri_accounting/database/entities/material_larger_unit.dart';
+import 'package:moamri_accounting/database/items/material_larger_unit_item.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/my_material.dart';
 import 'my_database.dart';
 
 class MyMaterialsDatabase {
-  static Future<int> generateMaterialID() async {
+  static Future<MyMaterial?> getMaterialByBarcode(String barcode) async {
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .query('materials', where: "barcode = ?", whereArgs: [barcode]);
+    if (maps.isEmpty) return null;
+    return MyMaterial.fromMap(maps.first);
+  }
+
+  static Future<String> generateMaterialBarcode() async {
     List<Map<String, Object?>> totalRow;
-    totalRow = await MyDatabase.myDatabase
-        .rawQuery('SELECT seq FROM sqlite_sequence WHERE name="materials"');
-    if (totalRow.isEmpty) return 10000;
-    return int.tryParse(totalRow[0]["seq"].toString()) ?? 0 + 1;
+    totalRow =
+        await MyDatabase.myDatabase.rawQuery("SELECT MAX(id) FROM materials");
+    if (totalRow.isEmpty) return '1000';
+    return '${(int.tryParse(totalRow[0]["MAX(id)"].toString()) ?? 0) + 10000}';
   }
 
   static Future<List<String>> searchForCategories(String text) async {
@@ -80,6 +90,59 @@ class MyMaterialsDatabase {
     return int.tryParse(totalRow[0]["COUNT(id)"].toString()) ?? 0;
   }
 
+  static Future<List<MyMaterial>> getMaterialsSuggestions(String text) async {
+    String trimText = text.trim();
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query('materials',
+        distinct: true,
+        where: "barcode like ? or name like ?",
+        whereArgs: ["%$trimText%", "%$trimText%"],
+        limit: 10);
+    List<MyMaterial> materials = [];
+    for (var map in maps) {
+      materials.add(MyMaterial.fromMap(map));
+    }
+    return materials;
+  }
+
+  static Future<void> insertMaterial(
+      MyMaterial material, MaterialLargerUnit? materialLargerUnit) async {
+    await MyDatabase.myDatabase.transaction((txn) async {
+      var materialID = await txn.insert(
+        'materials',
+        material.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.fail,
+      );
+      if (materialLargerUnit != null) {
+        materialLargerUnit.materialID = materialID;
+        await txn.insert('materials_larger_units', materialLargerUnit.toMap());
+      }
+    });
+  }
+
+  static Future<void> updateMaterial(
+      MyMaterial material, MaterialLargerUnit? materialLargerUnit) async {
+    await MyDatabase.myDatabase.transaction((txn) async {
+      await txn.update(
+        'materials',
+        material.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      await txn.delete('materials_larger_units',
+          where: 'material_id = ?', whereArgs: [material.id]);
+      if (materialLargerUnit != null) {
+        await txn.insert('materials_larger_units', materialLargerUnit.toMap());
+      }
+    });
+  }
+
+  static Future<MyMaterial> getMaterialByID(int id) async {
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .query('materials', where: "id = ?", whereArgs: [id]);
+    return MyMaterial.fromMap(maps
+        .first); // the maps can not be empty or this method can not be called with empty material
+  }
+
   static Future<List<MyMaterial>> getMaterials(int page,
       {category, orderBy, dir}) async {
     List<Map<String, dynamic>> maps;
@@ -105,5 +168,17 @@ class MyMaterialsDatabase {
       materials.add(MyMaterial.fromMap(map));
     }
     return materials;
+  }
+
+  static Future<MaterialLargerUnitItem?> getMaterialLargerUnitItem(
+      MyMaterial material) async {
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query('materials_larger_units',
+        where: "material_id = ?", whereArgs: [material.id]);
+    if (maps.isEmpty) return null;
+    return MaterialLargerUnitItem(
+        material: material,
+        largerMaterial: await getMaterialByID(maps.first['larger_material_id']),
+        suppliedQuantity: maps.first['quantity_supplied']);
   }
 }

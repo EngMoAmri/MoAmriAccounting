@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/inventory_controller.dart';
+import 'package:moamri_accounting/controllers/main_controller.dart';
+import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
+import 'package:moamri_accounting/dialogs/edit_material_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -49,6 +52,7 @@ class InventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MainController mainController = Get.find();
     final InventoryController controller = Get.put(InventoryController());
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -104,15 +108,18 @@ class InventoryPage extends StatelessWidget {
                     child: Container(
                       color: Colors.black12,
                       child: SfDataGrid(
+                          controller: controller.dataGridController,
                           gridLinesVisibility: GridLinesVisibility.both,
                           headerGridLinesVisibility: GridLinesVisibility.both,
                           source: controller.dataSource.value,
                           loadMoreViewBuilder: _buildLoadMoreView,
+                          selectionMode: SelectionMode.single,
                           frozenColumnsCount: 2,
                           columns: [
                             GridColumn(
-                                columnName: 'id',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnName: 'Barcode',
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -122,7 +129,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Name',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -132,7 +140,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Category',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -142,7 +151,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Quantity',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -152,7 +162,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Unit',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -162,7 +173,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Cost Price',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -172,7 +184,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Sale Price',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -182,7 +195,9 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Note',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode:
+                                    ColumnWidthMode.fitByColumnName,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -192,7 +207,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'Discount',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -202,7 +218,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             GridColumn(
                                 columnName: 'TAX/VAT',
-                                columnWidthMode: ColumnWidthMode.fill,
+                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                minimumWidth: 120,
                                 label: Container(
                                     padding: EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
@@ -212,7 +229,8 @@ class InventoryPage extends StatelessWidget {
                                     ))),
                             // GridColumn(
                             //     columnName: 'id',
-                            //     columnWidthMode: ColumnWidthMode.fill,
+                            //     columnWidthMode: ColumnWidthMode.fitByColumnName,
+                            // minimumWidth: 120,
                             //     label: Container(
                             //         padding: EdgeInsets.symmetric(vertical:4),
                             //         alignment: Alignment.center,
@@ -232,14 +250,17 @@ class InventoryPage extends StatelessWidget {
               children: [
                 OutlinedButton.icon(
                   onPressed: () async {
-                    showAddMaterialDialog();
+                    if ((await showAddMaterialDialog(mainController)) ??
+                        false) {
+                      controller.firstLoad();
+                    }
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       )),
                       backgroundColor: MaterialStateProperty.all(Colors.white),
-                      foregroundColor: MaterialStateProperty.all(Colors.green)),
+                      foregroundColor: MaterialStateProperty.all(Colors.blue)),
                   icon: const Icon(Icons.add),
                   label: const Padding(
                     padding: EdgeInsets.all(8.0),
@@ -250,7 +271,19 @@ class InventoryPage extends StatelessWidget {
                   width: 10,
                 ),
                 OutlinedButton.icon(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    if (controller.dataGridController.selectedIndex < 0) {
+                      showErrorDialog("You Must Select a Material");
+                      return;
+                    }
+                    if ((await showEditMaterialDialog(
+                            mainController,
+                            controller.materials.value[controller
+                                .dataGridController.selectedIndex])) ??
+                        false) {
+                      controller.firstLoad();
+                    }
+                  },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -267,19 +300,40 @@ class InventoryPage extends StatelessWidget {
                   width: 10,
                 ),
                 OutlinedButton.icon(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    if (controller.dataGridController.selectedIndex < 0) {
+                      showErrorDialog("You Must Select a Material");
+                    }
+                  },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       )),
                       backgroundColor: MaterialStateProperty.all(Colors.white),
-                      foregroundColor: MaterialStateProperty.all(Colors.green)),
+                      foregroundColor: MaterialStateProperty.all(Colors.red)),
                   icon: const Icon(Icons.delete),
                   label: const Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text('Delete'),
                   ),
                 ),
+                // const SizedBox(
+                //   width: 10,
+                // ),
+                // OutlinedButton.icon(
+                //   onPressed: () async {},
+                //   style: ButtonStyle(
+                //       shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(8.0),
+                //       )),
+                //       backgroundColor: MaterialStateProperty.all(Colors.white),
+                //       foregroundColor: MaterialStateProperty.all(Colors.green)),
+                //   icon: const Icon(Icons.list_sharp),
+                //   label: const Padding(
+                //     padding: EdgeInsets.all(8.0),
+                //     child: Text('Quantity Movement'),
+                //   ),
+                // ),
                 const SizedBox(
                   width: 10,
                 ),
@@ -290,24 +344,8 @@ class InventoryPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8.0),
                       )),
                       backgroundColor: MaterialStateProperty.all(Colors.white),
-                      foregroundColor: MaterialStateProperty.all(Colors.green)),
-                  icon: const Icon(Icons.list_sharp),
-                  label: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Quantity Movement'),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                OutlinedButton.icon(
-                  onPressed: () async {},
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      )),
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
-                      foregroundColor: MaterialStateProperty.all(Colors.green)),
+                      foregroundColor:
+                          MaterialStateProperty.all(Colors.black54)),
                   icon: const Icon(Icons.print),
                   label: const Padding(
                     padding: EdgeInsets.all(8.0),

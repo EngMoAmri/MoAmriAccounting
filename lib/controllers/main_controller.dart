@@ -7,7 +7,7 @@ import '../pages/login_page.dart';
 import '../pages/store_setup_page.dart';
 
 class MainController extends GetxController {
-  // Rx<bool> loading = true.obs;
+  Rx<bool> loading = true.obs;
 
   /// this will contain the store information
   Rx<Store?> storeData = Rx(null);
@@ -24,7 +24,7 @@ class MainController extends GetxController {
     } else {
       Get.off(() => const LoginPage());
     }
-    // loading.value = false;
+    loading.value = false;
     super.onInit();
   }
 }

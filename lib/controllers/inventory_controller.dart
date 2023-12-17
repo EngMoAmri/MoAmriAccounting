@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../data_sources/my_materials_data_source.dart';
 
 class InventoryController extends GetxController {
   final searchController = TextEditingController();
+  final DataGridController dataGridController = DataGridController();
 
   Rx<bool> searching = false.obs;
   Rx<List<MyMaterial>> materials = Rx([]);
@@ -26,7 +28,7 @@ class InventoryController extends GetxController {
   Future<void> getCategories() async {
     var categories = await MyMaterialsDatabase.getMaterialsCategories();
     this.categories.value.clear();
-    this.categories.value.add('all'.tr);
+    this.categories.value.add('All'.tr);
     this.categories.value.addAll(categories);
     this.categories.refresh();
   }

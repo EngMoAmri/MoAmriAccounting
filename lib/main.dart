@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(MainController());
+    final controller = Get.put(MainController());
     return MaterialApp(
       title: 'MoAmri Accounting',
       theme: ThemeData(
@@ -37,7 +37,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: controller.loading.value
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : const HomePage(),
     );
   }
 }

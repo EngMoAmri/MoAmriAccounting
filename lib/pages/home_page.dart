@@ -22,7 +22,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final HomeController controller = Get.put(HomeController());
     final MainController mainController = Get.find();
     WindowOptions windowOptions = const WindowOptions(
       // size: Size(800, 600),

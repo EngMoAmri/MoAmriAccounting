@@ -13,10 +13,10 @@ class NumericalRangeFormatter extends TextInputFormatter {
   ) {
     if (newValue.text == '') {
       return newValue;
-    } else if (int.parse(newValue.text) < min) {
-      return TextEditingValue().copyWith(text: min.toStringAsFixed(2));
+    } else if ((double.tryParse(newValue.text) ?? -1) < min) {
+      return const TextEditingValue().copyWith(text: min.toStringAsFixed(2));
     } else {
-      return int.parse(newValue.text) > max ? oldValue : newValue;
+      return double.parse(newValue.text) > max ? oldValue : newValue;
     }
   }
 }

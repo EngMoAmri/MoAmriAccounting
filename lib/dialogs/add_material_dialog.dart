@@ -207,6 +207,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
+                                                controller:
+                                                    categoryTextController,
                                                 onSelected: (value) {
                                                   setState(() {
                                                     categoryTextController
@@ -233,6 +235,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                             .sentences,
                                                     controller:
                                                         categoryTextController,
+                                                    focusNode: focusNode,
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -396,6 +399,15 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
+                                                controller: unitTextController,
+                                                loadingBuilder: (context) =>
+                                                    const Text('Loading...'),
+                                                errorBuilder:
+                                                    (context, error) =>
+                                                        const Text('Error!'),
+                                                emptyBuilder: (context) =>
+                                                    const Text(
+                                                        'No items found!'),
                                                 onSelected: (value) {
                                                   setState(() {
                                                     unitTextController.text =
@@ -421,6 +433,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                             .sentences,
                                                     controller:
                                                         unitTextController,
+                                                    focusNode: focusNode,
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -479,64 +492,72 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
-                                                  onSelected: (value) {
-                                                setState(() {
-                                                  largerMaterial = value;
-                                                  largerMaterialTextController
-                                                          .text =
-                                                      '${value.barcode}, ${value.name}';
-                                                });
-                                              }, suggestionsCallback:
-                                                      (String pattern) async {
-                                                return await MyMaterialsDatabase
-                                                    .getMaterialsSuggestions(
-                                                        pattern);
-                                              }, itemBuilder:
-                                                      (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(
-                                                      '${suggestion.barcode}, ${suggestion.name}'),
-                                                );
-                                              }, builder: (context, controller,
-                                                      focusNode) {
-                                                return TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
                                                   controller:
                                                       largerMaterialTextController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText:
-                                                        'Larger Unit Material Barcode/Name',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                );
-                                              }),
+                                                  onSelected: (value) {
+                                                    setState(() {
+                                                      largerMaterial = value;
+                                                      largerMaterialTextController
+                                                              .text =
+                                                          '${value.barcode}, ${value.name}';
+                                                    });
+                                                  },
+                                                  suggestionsCallback:
+                                                      (String pattern) async {
+                                                    return await MyMaterialsDatabase
+                                                        .getMaterialsSuggestions(
+                                                            pattern);
+                                                  },
+                                                  itemBuilder:
+                                                      (context, suggestion) {
+                                                    return ListTile(
+                                                      title: Text(
+                                                          '${suggestion.barcode}, ${suggestion.name}'),
+                                                    );
+                                                  },
+                                                  builder: (context, controller,
+                                                      focusNode) {
+                                                    return TextFormField(
+                                                      textCapitalization:
+                                                          TextCapitalization
+                                                              .sentences,
+                                                      controller:
+                                                          largerMaterialTextController,
+                                                      focusNode: focusNode,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        isDense: true,
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                  color: Colors
+                                                                      .green),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        border:
+                                                            const OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          8.0)),
+                                                        ),
+                                                        counterText: "",
+                                                        labelText:
+                                                            'Larger Unit Material Barcode/Name',
+                                                      ),
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                    );
+                                                  }),
                                             ),
                                           ),
                                           Expanded(

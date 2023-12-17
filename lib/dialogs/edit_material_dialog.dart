@@ -256,6 +256,7 @@ Future<bool?> showEditMaterialDialog(
                                                             .sentences,
                                                     controller:
                                                         categoryTextController,
+                                                    focusNode: focusNode,
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -444,6 +445,7 @@ Future<bool?> showEditMaterialDialog(
                                                             .sentences,
                                                     controller:
                                                         unitTextController,
+                                                    focusNode: focusNode,
                                                     decoration: InputDecoration(
                                                       filled: true,
                                                       fillColor: Colors.white,
@@ -536,6 +538,7 @@ Future<bool?> showEditMaterialDialog(
                                                                 .sentences,
                                                         controller:
                                                             largerMaterialTextController,
+                                                        focusNode: focusNode,
                                                         decoration:
                                                             InputDecoration(
                                                           filled: true,

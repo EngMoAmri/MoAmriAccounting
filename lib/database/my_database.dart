@@ -51,14 +51,39 @@ class MyDatabase {
       updated_at INTEGER NOT NULL
     )
     ''');
-
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS currencies (
+      name TEXT PRIMARY KEY
+    )
+    ''');
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS units (
+      name TEXT PRIMARY KEY
+    )
+    ''');
+    // insert the default units
+    await myDatabase.insert('units', {'name': 'CM'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Meter'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Ton'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Pound'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Kilo'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Gram'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await myDatabase.insert('units', {'name': 'Piece'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
       barcode TEXT UNIQUE,
       category TEXT NOT NULL,
-      unit TEXT NOT NULL,
+      unit TEXT NOT NULL REFERENCES units(name) ON DELETE RESTRICT,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT,
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
@@ -71,8 +96,6 @@ class MyDatabase {
       updated_at INTEGER NOT NULL
     )
     ''');
-    await myDatabase.execute(
-        '''UPDATE SQLITE_SEQUENCE SET seq = 10000 WHERE name = 'materials';''');
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS materials_larger_units (
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,

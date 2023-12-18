@@ -30,6 +30,8 @@ Future<bool?> showEditMaterialDialog(
         quantityTextController.text = oldMaterial.quantity.toString();
         final unitTextController = TextEditingController();
         unitTextController.text = oldMaterial.unit;
+        final currencyTextController = TextEditingController();
+        currencyTextController.text = oldMaterial.currency;
         final largerMaterialTextController = TextEditingController();
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
@@ -45,6 +47,8 @@ Future<bool?> showEditMaterialDialog(
         final discountTextController = TextEditingController();
         discountTextController.text = oldMaterial.discount.toString();
         double discount = oldMaterial.discount;
+        double salePriceAfterDiscount = oldMaterial.salePrice - discount;
+
         final noteTextController = TextEditingController();
         noteTextController.text = oldMaterial.note ?? '';
         var adding = false;
@@ -230,6 +234,8 @@ Future<bool?> showEditMaterialDialog(
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
+                                                controller:
+                                                    categoryTextController,
                                                 onSelected: (value) {
                                                   setState(() {
                                                     categoryTextController
@@ -283,6 +289,93 @@ Future<bool?> showEditMaterialDialog(
                                                       ),
                                                       counterText: "",
                                                       labelText: 'Category',
+                                                    ),
+                                                    keyboardType:
+                                                        TextInputType.text,
+                                                    validator: (value) {
+                                                      if (value
+                                                              ?.trim()
+                                                              .isEmpty ??
+                                                          true) {
+                                                        return "This field required";
+                                                      }
+                                                      return null;
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(
+                                      height: 1,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10),
+                                              child: TypeAheadField(
+                                                controller:
+                                                    currencyTextController,
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    currencyTextController
+                                                        .text = value;
+                                                  });
+                                                },
+                                                suggestionsCallback:
+                                                    (String pattern) async {
+                                                  return await MyMaterialsDatabase
+                                                      .searchForCurrency(
+                                                          pattern);
+                                                },
+                                                itemBuilder:
+                                                    (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                builder: (context, controller,
+                                                    focusNode) {
+                                                  return TextFormField(
+                                                    textCapitalization:
+                                                        TextCapitalization
+                                                            .sentences,
+                                                    controller:
+                                                        currencyTextController,
+                                                    focusNode: focusNode,
+                                                    decoration: InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      isDense: true,
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .green),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                      border:
+                                                          const OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    8.0)),
+                                                      ),
+                                                      counterText: "",
+                                                      labelText: 'Currency',
                                                     ),
                                                     keyboardType:
                                                         TextInputType.text,
@@ -420,6 +513,7 @@ Future<bool?> showEditMaterialDialog(
                                               padding: EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
+                                                controller: unitTextController,
                                                 onSelected: (value) {
                                                   setState(() {
                                                     unitTextController.text =
@@ -510,71 +604,84 @@ Future<bool?> showEditMaterialDialog(
                                                         EdgeInsets.symmetric(
                                                             horizontal: 10),
                                                     child: TypeAheadField(
-                                                        onSelected: (value) {
-                                                      setState(() {
-                                                        largerMaterial = value;
-                                                        largerMaterialTextController
-                                                                .text =
-                                                            '${value.barcode}, ${value.name}';
-                                                      });
-                                                    }, suggestionsCallback:
-                                                            (String
-                                                                pattern) async {
-                                                      return await MyMaterialsDatabase
-                                                          .getMaterialsSuggestions(
-                                                              pattern);
-                                                    }, itemBuilder: (context,
-                                                            suggestion) {
-                                                      return ListTile(
-                                                        title: Text(
-                                                            '${suggestion.barcode}, ${suggestion.name}'),
-                                                      );
-                                                    }, builder: (context,
-                                                            controller,
-                                                            focusNode) {
-                                                      return TextFormField(
-                                                        textCapitalization:
-                                                            TextCapitalization
-                                                                .sentences,
                                                         controller:
                                                             largerMaterialTextController,
-                                                        focusNode: focusNode,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          filled: true,
-                                                          fillColor:
-                                                              Colors.white,
-                                                          isDense: true,
-                                                          contentPadding:
-                                                              const EdgeInsets
-                                                                  .all(10),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                const BorderSide(
+                                                        emptyBuilder:
+                                                            (context) =>
+                                                                Container(
+                                                                  height: 0,
+                                                                ),
+                                                        onSelected: (value) {
+                                                          setState(() {
+                                                            largerMaterial =
+                                                                value;
+                                                            largerMaterialTextController
+                                                                    .text =
+                                                                '${value.barcode}, ${value.name}';
+                                                          });
+                                                        },
+                                                        suggestionsCallback:
+                                                            (String
+                                                                pattern) async {
+                                                          return await MyMaterialsDatabase
+                                                              .getMaterialsSuggestions(
+                                                                  pattern,
+                                                                  oldMaterial
+                                                                      .id);
+                                                        },
+                                                        itemBuilder: (context,
+                                                            suggestion) {
+                                                          return ListTile(
+                                                            title: Text(
+                                                                '${suggestion.barcode}, ${suggestion.name}'),
+                                                          );
+                                                        },
+                                                        builder: (context,
+                                                            controller,
+                                                            focusNode) {
+                                                          return TextFormField(
+                                                            textCapitalization:
+                                                                TextCapitalization
+                                                                    .sentences,
+                                                            controller:
+                                                                largerMaterialTextController,
+                                                            focusNode:
+                                                                focusNode,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              filled: true,
+                                                              fillColor:
+                                                                  Colors.white,
+                                                              isDense: true,
+                                                              contentPadding:
+                                                                  const EdgeInsets
+                                                                      .all(10),
+                                                              focusedBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide: const BorderSide(
                                                                     color: Colors
                                                                         .green),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          border:
-                                                              const OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              border:
+                                                                  const OutlineInputBorder(
+                                                                borderRadius: BorderRadius
                                                                     .all(Radius
                                                                         .circular(
                                                                             8.0)),
-                                                          ),
-                                                          counterText: "",
-                                                          labelText:
-                                                              'Larger Unit Material Barcode/Name',
-                                                        ),
-                                                        keyboardType:
-                                                            TextInputType.text,
-                                                      );
-                                                    }),
+                                                              ),
+                                                              counterText: "",
+                                                              labelText:
+                                                                  'Larger Unit Material Barcode/Name',
+                                                            ),
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .text,
+                                                          );
+                                                        }),
                                                   ),
                                                 ),
                                                 Expanded(
@@ -721,15 +828,12 @@ Future<bool?> showEditMaterialDialog(
                                                                     costPriceTextController
                                                                         .text) ??
                                                                 0);
-                                                        discount = (double
-                                                                    .tryParse(
-                                                                        value) ??
-                                                                0) *
+                                                        salePriceAfterDiscount =
                                                             (double.tryParse(
-                                                                    discountTextController
-                                                                        .text) ??
-                                                                0) /
-                                                            100;
+                                                                        salePriceTextController
+                                                                            .text) ??
+                                                                    0) -
+                                                                discount;
                                                         tax = (double.tryParse(
                                                                     taxTextController
                                                                         .text) ??
@@ -904,15 +1008,33 @@ Future<bool?> showEditMaterialDialog(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
+                                                  if ((double.tryParse(
+                                                              discountTextController
+                                                                  .text) ??
+                                                          0) >
+                                                      (double.tryParse(
+                                                              salePriceTextController
+                                                                  .text) ??
+                                                          0)) {
+                                                    showErrorDialog(
+                                                        "The discount cannot be greater than sale price");
+                                                    discountTextController
+                                                            .text =
+                                                        salePriceTextController
+                                                            .text;
+                                                    return;
+                                                  }
                                                   setState(() {
                                                     discount = (double.tryParse(
-                                                                value) ??
-                                                            0) *
+                                                            discountTextController
+                                                                .text) ??
+                                                        0);
+                                                    salePriceAfterDiscount =
                                                         (double.tryParse(
-                                                                salePriceTextController
-                                                                    .text) ??
-                                                            0) /
-                                                        100;
+                                                                    salePriceTextController
+                                                                        .text) ??
+                                                                0) -
+                                                            discount;
                                                   });
                                                 },
                                                 textCapitalization:
@@ -920,10 +1042,6 @@ Future<bool?> showEditMaterialDialog(
                                                         .sentences,
                                                 controller:
                                                     discountTextController,
-                                                inputFormatters: [
-                                                  NumericalRangeFormatter(
-                                                      min: 0, max: 100),
-                                                ],
                                                 decoration: InputDecoration(
                                                   filled: true,
                                                   fillColor: Colors.white,
@@ -948,7 +1066,7 @@ Future<bool?> showEditMaterialDialog(
                                                                 8.0)),
                                                   ),
                                                   counterText: "",
-                                                  labelText: 'Max Discount %',
+                                                  labelText: 'Max Discount',
                                                 ),
                                                 keyboardType:
                                                     TextInputType.number,
@@ -958,7 +1076,7 @@ Future<bool?> showEditMaterialDialog(
                                                     if (double.tryParse(
                                                             value!.trim()) ==
                                                         null) {
-                                                      return "Enter a valid percentage";
+                                                      return "Enter a valid discount";
                                                     }
                                                   }
                                                   return null;
@@ -973,7 +1091,7 @@ Future<bool?> showEditMaterialDialog(
                                               child: Column(
                                                 children: [
                                                   Text(
-                                                      "Max Discount: $discount")
+                                                      "Least Sale Price: $salePriceAfterDiscount")
                                                 ],
                                               ),
                                             ),
@@ -1071,6 +1189,8 @@ Future<bool?> showEditMaterialDialog(
                                     }
                                     final category =
                                         categoryTextController.text;
+                                    final currency =
+                                        currencyTextController.text;
                                     final name = nameTextController.text;
                                     final quantity =
                                         int.parse(quantityTextController.text);
@@ -1089,6 +1209,7 @@ Future<bool?> showEditMaterialDialog(
                                         name: name,
                                         barcode: barcode,
                                         category: category,
+                                        currency: currency,
                                         unit: unit,
                                         quantity: quantity,
                                         costPrice: costPrice,
@@ -1126,7 +1247,7 @@ Future<bool?> showEditMaterialDialog(
                                       Get.back(result: true);
                                     } catch (e) {
                                       setState(() {
-                                        adding = true;
+                                        adding = false;
                                       });
                                       showErrorDialog('Error $e');
                                     }
@@ -1142,8 +1263,8 @@ Future<bool?> showEditMaterialDialog(
                                     borderRadius: BorderRadius.circular(10.0),
                                   )),
                                 ),
-                                label: Text("Add".tr),
-                                icon: const Icon(Icons.add)),
+                                label: Text("Done".tr),
+                                icon: const Icon(Icons.done)),
                         ],
                       ),
                       const SizedBox(

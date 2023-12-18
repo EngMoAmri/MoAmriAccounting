@@ -2,9 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/store.dart';
 import 'package:moamri_accounting/database/entities/user.dart';
 import 'package:moamri_accounting/database/my_database.dart';
+import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
 
 import '../dialogs/alerts_dialogs.dart';
@@ -17,6 +19,7 @@ class StoreSetupController extends GetxController {
   final storeBranchController = TextEditingController();
   final storeAddressController = TextEditingController();
   final storePhoneController = TextEditingController();
+  final storeCurrencyController = TextEditingController();
   final adminNameController = TextEditingController();
   final adminUsernameController = TextEditingController();
   final adminPasswordController = TextEditingController();
@@ -27,6 +30,7 @@ class StoreSetupController extends GetxController {
       var storeBranch = storeBranchController.text;
       var storeAddress = storeAddressController.text;
       var storePhone = storePhoneController.text;
+      var currency = storeCurrencyController.text;
       var adminName = adminNameController.text;
       var adminUsername = adminUsernameController.text;
       var adminPassword = adminPasswordController.text;
@@ -34,6 +38,7 @@ class StoreSetupController extends GetxController {
           storeBranch.trim().isEmpty ||
           storeAddress.trim().isEmpty ||
           storePhone.trim().isEmpty ||
+          currency.trim().isEmpty ||
           adminName.trim().isEmpty ||
           adminUsername.trim().isEmpty ||
           adminPassword.trim().isEmpty) {
@@ -62,6 +67,9 @@ class StoreSetupController extends GetxController {
       try {
         await MyDatabase.setStoreData(store);
         await MyDatabase.insertUser(user);
+        await MyMaterialsDatabase.insertCurrency(currency);
+        final mainController = Get.put(MainController());
+        mainController.currentUser.value = user;
         // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
         await showSuccessDialog("Store Created Successfully");
 

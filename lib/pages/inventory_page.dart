@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/inventory_controller.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
+import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:moamri_accounting/dialogs/edit_material_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../dialogs/add_material_dialog.dart';
+import '../utils/print_materials.dart';
 
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
@@ -303,7 +305,21 @@ class InventoryPage extends StatelessWidget {
                   onPressed: () async {
                     if (controller.dataGridController.selectedIndex < 0) {
                       showErrorDialog("You Must Select a Material");
+                      return;
                     }
+                    var material = controller.materials
+                        .value[controller.dataGridController.selectedIndex];
+                    var deletable =
+                        await MyMaterialsDatabase.isMaterialDeletable(
+                            material.id!);
+                    if (!deletable) {
+                      showErrorDialog(
+                          "This Material Belong to Some Purchase or Sales, So It Cannot Be Deleted");
+                      return;
+                    }
+                    await MyMaterialsDatabase.deleteMaterial(material);
+                    await showSuccessDialog("Material Has Been Deleted");
+                    controller.firstLoad();
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -338,7 +354,9 @@ class InventoryPage extends StatelessWidget {
                   width: 10,
                 ),
                 OutlinedButton.icon(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await printMaterialsRoll57();
+                  },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),

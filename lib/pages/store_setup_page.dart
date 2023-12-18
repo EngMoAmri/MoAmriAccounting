@@ -14,9 +14,9 @@ class StoreSetupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final StoreSetupController controller = Get.put(StoreSetupController());
     WindowOptions windowOptions = const WindowOptions(
-      size: Size(800, 460),
-      maximumSize: Size(800, 460),
-      minimumSize: Size(800, 460),
+      size: Size(800, 500),
+      maximumSize: Size(800, 500),
+      minimumSize: Size(800, 500),
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
@@ -92,7 +92,7 @@ class StoreSetupPage extends StatelessWidget {
                         children: <Widget>[
                           Container(
                             width: double.infinity,
-                            height: 220,
+                            height: 260,
                             margin: const EdgeInsets.fromLTRB(20, 20, 5, 10),
                             padding: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
@@ -283,6 +283,49 @@ class StoreSetupPage extends StatelessWidget {
                                     const SizedBox(
                                       height: 10,
                                     ),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.06),
+                                      child: TextFormField(
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        controller:
+                                            controller.storeCurrencyController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          isDense: true,
+                                          contentPadding:
+                                              const EdgeInsets.all(10),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                                color: Colors.green),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                          ),
+                                          counterText: "",
+                                          hintText: 'Currency',
+                                        ),
+                                        keyboardType: TextInputType.text,
+                                        onFieldSubmitted: (value) async {
+                                          FocusManager.instance.primaryFocus
+                                              ?.unfocus();
+                                          controller.creating.value = true;
+                                          await controller.createStore();
+                                          controller.creating.value = false;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -309,7 +352,7 @@ class StoreSetupPage extends StatelessWidget {
                         children: <Widget>[
                           Container(
                             width: double.infinity,
-                            height: 220,
+                            height: 260,
                             margin: const EdgeInsets.fromLTRB(5, 20, 20, 10),
                             padding: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(

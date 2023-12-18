@@ -17,10 +17,13 @@ class MyMaterialsDataSource extends DataGridSource {
           DataGridCell(columnName: 'Category', value: m.category),
           DataGridCell(columnName: 'Quantity', value: m.quantity),
           DataGridCell(columnName: 'Unit', value: m.unit),
-          DataGridCell(columnName: 'Cost Price', value: m.costPrice),
-          DataGridCell(columnName: 'Sale Price', value: m.salePrice),
+          DataGridCell(
+              columnName: 'Cost Price', value: '${m.costPrice} ${m.currency}'),
+          DataGridCell(
+              columnName: 'Sale Price', value: '${m.salePrice} ${m.currency}'),
           DataGridCell(columnName: 'Note', value: m.note ?? ''),
-          DataGridCell(columnName: 'Discount', value: m.discount),
+          DataGridCell(
+              columnName: 'Discount', value: '${m.discount} ${m.currency}'),
           DataGridCell(columnName: 'TAX/VAT', value: m.tax),
           // DataGridCell(columnName: 'Expiry Date', value: m.), TODO
         ]);
@@ -97,7 +100,7 @@ class MyMaterialsDataSource extends DataGridSource {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         alignment: Alignment.center,
         child: Text(
-          '${row.getCells()[8].value} %',
+          row.getCells()[8].value.toString(),
           overflow: TextOverflow.ellipsis,
         ),
       ),

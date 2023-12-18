@@ -4,6 +4,7 @@ class MyMaterial {
   final String barcode;
   final String category;
   final String unit;
+  final String currency;
   final int quantity;
   final double costPrice;
   final double salePrice;
@@ -20,6 +21,7 @@ class MyMaterial {
     required this.barcode,
     required this.category,
     required this.unit,
+    required this.currency,
     required this.quantity,
     required this.costPrice,
     required this.salePrice,
@@ -39,6 +41,7 @@ class MyMaterial {
       'barcode': barcode,
       'category': category,
       'unit': unit,
+      'currency': currency,
       'quantity': quantity,
       'cost_price': costPrice,
       'sale_price': salePrice,
@@ -60,6 +63,7 @@ class MyMaterial {
       barcode: map['barcode'] as String,
       category: map['category'] as String,
       unit: map['unit'] as String,
+      currency: map['currency'] as String,
       quantity: map['quantity'] as int,
       costPrice: map['cost_price'] as double,
       salePrice: map['sale_price'] as double,

@@ -24,6 +24,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
         final nameTextController = TextEditingController();
         final quantityTextController = TextEditingController();
         final unitTextController = TextEditingController();
+        final currencyTextController = TextEditingController();
         final largerMaterialTextController = TextEditingController();
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
@@ -34,6 +35,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
         double tax = 0.0;
         final discountTextController = TextEditingController();
         double discount = 0.0;
+        double salePriceAfterDiscount = 0.0;
         final noteTextController = TextEditingController();
         var adding = false;
         return Dialog(
@@ -209,6 +211,10 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               child: TypeAheadField(
                                                 controller:
                                                     categoryTextController,
+                                                emptyBuilder: (context) =>
+                                                    Container(
+                                                  height: 0,
+                                                ),
                                                 onSelected: (value) {
                                                   setState(() {
                                                     categoryTextController
@@ -262,6 +268,93 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                       ),
                                                       counterText: "",
                                                       labelText: 'Category',
+                                                    ),
+                                                    keyboardType:
+                                                        TextInputType.text,
+                                                    validator: (value) {
+                                                      if (value
+                                                              ?.trim()
+                                                              .isEmpty ??
+                                                          true) {
+                                                        return "This field required";
+                                                      }
+                                                      return null;
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(
+                                      height: 1,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10),
+                                              child: TypeAheadField(
+                                                controller:
+                                                    currencyTextController,
+                                                onSelected: (value) {
+                                                  setState(() {
+                                                    currencyTextController
+                                                        .text = value;
+                                                  });
+                                                },
+                                                suggestionsCallback:
+                                                    (String pattern) async {
+                                                  return await MyMaterialsDatabase
+                                                      .searchForCurrency(
+                                                          pattern);
+                                                },
+                                                itemBuilder:
+                                                    (context, suggestion) {
+                                                  return ListTile(
+                                                    title: Text(suggestion),
+                                                  );
+                                                },
+                                                builder: (context, controller,
+                                                    focusNode) {
+                                                  return TextFormField(
+                                                    textCapitalization:
+                                                        TextCapitalization
+                                                            .sentences,
+                                                    controller:
+                                                        currencyTextController,
+                                                    focusNode: focusNode,
+                                                    decoration: InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      isDense: true,
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .green),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                      border:
+                                                          const OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    8.0)),
+                                                      ),
+                                                      counterText: "",
+                                                      labelText: 'Currency',
                                                     ),
                                                     keyboardType:
                                                         TextInputType.text,
@@ -400,14 +493,10 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller: unitTextController,
-                                                loadingBuilder: (context) =>
-                                                    const Text('Loading...'),
-                                                errorBuilder:
-                                                    (context, error) =>
-                                                        const Text('Error!'),
                                                 emptyBuilder: (context) =>
-                                                    const Text(
-                                                        'No items found!'),
+                                                    Container(
+                                                  height: 0,
+                                                ),
                                                 onSelected: (value) {
                                                   setState(() {
                                                     unitTextController.text =
@@ -494,6 +583,10 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               child: TypeAheadField(
                                                   controller:
                                                       largerMaterialTextController,
+                                                  emptyBuilder: (context) =>
+                                                      Container(
+                                                        height: 0,
+                                                      ),
                                                   onSelected: (value) {
                                                     setState(() {
                                                       largerMaterial = value;
@@ -506,7 +599,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                       (String pattern) async {
                                                     return await MyMaterialsDatabase
                                                         .getMaterialsSuggestions(
-                                                            pattern);
+                                                            pattern, null);
                                                   },
                                                   itemBuilder:
                                                       (context, suggestion) {
@@ -697,15 +790,12 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                                     costPriceTextController
                                                                         .text) ??
                                                                 0);
-                                                        discount = (double
-                                                                    .tryParse(
-                                                                        value) ??
-                                                                0) *
+                                                        salePriceAfterDiscount =
                                                             (double.tryParse(
-                                                                    discountTextController
-                                                                        .text) ??
-                                                                0) /
-                                                            100;
+                                                                        salePriceTextController
+                                                                            .text) ??
+                                                                    0) -
+                                                                discount;
                                                         tax = (double.tryParse(
                                                                     taxTextController
                                                                         .text) ??
@@ -880,15 +970,33 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
+                                                  if ((double.tryParse(
+                                                              discountTextController
+                                                                  .text) ??
+                                                          0) >
+                                                      (double.tryParse(
+                                                              salePriceTextController
+                                                                  .text) ??
+                                                          0)) {
+                                                    showErrorDialog(
+                                                        "The discount cannot be greater than sale price");
+                                                    discountTextController
+                                                            .text =
+                                                        salePriceTextController
+                                                            .text;
+                                                    return;
+                                                  }
                                                   setState(() {
                                                     discount = (double.tryParse(
-                                                                value) ??
-                                                            0) *
+                                                            discountTextController
+                                                                .text) ??
+                                                        0);
+                                                    salePriceAfterDiscount =
                                                         (double.tryParse(
-                                                                salePriceTextController
-                                                                    .text) ??
-                                                            0) /
-                                                        100;
+                                                                    salePriceTextController
+                                                                        .text) ??
+                                                                0) -
+                                                            discount;
                                                   });
                                                 },
                                                 textCapitalization:
@@ -896,10 +1004,6 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                         .sentences,
                                                 controller:
                                                     discountTextController,
-                                                inputFormatters: [
-                                                  NumericalRangeFormatter(
-                                                      min: 0, max: 100),
-                                                ],
                                                 decoration: InputDecoration(
                                                   filled: true,
                                                   fillColor: Colors.white,
@@ -924,7 +1028,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                                 8.0)),
                                                   ),
                                                   counterText: "",
-                                                  labelText: 'Max Discount %',
+                                                  labelText: 'Max Discount',
                                                 ),
                                                 keyboardType:
                                                     TextInputType.number,
@@ -934,7 +1038,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                     if (double.tryParse(
                                                             value!.trim()) ==
                                                         null) {
-                                                      return "Enter a valid percentage";
+                                                      return "Enter a valid discount";
                                                     }
                                                   }
                                                   return null;
@@ -949,7 +1053,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               child: Column(
                                                 children: [
                                                   Text(
-                                                      "Max Discount: $discount")
+                                                      "Least Sale Price: $salePriceAfterDiscount")
                                                 ],
                                               ),
                                             ),
@@ -1046,6 +1150,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                     }
                                     final category =
                                         categoryTextController.text;
+                                    final currency =
+                                        currencyTextController.text;
                                     final name = nameTextController.text;
                                     final quantity =
                                         int.parse(quantityTextController.text);
@@ -1063,6 +1169,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         name: name,
                                         barcode: barcode,
                                         category: category,
+                                        currency: currency,
                                         unit: unit,
                                         quantity: quantity,
                                         costPrice: costPrice,
@@ -1101,7 +1208,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                       Get.back(result: true);
                                     } catch (e) {
                                       setState(() {
-                                        adding = true;
+                                        adding = false;
                                       });
                                       showErrorDialog('Error $e');
                                     }

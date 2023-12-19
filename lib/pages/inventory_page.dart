@@ -4,13 +4,14 @@ import 'package:moamri_accounting/controllers/inventory_controller.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
-import 'package:moamri_accounting/dialogs/edit_material_dialog.dart';
+import 'package:moamri_accounting/dialogs/materials/edit_material_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../dialogs/add_material_dialog.dart';
-import '../utils/print_materials.dart';
+import '../dialogs/materials/add_material_dialog.dart';
+import '../dialogs/print_dialogs.dart';
 
+// TODO sort, search
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
   Widget _buildProgressIndicator() {
@@ -355,7 +356,7 @@ class InventoryPage extends StatelessWidget {
                 ),
                 OutlinedButton.icon(
                   onPressed: () async {
-                    await printMaterialsRoll57();
+                    await showPrintDialog("Materials", mainController);
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(

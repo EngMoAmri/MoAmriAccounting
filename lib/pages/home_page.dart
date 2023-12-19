@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_side_menu/flutter_side_menu.dart';
 import 'package:get/get.dart';
+import 'package:moamri_accounting/pages/sale_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controllers/main_controller.dart';
@@ -123,14 +124,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 1,
-                  title: 'Purchases',
+                  title: 'Sale',
                   onTap: () {
                     pageController.jumpToPage(1);
                     setState(() {
                       selectedPage = 1;
                     });
                   },
-                  icon: Image.asset('assets/images/purchases.png'),
+                  icon: Image.asset('assets/images/cart.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 2,
@@ -145,14 +146,14 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 3,
-                  title: 'Sale',
+                  title: 'Purchases',
                   onTap: () {
                     pageController.jumpToPage(3);
                     setState(() {
                       selectedPage = 3;
                     });
                   },
-                  icon: Image.asset('assets/images/cart.png'),
+                  icon: Image.asset('assets/images/purchases.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 4,
@@ -243,10 +244,10 @@ class _HomePageState extends State<HomePage> {
                     Expanded(child: InventoryPage()),
                   ],
                 ),
-                Container(
-                  child: Center(
-                    child: Text('Materials Management'),
-                  ),
+                const Row(
+                  children: [
+                    Expanded(child: SalePage()),
+                  ],
                 ),
                 Container(
                   child: Center(

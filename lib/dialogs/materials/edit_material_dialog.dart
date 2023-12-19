@@ -8,9 +8,10 @@ import 'package:moamri_accounting/database/entities/material_larger_unit.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../utils/numerical_range_formatter.dart';
+import '../../utils/numerical_range_formatter.dart';
 
 Future<bool?> showEditMaterialDialog(
     MainController mainController, MyMaterial oldMaterial) async {
@@ -52,6 +53,7 @@ Future<bool?> showEditMaterialDialog(
         final noteTextController = TextEditingController();
         noteTextController.text = oldMaterial.note ?? '';
         var adding = false;
+        var visible = false;
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -132,93 +134,107 @@ Future<bool?> showEditMaterialDialog(
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.all(8),
-                                      child: BarcodeKeyboardListener(
-                                        bufferDuration:
-                                            Duration(milliseconds: 200),
-                                        onBarcodeScanned: (barcode) {
-                                          print(barcode);
-                                          setState(() {
-                                            barcodeTextController.text =
-                                                barcode;
-                                          });
+                                      // Add visiblity detector to handle barcode
+                                      // values only when widget is visible
+                                      child: VisibilityDetector(
+                                        onVisibilityChanged:
+                                            (VisibilityInfo info) {
+                                          visible = info.visibleFraction > 0;
                                         },
-                                        child: Row(
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 10),
-                                                child: TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      barcodeTextController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
+                                        key: Key('visible-detector-key'),
+                                        child: BarcodeKeyboardListener(
+                                          bufferDuration:
+                                              Duration(milliseconds: 200),
+                                          onBarcodeScanned: (barcode) {
+                                            if (!visible) return;
+                                            print(barcode);
+                                            setState(() {
+                                              barcodeTextController.text =
+                                                  barcode;
+                                            });
+                                          },
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                                  child: TextFormField(
+                                                    textCapitalization:
+                                                        TextCapitalization
+                                                            .sentences,
+                                                    controller:
+                                                        barcodeTextController,
+                                                    decoration: InputDecoration(
+                                                      filled: true,
+                                                      fillColor: Colors.white,
+                                                      isDense: true,
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              10),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .green),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                      border:
+                                                          const OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    8.0)),
+                                                      ),
+                                                      counterText: "",
+                                                      labelText: 'Barcode',
                                                     ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'Barcode',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "This field required";
-                                                    }
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    validator: (value) {
+                                                      if (value
+                                                              ?.trim()
+                                                              .isEmpty ??
+                                                          true) {
+                                                        return "This field required";
+                                                      }
 
-                                                    return null;
-                                                  },
+                                                      return null;
+                                                    },
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            OutlinedButton.icon(
-                                                style: ButtonStyle(
-                                                    shape: MaterialStateProperty
-                                                        .all(
-                                                            RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12.0),
-                                                    )),
-                                                    foregroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.blue)),
-                                                onPressed: () async {
-                                                  var barcode =
-                                                      await MyMaterialsDatabase
-                                                          .generateMaterialBarcode();
-                                                  setState(() {
-                                                    barcodeTextController.text =
-                                                        (barcode).toString();
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                    Icons.barcode_reader),
-                                                label: Text('Generate'.tr)),
-                                          ],
+                                              OutlinedButton.icon(
+                                                  style: ButtonStyle(
+                                                      shape: MaterialStateProperty
+                                                          .all(
+                                                              RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12.0),
+                                                      )),
+                                                      foregroundColor:
+                                                          MaterialStateProperty
+                                                              .all(
+                                                                  Colors.blue)),
+                                                  onPressed: () async {
+                                                    var barcode =
+                                                        await MyMaterialsDatabase
+                                                            .generateMaterialBarcode();
+                                                    setState(() {
+                                                      barcodeTextController
+                                                              .text =
+                                                          (barcode).toString();
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                      Icons.barcode_reader),
+                                                  label: Text('Generate'.tr)),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

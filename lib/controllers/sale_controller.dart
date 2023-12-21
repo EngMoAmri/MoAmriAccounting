@@ -10,6 +10,7 @@ class SaleController extends GetxController {
   final searchController = TextEditingController();
   Rx<bool> searching = false.obs;
   Rx<bool?> visible = Rx(null);
+  Rx<Map<String, double>> totals = Rx({});
 
   Rx<bool> loadingCategories = true.obs;
   Rx<List<String>> categories = Rx([]);

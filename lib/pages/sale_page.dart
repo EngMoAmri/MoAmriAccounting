@@ -14,6 +14,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../controllers/sale_controller.dart';
 import '../dialogs/print_dialogs.dart';
 
+// TODO total
 class SalePage extends StatelessWidget {
   const SalePage({super.key});
   @override
@@ -41,7 +42,8 @@ class SalePage extends StatelessWidget {
                         var index =
                             controller.dataSource.value.getMaterialIndex(value);
                         if (index == -1) {
-                          controller.dataSource.value.addDataGridRow(value);
+                          controller.dataSource.value
+                              .addDataGridRow(value, controller);
                           controller.dataSource.refresh();
                         } else {
                           showSaleMaterialDialog(
@@ -106,7 +108,8 @@ class SalePage extends StatelessWidget {
               var index = controller.dataSource.value
                   .getMaterialIndex(selectedMaterial);
               if (index == -1) {
-                controller.dataSource.value.addDataGridRow(selectedMaterial);
+                controller.dataSource.value
+                    .addDataGridRow(selectedMaterial, controller);
                 controller.dataSource.refresh();
               } else {
                 showSaleMaterialDialog(mainController, controller, index);
@@ -192,7 +195,8 @@ class SalePage extends StatelessWidget {
                                   } else {
                                     controller.selectedMaterial.value = index;
                                     controller.dataSource.value.addDataGridRow(
-                                        controller.materials.value[index]);
+                                        controller.materials.value[index],
+                                        controller);
                                     controller.materials.refresh();
                                     controller.dataSource.refresh();
                                   }
@@ -290,17 +294,6 @@ class SalePage extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ))),
                     GridColumn(
-                        columnName: 'Total Price',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
-                        minimumWidth: 120,
-                        label: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            alignment: Alignment.center,
-                            child: const Text(
-                              'Total Price',
-                              overflow: TextOverflow.ellipsis,
-                            ))),
-                    GridColumn(
                         columnName: 'Discount',
                         columnWidthMode: ColumnWidthMode.fitByCellValue,
                         minimumWidth: 120,
@@ -373,17 +366,14 @@ class SalePage extends StatelessWidget {
                           color: Colors.white),
                       child: Obx(() => ListView.builder(
                             itemBuilder: (context, index) {
-                              var currency = controller
-                                  .dataSource.value.totals.keys
-                                  .toList()[index];
-                              var total =
-                                  controller.dataSource.value.totals[currency];
+                              var currency =
+                                  controller.totals.value.keys.toList()[index];
+                              var total = controller.totals.value[currency];
                               return ListTile(
                                 title: Text('$total $currency'),
                               );
                             },
-                            itemCount:
-                                controller.dataSource.value.totals.keys.length,
+                            itemCount: controller.totals.value.keys.length,
                           ))),
                   Positioned(
                     left: 20,
@@ -412,7 +402,8 @@ class SalePage extends StatelessWidget {
                       onPressed: () async {
                         if (controller.dataGridController.selectedIndex >= 0) {
                           controller.dataSource.value.removeDataGridRow(
-                              controller.dataGridController.selectedIndex);
+                              controller.dataGridController.selectedIndex,
+                              controller);
                           controller.dataSource.refresh();
                         } else {
                           showErrorDialog("Please a material to be deleted");
@@ -440,7 +431,8 @@ class SalePage extends StatelessWidget {
                     ),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        controller.dataSource.value.clearDataGridRows();
+                        controller.dataSource.value
+                            .clearDataGridRows(controller);
                         controller.dataSource.refresh();
                       },
                       style: ButtonStyle(

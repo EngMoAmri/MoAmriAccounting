@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:moamri_accounting/controllers/sale_controller.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../database/entities/my_material.dart';
 
 class SaleMaterialsDataSource extends DataGridSource {
   final List<Map<String, dynamic>> salesData = [];
-  Map<String, double> totals = {};
-
   @override
   List<DataGridRow> get rows => salesData.map<DataGridRow>((saleData) {
         var m = saleData['Material'] as MyMaterial;
+
         return DataGridRow(cells: [
           DataGridCell(columnName: 'Barcode', value: m.barcode),
           DataGridCell(columnName: 'Name', value: m.name),
@@ -18,21 +18,30 @@ class SaleMaterialsDataSource extends DataGridSource {
               columnName: 'Quantity',
               value: "${saleData['Quantity']} ${m.unit}"),
           DataGridCell(
-              columnName: 'Total Price',
-              value: '${m.salePrice * saleData['Quantity']} ${m.currency}'),
-          DataGridCell(
               columnName: 'Discount',
-              value: '${saleData['Discount'] ?? 0.0} ${m.currency}'),
-          DataGridCell(columnName: 'TAX/VAT', value: saleData['Tax'] ?? m.tax),
+              value:
+                  '${(saleData['Discount'] ?? 0.0) * saleData['Quantity']} ${m.currency}'),
           DataGridCell(
-              columnName: 'Net Total', value: '${saleData['Total'] ?? ''}'),
+              columnName: 'TAX/VAT',
+              value:
+                  '${saleData['Tax'] ?? m.tax}% = ${saleData['Quantity'] * ((saleData['Tax'] ?? m.tax) / 100) * (m.salePrice - (saleData['Discount'] ?? 0.0))} ${m.currency}'),
+          DataGridCell(
+              columnName: 'Total', value: '${saleData['Total']} ${m.currency}'),
           DataGridCell(columnName: 'Note', value: '${saleData['Note'] ?? ''}'),
         ]);
       }).toList(growable: true);
 
-  void addDataGridRow(MyMaterial m) {
-    totals[m.currency] =
-        (totals[m.currency] ?? 0.0) + m.salePrice + (m.tax * m.salePrice);
+  void calculateTotals(SaleController controller) {
+    controller.totals.value.clear();
+    for (var saleData in salesData) {
+      var material = saleData["Material"] as MyMaterial;
+      controller.totals.value[material.currency] =
+          (controller.totals.value[material.currency] ?? 0.0) +
+              saleData["Total"];
+    }
+  }
+
+  void addDataGridRow(MyMaterial m, SaleController controller) {
     salesData.add({
       "Material": m,
       "Quantity": 1,
@@ -41,35 +50,21 @@ class SaleMaterialsDataSource extends DataGridSource {
       "Total": (m.salePrice * m.tax) + m.salePrice,
       "Note": ''
     });
-    rows.add(DataGridRow(cells: [
-      DataGridCell(columnName: 'Barcode', value: m.barcode),
-      DataGridCell(columnName: 'Name', value: m.name),
-      DataGridCell(columnName: 'Price', value: m.salePrice),
-      DataGridCell(columnName: 'Quantity', value: "1 ${m.unit}"),
-      DataGridCell(
-          columnName: 'Total Price', value: '${m.salePrice} ${m.currency}'),
-      DataGridCell(columnName: 'Discount', value: '0.0 ${m.currency}'),
-      DataGridCell(columnName: 'TAX/VAT', value: m.tax),
-      DataGridCell(
-          columnName: 'Total',
-          value: '${(m.salePrice * m.tax) + m.salePrice} ${m.currency}'),
-      const DataGridCell(columnName: 'Note', value: ''),
-    ]));
+    calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
 
-  void removeDataGridRow(int index) {
-    var m = salesData[index]["Material"];
-    totals[m.currency] = (totals[m.currency] ?? 0.0) - m.salePrice;
+  void removeDataGridRow(int index, SaleController controller) {
     salesData.removeAt(index);
+    calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
 
-  void clearDataGridRows() {
-    totals = {};
+  void clearDataGridRows(SaleController controller) {
     salesData.clear();
+    calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
@@ -148,14 +143,6 @@ class SaleMaterialsDataSource extends DataGridSource {
         alignment: Alignment.center,
         child: Text(
           row.getCells()[7].value.toString(),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[8].value.toString(),
           overflow: TextOverflow.ellipsis,
         ),
       ),

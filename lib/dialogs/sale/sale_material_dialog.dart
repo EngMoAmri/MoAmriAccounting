@@ -9,12 +9,16 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
     SaleController saleController, int selectedIndex) async {
   Map<String, dynamic> saleData =
       saleController.dataSource.value.salesData[selectedIndex];
+  print(saleData);
   MyMaterial material = saleData['Material'];
   saleController.searchController.clear();
   saleController.dialogQuantity.value = saleData['Quantity'];
   saleController.dialogQuantityTextController.text = "${saleData['Quantity']}";
   saleController.dialogDiscount.value = saleData['Discount'];
+  saleController.dialogDiscountTextController.text =
+      saleData['Discount'].toString();
   saleController.dialogTax.value = saleData['Tax'];
+  saleController.dialogTaxTextController.text = saleData['Tax'].toString();
   saleController.dialogNoteTextController.text = saleData['Note'];
 
   return await showDialog(
@@ -237,26 +241,25 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                 ),
                                                 keyboardType:
                                                     TextInputType.number,
-                                                // onChanged: (value) {
-                                                //   var currentQuantity =
-                                                //       int.tryParse(saleController
-                                                //               .quantityTextController
-                                                //               .text) ??
-                                                //           0;
-                                                //   if (currentQuantity >=
-                                                //       selectedMaterial
-                                                //           .quantity) {
-                                                //     showErrorDialog(
-                                                //         "The Quantity at the warehouse is exceeded");
-                                                //   } else if (currentQuantity <
-                                                //       1) {
-                                                //     showErrorDialog(
-                                                //         "The Quantity must be > 0");
-                                                //     saleController
-                                                //         .quantityTextController
-                                                //         .text = "1";
-                                                //   }
-                                                // },
+                                                onChanged: (value) {
+                                                  var currentQuantity =
+                                                      int.tryParse(value) ?? 0;
+                                                  saleController.dialogQuantity
+                                                      .value = currentQuantity;
+
+                                                  // if (currentQuantity >=
+                                                  //     material.quantity) {
+                                                  //   showErrorDialog(
+                                                  //       "The Quantity at the warehouse is exceeded");
+                                                  // } else if (currentQuantity <
+                                                  //     1) {
+                                                  //   showErrorDialog(
+                                                  //       "The Quantity must be > 0");
+                                                  //   saleController
+                                                  //       .dialogQuantityTextController
+                                                  //       .text = "1";
+                                                  // }
+                                                },
                                                 validator: (value) {
                                                   if (value?.trim().isEmpty ??
                                                       true) {
@@ -370,7 +373,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   const EdgeInsets.all(10),
                                               focusedBorder: OutlineInputBorder(
                                                 borderSide: const BorderSide(
-                                                    color: Colors.red),
+                                                    color: Colors.green),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -578,10 +581,19 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           .validate()) {
                                         saleData['Quantity'] =
                                             saleController.dialogQuantity.value;
-                                        saleData['Discount'] =
-                                            saleController.dialogDiscount.value;
-                                        saleData['Tax'] =
-                                            saleController.dialogTax.value;
+                                        saleData['Discount'] = (saleController
+                                                .dialogDiscountTextController
+                                                .text
+                                                .isEmpty)
+                                            ? null
+                                            : saleController
+                                                .dialogDiscount.value;
+                                        saleData['Tax'] = (saleController
+                                                .dialogTaxTextController
+                                                .text
+                                                .isEmpty)
+                                            ? null
+                                            : saleController.dialogTax.value;
                                         saleData['Total'] = saleController
                                                     .dialogQuantity.value *
                                                 (material.salePrice -
@@ -597,7 +609,10 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                         .dialogDiscount.value);
                                         saleData['Note'] = saleController
                                             .dialogNoteTextController.text;
+                                        saleController.dataSource.value
+                                            .notifyListeners();
                                         saleController.dataSource.refresh();
+
                                         Get.back();
                                       }
                                     },

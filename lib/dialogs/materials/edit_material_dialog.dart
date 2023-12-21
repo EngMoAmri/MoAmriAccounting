@@ -62,12 +62,12 @@ Future<bool?> showEditMaterialDialog(
             child: Scaffold(
               appBar: AppBar(
                 centerTitle: true,
-                title: DragToMoveArea(
+                title: const DragToMoveArea(
                   child: Row(
                     children: [
                       Text(
                         "Edit Material",
-                        style: const TextStyle(color: Colors.black),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
@@ -119,7 +119,7 @@ Future<bool?> showEditMaterialDialog(
                             interactive: true,
                             thumbVisibility: true,
                             thickness: 6, //width of scrollbar
-                            radius: Radius.circular(
+                            radius: const Radius.circular(
                                 10), //corner radius of scrollbar
                             scrollbarOrientation: ScrollbarOrientation
                                 .left, //which side to show scrollbar
@@ -141,10 +141,10 @@ Future<bool?> showEditMaterialDialog(
                                             (VisibilityInfo info) {
                                           visible = info.visibleFraction > 0;
                                         },
-                                        key: Key('visible-detector-key'),
+                                        key: const Key('visible-detector-key'),
                                         child: BarcodeKeyboardListener(
                                           bufferDuration:
-                                              Duration(milliseconds: 200),
+                                              const Duration(milliseconds: 200),
                                           onBarcodeScanned: (barcode) {
                                             if (!visible) return;
                                             print(barcode);
@@ -157,7 +157,7 @@ Future<bool?> showEditMaterialDialog(
                                             children: [
                                               Expanded(
                                                 child: Padding(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets.symmetric(
                                                       horizontal: 10),
                                                   child: TextFormField(
                                                     textCapitalization:
@@ -247,7 +247,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
@@ -334,7 +334,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
@@ -421,7 +421,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
@@ -478,7 +478,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
@@ -526,7 +526,7 @@ Future<bool?> showEditMaterialDialog(
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller: unitTextController,
@@ -617,7 +617,7 @@ Future<bool?> showEditMaterialDialog(
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        EdgeInsets.symmetric(
+                                                        const EdgeInsets.symmetric(
                                                             horizontal: 10),
                                                     child: TypeAheadField(
                                                         controller:
@@ -703,7 +703,7 @@ Future<bool?> showEditMaterialDialog(
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        EdgeInsets.symmetric(
+                                                        const EdgeInsets.symmetric(
                                                             horizontal: 10),
                                                     child: TextFormField(
                                                       textCapitalization:
@@ -769,7 +769,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -911,7 +911,7 @@ Future<bool?> showEditMaterialDialog(
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -932,7 +932,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
@@ -999,7 +999,7 @@ Future<bool?> showEditMaterialDialog(
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -1020,7 +1020,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
@@ -1102,7 +1102,7 @@ Future<bool?> showEditMaterialDialog(
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -1124,7 +1124,7 @@ Future<bool?> showEditMaterialDialog(
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:

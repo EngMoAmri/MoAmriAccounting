@@ -63,28 +63,28 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
     List<TableRow> rows = [
       TableRow(children: [
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
                     child: Text("Material",
                         style: TextStyle(fontWeight: FontWeight.bold))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
                     child: Text("Price",
                         style: TextStyle(fontWeight: FontWeight.bold))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
                     child: Text("Quantity",
                         style: TextStyle(fontWeight: FontWeight.bold))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
@@ -95,10 +95,10 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
     for (MyMaterial material in materialsMaps[category] ?? []) {
       rows.add(TableRow(children: [
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(child: Text(material.name))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Table(
                 // border: TableBorder.all(color: PdfColors.grey700, width: 0.4),
                 children: [
@@ -137,7 +137,7 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
                   ])
                 ])),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Column(children: [
               FittedBox(
@@ -149,7 +149,7 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
                   child: Text(material.unit, textAlign: TextAlign.center))
             ]))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(child: Text("${material.tax} %"))),
       ]));
     }
@@ -238,7 +238,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
     List<TableRow> rows = [
       TableRow(children: [
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -246,7 +246,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                         child: Text("Material",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -254,7 +254,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                         child: Text("Cost Price",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -262,7 +262,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                         child: Text("Sale Price",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -270,7 +270,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                         child: Text("Max Discount",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -278,7 +278,7 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                         child: Text("Quantity",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Center(
                     child: FittedBox(
@@ -290,26 +290,26 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
     for (MyMaterial material in materialsMaps[category] ?? []) {
       rows.add(TableRow(children: [
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(child: Text(material.name))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text("${material.costPrice} ${material.currency}"))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text("${material.salePrice} ${material.currency}"))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text("${material.discount} ${material.currency}"))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child:
                 Center(child: Text("${material.quantity} ${material.unit}"))),
         Padding(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Center(child: Text("${material.tax} %"))),
       ]));
     }

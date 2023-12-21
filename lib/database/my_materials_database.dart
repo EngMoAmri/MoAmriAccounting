@@ -221,6 +221,20 @@ class MyMaterialsDatabase {
     return materials;
   }
 
+  static Future<List<MyMaterial>> getCategoryMaterials(String category) async {
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query(
+      'materials',
+      where: 'category = ?',
+      whereArgs: [category],
+    );
+    List<MyMaterial> materials = [];
+    for (var map in maps) {
+      materials.add(MyMaterial.fromMap(map));
+    }
+    return materials;
+  }
+
   static Future<Map<String, List<MyMaterial>>> getAllMaterials() async {
     List<Map<String, dynamic>> maps;
     maps = await MyDatabase.myDatabase.query(

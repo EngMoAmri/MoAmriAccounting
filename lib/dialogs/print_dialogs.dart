@@ -18,7 +18,7 @@ Future<void> showPrintDialog(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
+        const Text(
           "Select Paper Type",
           textAlign: TextAlign.center,
         ),
@@ -39,7 +39,7 @@ Future<void> showPrintDialog(
                 )),
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(Colors.black)),
-            label: Text("80mm Thermal Paper")),
+            label: const Text("80mm Thermal Paper")),
         const SizedBox(
           height: 10,
         ),
@@ -60,7 +60,7 @@ Future<void> showPrintDialog(
                 )),
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(Colors.black)),
-            label: Text("A4 Paper"))
+            label: const Text("A4 Paper"))
       ],
     ),
   );

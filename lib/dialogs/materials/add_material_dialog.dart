@@ -49,12 +49,12 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
             child: Scaffold(
               appBar: AppBar(
                 centerTitle: true,
-                title: DragToMoveArea(
+                title: const DragToMoveArea(
                   child: Row(
                     children: [
                       Text(
                         "Add Material",
-                        style: const TextStyle(color: Colors.black),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
@@ -96,7 +96,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                             interactive: true,
                             thumbVisibility: true,
                             thickness: 6, //width of scrollbar
-                            radius: Radius.circular(
+                            radius: const Radius.circular(
                                 10), //corner radius of scrollbar
                             scrollbarOrientation: ScrollbarOrientation
                                 .left, //which side to show scrollbar
@@ -118,10 +118,10 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             (VisibilityInfo info) {
                                           visible = info.visibleFraction > 0;
                                         },
-                                        key: Key('visible-detector-key'),
+                                        key: const Key('visible-detector-key'),
                                         child: BarcodeKeyboardListener(
                                           bufferDuration:
-                                              Duration(milliseconds: 200),
+                                              const Duration(milliseconds: 200),
                                           onBarcodeScanned: (barcode) {
                                             if (!visible) return;
                                             print(barcode);
@@ -134,7 +134,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             children: [
                                               Expanded(
                                                 child: Padding(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets.symmetric(
                                                       horizontal: 10),
                                                   child: TextFormField(
                                                     textCapitalization:
@@ -223,7 +223,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
@@ -314,7 +314,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
@@ -401,7 +401,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
@@ -458,7 +458,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
@@ -506,7 +506,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                 controller: unitTextController,
@@ -595,7 +595,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TypeAheadField(
                                                   controller:
@@ -672,7 +672,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
@@ -732,7 +732,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -874,7 +874,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -895,7 +895,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
@@ -962,7 +962,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -983,7 +983,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
@@ -1065,7 +1065,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: Column(
                                                 children: [
@@ -1087,7 +1087,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:

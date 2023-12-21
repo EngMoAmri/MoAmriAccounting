@@ -250,47 +250,47 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Purchases'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Add Material'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Materials Management'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Purchases'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Add Material'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Materials Management'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Purchases'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Add Material'),
                   ),
                 ),
                 Container(
-                  child: Center(
+                  child: const Center(
                     child: Text('Materials Management'),
                   ),
                 ),

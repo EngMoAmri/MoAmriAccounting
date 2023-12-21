@@ -1,184 +1,214 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/controllers/sale_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
-import 'package:window_manager/window_manager.dart';
-
-import '../../utils/numerical_range_formatter.dart';
+import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
 Future<bool?> showSaleMaterialDialog(MainController mainController,
-    SaleController saleController, MyMaterial selectedMaterial) async {
+    SaleController saleController, int selectedIndex) async {
+  Map<String, dynamic> saleData =
+      saleController.dataSource.value.salesData[selectedIndex];
+  MyMaterial material = saleData['Material'];
+  saleController.searchController.clear();
+  saleController.dialogQuantity.value = saleData['Quantity'];
+  saleController.dialogQuantityTextController.text = "${saleData['Quantity']}";
+  saleController.dialogDiscount.value = saleData['Discount'];
+  saleController.dialogTax.value = saleData['Tax'];
+  saleController.dialogNoteTextController.text = saleData['Note'];
+
   return await showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
         return Dialog(
+          backgroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
           child: FocusTraversalGroup(
             policy: WidgetOrderTraversalPolicy(),
-            child: Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: DragToMoveArea(
-                  child: Row(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+              child: Obx(() => Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "Sale Material",
-                        style: const TextStyle(color: Colors.black),
+                      const SizedBox(
+                        height: 10,
                       ),
-                    ],
-                  ),
-                ),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.grey,
-                elevation: 0,
-                systemOverlayStyle: const SystemUiOverlayStyle(
-                    statusBarColor: Colors.white,
-                    systemNavigationBarColor: Colors.transparent,
-                    systemNavigationBarIconBrightness: Brightness.dark,
-                    statusBarIconBrightness: Brightness.dark,
-                    statusBarBrightness: Brightness.light),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                    child: IconButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              body: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 16.0, horizontal: 32.0),
-                        child: Table(
-                            border: TableBorder.all(
-                                color: Colors.black,
-                                width: 1,
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10))),
-                            columnWidths: {
-                              0: const FlexColumnWidth(1.5),
-                              1: const FlexColumnWidth(),
-                              2: const FlexColumnWidth(),
-                            },
-                            children: [
-                              TableRow(children: [
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Center(
-                                        child: FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Text("Material",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))))),
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Center(
-                                        child: FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Text("Price",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))))),
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Center(
-                                        child: FittedBox(
-                                            fit: BoxFit.fitWidth,
-                                            child: Text("Available Quantity",
-                                                style: TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold))))),
-                              ]),
-                              TableRow(children: [
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Column(
-                                      children: [
-                                        Center(
-                                            child:
-                                                Text(selectedMaterial.barcode)),
-                                        Center(
-                                            child: Text(selectedMaterial.name)),
-                                      ],
-                                    )),
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Column(children: [
-                                      FittedBox(
-                                          fit: BoxFit.fitWidth,
-                                          child: Text("Sale Price: ")),
-                                      Center(
-                                          child: FittedBox(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Table(
+                                border: TableBorder.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                children: [
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("Material",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Column(
+                                          children: [
+                                            Center(
+                                                child: Text(material.barcode)),
+                                            Center(child: Text(material.name)),
+                                          ],
+                                        )),
+                                  ]),
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("Price",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text(
+                                                    "${material.salePrice} ${material.currency}")))),
+                                  ]),
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text(
+                                                    "Available Quantity",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: Column(children: [
+                                          FittedBox(
                                               fit: BoxFit.fitWidth,
                                               child: Text(
-                                                  "${selectedMaterial.salePrice} ${selectedMaterial.currency}")))
-                                    ])),
-                                Padding(
-                                    padding: EdgeInsets.all(4),
-                                    child: Center(
-                                        child: Column(children: [
-                                      FittedBox(
-                                          fit: BoxFit.fitWidth,
-                                          child: Text(
-                                              "${selectedMaterial.quantity}",
-                                              textAlign: TextAlign.center)),
-                                      FittedBox(
-                                          fit: BoxFit.fitWidth,
-                                          child: Text(selectedMaterial.unit,
-                                              textAlign: TextAlign.center))
-                                    ]))),
-                              ]),
-                            ]),
-                      ),
-                      Form(
-                        key: saleController.formKey,
-                        child: Expanded(
-                          child: Scrollbar(
-                            controller: saleController.scrollController,
-                            interactive: true,
-                            thumbVisibility: true,
-                            thickness: 6, //width of scrollbar
-                            radius: Radius.circular(
-                                10), //corner radius of scrollbar
-                            scrollbarOrientation: ScrollbarOrientation
-                                .left, //which side to show scrollbar
-                            child: SingleChildScrollView(
-                              controller: saleController.scrollController,
-                              scrollDirection: Axis.vertical,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
+                                                  "${material.quantity}",
+                                                  textAlign: TextAlign.center)),
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(material.unit,
+                                                  textAlign: TextAlign.center))
+                                        ]))),
+                                  ]),
+                                  const TableRow(children: [
                                     Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Row(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("TAX/VAT",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: Column(children: [
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                  "${saleController.dialogTax.value} %",
+                                                  textAlign: TextAlign.center)),
+                                        ]))),
+                                  ]),
+                                ]),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Form(
+                              key: saleController.dialogFormKey,
+                              child: Scrollbar(
+                                controller:
+                                    saleController.dialogScrollController,
+                                interactive: true,
+                                thumbVisibility: true,
+                                thickness: 6, //width of scrollbar
+                                radius: const Radius.circular(
+                                    10), //corner radius of scrollbar
+                                scrollbarOrientation: ScrollbarOrientation
+                                    .left, //which side to show scrollbar
+                                child: SingleChildScrollView(
+                                  controller:
+                                      saleController.dialogScrollController,
+                                  scrollDirection: Axis.vertical,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Row(
                                         children: [
+                                          const SizedBox(
+                                            width: 10,
+                                          ),
+                                          CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.green,
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.exposure_minus_1,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: () {
+                                                var currentQuantity =
+                                                    int.tryParse(saleController
+                                                            .dialogQuantityTextController
+                                                            .text) ??
+                                                        0;
+                                                if (currentQuantity == 1) {
+                                                  return;
+                                                }
+                                                saleController
+                                                    .dialogQuantityTextController
+                                                    .text = (currentQuantity -
+                                                        1)
+                                                    .toString();
+
+                                                saleController
+                                                        .dialogQuantity.value =
+                                                    currentQuantity - 1;
+                                              },
+                                            ),
+                                          ),
                                           Expanded(
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
                                                     TextCapitalization
                                                         .sentences,
                                                 controller: saleController
-                                                    .quantityTextController,
+                                                    .dialogQuantityTextController,
                                                 decoration: InputDecoration(
                                                   filled: true,
                                                   fillColor: Colors.white,
@@ -207,6 +237,26 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                 ),
                                                 keyboardType:
                                                     TextInputType.number,
+                                                // onChanged: (value) {
+                                                //   var currentQuantity =
+                                                //       int.tryParse(saleController
+                                                //               .quantityTextController
+                                                //               .text) ??
+                                                //           0;
+                                                //   if (currentQuantity >=
+                                                //       selectedMaterial
+                                                //           .quantity) {
+                                                //     showErrorDialog(
+                                                //         "The Quantity at the warehouse is exceeded");
+                                                //   } else if (currentQuantity <
+                                                //       1) {
+                                                //     showErrorDialog(
+                                                //         "The Quantity must be > 0");
+                                                //     saleController
+                                                //         .quantityTextController
+                                                //         .text = "1";
+                                                //   }
+                                                // },
                                                 validator: (value) {
                                                   if (value?.trim().isEmpty ??
                                                       true) {
@@ -217,210 +267,379 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Divider(
-                                      height: 1,
-                                    ),
-                                    const Divider(),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Checkbox(
-                                            value: discountCheckBoxValue,
-                                            onChanged: ((value) {
-                                              setState(() {
-                                                discountController.clear();
-                                                discountCheckBoxValue =
-                                                    value ?? false;
-                                              });
-                                            })),
-                                        Text("add_discount".tr),
-                                        Checkbox(
-                                            value: noteCheckBoxValue,
-                                            onChanged: ((value) {
-                                              setState(() {
-                                                noteController.clear();
-                                                noteCheckBoxValue =
-                                                    value ?? false;
-                                              });
-                                            })),
-                                        Text("add_note".tr),
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              child: TextFormField(
-                                                textCapitalization:
-                                                    TextCapitalization
-                                                        .sentences,
-                                                controller: saleController
-                                                    .discountTextController,
-                                                inputFormatters: [
-                                                  // TODO show alert dialog
-                                                  // NumericalRangeFormatter(
-                                                  //     min: 0,
-                                                  //     max: selectedMaterial
-                                                  //         .discount)
-                                                ],
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(10),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  counterText: "",
-                                                  labelText: 'Discount',
-                                                ),
-                                                keyboardType:
-                                                    TextInputType.number,
+                                          CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.green,
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.exposure_plus_1,
+                                                color: Colors.white,
                                               ),
+                                              onPressed: () {
+                                                var currentQuantity =
+                                                    int.tryParse(saleController
+                                                            .dialogQuantityTextController
+                                                            .text) ??
+                                                        0;
+                                                if (currentQuantity >=
+                                                    material.quantity) {
+                                                  showErrorDialog(
+                                                      "The Quantity at the warehouse is exceeded");
+                                                }
+                                                saleController
+                                                    .dialogQuantityTextController
+                                                    .text = (currentQuantity +
+                                                        1)
+                                                    .toString();
+                                                saleController
+                                                        .dialogQuantity.value =
+                                                    currentQuantity + 1;
+                                              },
                                             ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10,
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                      const Divider(),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0, horizontal: 18),
+                                        child: Form(
+                                          // key: discountFormKey,
+                                          autovalidateMode: AutovalidateMode
+                                              .onUserInteraction,
+                                          child: TextFormField(
+                                            controller: saleController
+                                                .dialogTaxTextController,
+                                            decoration: InputDecoration(
+                                              counterText: '',
+                                              labelText:
+                                                  "TAX/VAT Default: ${material.tax} %"
+                                                      .tr,
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(12.0)),
+                                              ),
+                                            ),
+                                            onChanged: (value) {
+                                              saleController.dialogTax.value =
+                                                  double.tryParse(saleController
+                                                          .dialogTaxTextController
+                                                          .text) ??
+                                                      0;
+                                            },
+                                            keyboardType: const TextInputType
+                                                .numberWithOptions(
+                                                signed: false, decimal: true),
+                                          ),
+                                        ),
+                                      ),
+                                      const Divider(),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0, horizontal: 18),
+                                        child: Form(
+                                          // key: discountFormKey,
+                                          autovalidateMode: AutovalidateMode
+                                              .onUserInteraction,
+                                          child: TextFormField(
+                                            controller: saleController
+                                                .dialogDiscountTextController,
+                                            decoration: InputDecoration(
+                                              counterText: '',
+                                              labelText:
+                                                  "Discount Per Unit, Max: ${material.discount} ${material.currency}"
+                                                      .tr,
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.red),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(12.0)),
+                                              ),
+                                            ),
+                                            onChanged: (value) {
+                                              saleController
+                                                      .dialogDiscount.value =
+                                                  double.tryParse(saleController
+                                                          .dialogDiscountTextController
+                                                          .text) ??
+                                                      0;
+                                            },
+                                            // TODO
+                                            // validator: (value) {
+                                            //   // user does not set a discount
+                                            //   if (value!.isEmpty) {
+                                            //     return null;
+                                            //   }
+                                            //   // trying to parse the new discount
+                                            //   var newDiscount = double.tryParse(value);
+                                            //   if (newDiscount != null) {
+                                            //     if (newDiscount < 0 ||
+                                            //         newDiscount > getTotalPrice()) {
+                                            //       return "must_less_or_equal_value".trParams({
+                                            //         'value':
+                                            //             GlobalMethods.getMoneyWithCurrency(
+                                            //                 getTotalPrice()),
+                                            //       });
+                                            //     }
+                                            //   } else {
+                                            //     return "invalid".tr;
+                                            //   }
+                                            //   return null;
+                                            // },
+                                            keyboardType: const TextInputType
+                                                .numberWithOptions(
+                                                signed: false, decimal: true),
+                                          ),
+                                        ),
+                                      ),
+                                      const Divider(),
+                                      // if (saleController
+                                      //     .dialogNoteCheckBoxValue.value)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0, horizontal: 18),
+                                        child: TextFormField(
+                                            controller: saleController
+                                                .dialogNoteTextController,
+                                            decoration: InputDecoration(
+                                              counterText: '',
+                                              labelText: "Note".tr,
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(12.0)),
+                                              ),
+                                            ),
+                                            minLines: 3,
+                                            maxLines: 3,
+                                            keyboardType:
+                                                TextInputType.multiline),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      const Divider(),
+                      const Divider(
+                          // height: 1,
+                          ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          if (saleController.adding.value)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            ElevatedButton.icon(
-                                onPressed: () async {
-                                  if (saleController.formKey.currentState!
-                                      .validate()) {
-                                    // adding = true;
-                                    // final barcode = barcodeTextController.text;
-                                    // var materialByBarcode =
-                                    //     await MyMaterialsDatabase
-                                    //         .getMaterialByBarcode(
-                                    //             barcode.trim());
-                                    // if (materialByBarcode != null &&
-                                    //     materialByBarcode.id !=
-                                    //         selectedMaterial.id) {
-                                    //   showErrorDialog(
-                                    //       "This barcode is used by another material");
-                                    //   setState(() {
-                                    //     adding = false;
-                                    //   });
-                                    //   return;
-                                    // }
-                                    // final category =
-                                    //     categoryTextController.text;
-                                    // final currency =
-                                    //     currencyTextController.text;
-                                    // final name = nameTextController.text;
-                                    // final quantity =
-                                    //     int.parse(quantityTextController.text);
-                                    // final unit = unitTextController.text;
-                                    // final suppliedQuantity = int.tryParse(
-                                    //     suppliedQuantityTextController.text);
-                                    // final costPrice = double.parse(
-                                    //     costPriceTextController.text);
-                                    // final salePrice = double.parse(
-                                    //     salePriceTextController.text);
-                                    // final note = noteTextController.text;
-                                    // final now =
-                                    //     DateTime.now().millisecondsSinceEpoch;
-                                    // MyMaterial material = MyMaterial(
-                                    //     id: selectedMaterial.id,
-                                    //     name: name,
-                                    //     barcode: barcode,
-                                    //     category: category,
-                                    //     currency: currency,
-                                    //     unit: unit,
-                                    //     quantity: quantity,
-                                    //     costPrice: costPrice,
-                                    //     salePrice: salePrice,
-                                    //     discount: double.tryParse(
-                                    //             discountTextController.text) ??
-                                    //         0,
-                                    //     tax: double.tryParse(
-                                    //             taxTextController.text) ??
-                                    //         0,
-                                    //     note: note,
-                                    //     addedBy: selectedMaterial.addedBy,
-                                    //     updatedBy: mainController
-                                    //         .currentUser.value!.id!,
-                                    //     createdDate:
-                                    //         selectedMaterial.createdDate,
-                                    //     updatedDate: now);
-                                    // try {
-                                    //   if (largerMaterial != null) {
-                                    //     MaterialLargerUnit materialLargerUnit =
-                                    //         MaterialLargerUnit(
-                                    //             materialID: selectedMaterial.id,
-                                    //             largerMaterialID:
-                                    //                 largerMaterial!.id!,
-                                    //             quantitySupplied:
-                                    //                 suppliedQuantity!);
-                                    //     await MyMaterialsDatabase
-                                    //         .updateMaterial(
-                                    //             material, materialLargerUnit);
-                                    //   } else {
-                                    //     await MyMaterialsDatabase
-                                    //         .updateMaterial(material, null);
-                                    //   }
-                                    //   await showSuccessDialog(
-                                    //       "Material Edited Successfully");
-                                    //   Get.back(result: true);
-                                    // } catch (e) {
-                                    //   setState(() {
-                                    //     adding = false;
-                                    //   });
-                                    //   showErrorDialog('Error $e');
-                                    // }
-                                  }
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.yellow),
-                                  foregroundColor:
-                                      MaterialStateProperty.all(Colors.black),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  )),
+                          Expanded(
+                            child: Table(
+                                border: TableBorder.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                children: [
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("Total",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: Column(children: [
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                  "${saleController.dialogQuantity.value * (material.salePrice - saleController.dialogDiscount.value)}",
+                                                  textAlign: TextAlign.center)),
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(material.currency,
+                                                  textAlign: TextAlign.center))
+                                        ]))),
+                                  ]),
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("Total TAX/VAT",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: Column(children: [
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                  "${saleController.dialogQuantity.value * (saleController.dialogTax.value / 100) * (material.salePrice - saleController.dialogDiscount.value)}",
+                                                  textAlign: TextAlign.center)),
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(material.currency,
+                                                  textAlign: TextAlign.center))
+                                        ]))),
+                                  ]),
+                                ]),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text('='),
+                            ),
+                          ),
+                          Expanded(
+                            child: Table(
+                                border: TableBorder.all(
+                                    color: Colors.black,
+                                    width: 1,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(10))),
+                                children: [
+                                  const TableRow(children: [
+                                    Padding(
+                                        padding: EdgeInsets.all(4),
+                                        child: Center(
+                                            child: FittedBox(
+                                                fit: BoxFit.fitWidth,
+                                                child: Text("Total",
+                                                    style: TextStyle(
+                                                        fontWeight: FontWeight
+                                                            .bold))))),
+                                  ]),
+                                  TableRow(children: [
+                                    Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                            child: Column(children: [
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(
+                                                  "${saleController.dialogQuantity.value * (material.salePrice - saleController.dialogDiscount.value) + saleController.dialogQuantity.value * (saleController.dialogTax.value / 100) * (material.salePrice - saleController.dialogDiscount.value)}",
+                                                  textAlign: TextAlign.center)),
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(material.currency,
+                                                  textAlign: TextAlign.center))
+                                        ]))),
+                                  ]),
+                                ]),
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                ElevatedButton.icon(
+                                    onPressed: () async {
+                                      if (saleController
+                                          .dialogFormKey.currentState!
+                                          .validate()) {
+                                        saleData['Quantity'] =
+                                            saleController.dialogQuantity.value;
+                                        saleData['Discount'] =
+                                            saleController.dialogDiscount.value;
+                                        saleData['Tax'] =
+                                            saleController.dialogTax.value;
+                                        saleData['Total'] = saleController
+                                                    .dialogQuantity.value *
+                                                (material.salePrice -
+                                                    saleController
+                                                        .dialogDiscount.value) +
+                                            saleController
+                                                    .dialogQuantity.value *
+                                                (saleController
+                                                        .dialogTax.value /
+                                                    100) *
+                                                (material.salePrice -
+                                                    saleController
+                                                        .dialogDiscount.value);
+                                        saleData['Note'] = saleController
+                                            .dialogNoteTextController.text;
+                                        saleController.dataSource.refresh();
+                                        Get.back();
+                                      }
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.green),
+                                      foregroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.black),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      )),
+                                    ),
+                                    label: Text("Done".tr),
+                                    icon: const Icon(Icons.done)),
+                                const SizedBox(
+                                  height: 10,
                                 ),
-                                label: Text("Done".tr),
-                                icon: const Icon(Icons.done)),
+                                ElevatedButton.icon(
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.white),
+                                      foregroundColor:
+                                          MaterialStateProperty.all(Colors.red),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      )),
+                                    ),
+                                    label: Text("Cancel".tr),
+                                    icon: const Icon(Icons.cancel)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(

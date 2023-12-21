@@ -1,43 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../data_sources/sale_materials_data_source.dart';
+import '../database/entities/my_material.dart';
+import '../database/my_materials_database.dart';
 
 class SaleController extends GetxController {
   final searchController = TextEditingController();
-  final DataGridController dataGridController = DataGridController();
-
   Rx<bool> searching = false.obs;
   Rx<bool?> visible = Rx(null);
 
-  Rx<List<MyMaterial>> materials = Rx([]);
-  Rx<int> page = 0.obs;
-  Rx<int> materialsCount = 0.obs;
-  Rx<bool> isFirstLoadRunning = false.obs;
-  Rx<bool> hasNextPage = true.obs;
-  Rx<List<String>> categories = Rx(['All'.tr]);
+  Rx<bool> loadingCategories = true.obs;
+  Rx<List<String>> categories = Rx([]);
   Rx<int> selectedCategory = 0.obs;
+  Rx<bool> loadingMaterials = true.obs;
+  Rx<List<MyMaterial>> materials = Rx([]);
+  Rx<int> selectedMaterial = (-1).obs;
+  final DataGridController dataGridController = DataGridController();
+  Rx<SaleMaterialsDataSource> dataSource = Rx(SaleMaterialsDataSource());
+  Future<void> getCategories() async {
+    loadingCategories.value = true;
+    categories.value.clear();
+    categories.value.addAll(await MyMaterialsDatabase.getMaterialsCategories());
+    categories.refresh();
+    loadingCategories.value = false;
+    getCategoryMaterials();
+  }
 
-  Rx<List<String>> orderBy =
-      Rx(['ID', 'Name', 'Price', 'Addition', 'Discount', 'Tax']);
-  Rx<int> selectedOrderBy = 0.obs;
-  Rx<int> selectedOrderDir = 1.obs;
+  Future<void> getCategoryMaterials() async {
+    loadingMaterials.value = true;
+    materials.value.clear();
+    materials.value.addAll(await MyMaterialsDatabase.getCategoryMaterials(
+        categories.value[selectedCategory.value]));
+    materials.refresh();
+    loadingMaterials.value = false;
+  }
 
-  Rx<SaleMaterialsDataSource> dataSource = Rx(SaleMaterialsDataSource([]));
-  // sale material variables
-  final formKey = GlobalKey<FormState>();
-  final scrollController = ScrollController();
-  final quantityTextController = TextEditingController();
-  final discountTextController = TextEditingController();
-  final noteTextController = TextEditingController();
-  var adding = false.obs;
+  // sale material dialog variables
+  final dialogFormKey = GlobalKey<FormState>();
+  final dialogScrollController = ScrollController();
+  final dialogQuantityTextController = TextEditingController();
+  Rx<int> dialogQuantity = 1.obs;
+  // var dialogDiscountCheckBoxValue = false.obs;
+  // var dialogNoteCheckBoxValue = false.obs;
+  final dialogDiscountTextController = TextEditingController();
+  Rx<double> dialogDiscount = 0.0.obs;
+  final dialogTaxTextController = TextEditingController();
+  Rx<double> dialogTax = 0.0.obs;
+  final dialogNoteTextController = TextEditingController();
 
   @override
   void onInit() {
-    quantityTextController.text = "1";
-    noteTextController.text = '';
+    getCategories();
     super.onInit();
   }
 }

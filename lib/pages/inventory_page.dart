@@ -64,7 +64,7 @@ class InventoryPage extends StatelessWidget {
           children: [
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
                   textCapitalization: TextCapitalization.sentences,
                   controller: controller.searchController,
@@ -124,9 +124,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Barcode/No.',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -135,9 +136,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Name',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -146,9 +148,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Category',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -157,9 +160,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Quantity',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -168,9 +172,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Unit',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -179,9 +184,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Cost Price',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -190,9 +196,10 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Sale Price',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -202,9 +209,10 @@ class InventoryPage extends StatelessWidget {
                                     ColumnWidthMode.fitByColumnName,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Note',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
@@ -213,20 +221,22 @@ class InventoryPage extends StatelessWidget {
                                 columnWidthMode: ColumnWidthMode.fitByCellValue,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'Discount',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
                             GridColumn(
                                 columnName: 'TAX/VAT',
-                                columnWidthMode: ColumnWidthMode.fitByCellValue,
+                                columnWidthMode: ColumnWidthMode.lastColumnFill,
                                 minimumWidth: 120,
                                 label: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 2),
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
                                     alignment: Alignment.center,
-                                    child: Text(
+                                    child: const Text(
                                       'TAX/VAT',
                                       overflow: TextOverflow.ellipsis,
                                     ))),

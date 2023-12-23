@@ -111,77 +111,83 @@ class InventoryPage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            controller.firstLoad();
-                          },
-                          tooltip: "Referesh",
-                          icon: const Icon(Icons.sync)),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          controller.selectedCategory.value =
-                              (await showCategoryDialog(
-                                      controller.categories.value,
-                                      controller.selectedCategory.value)) ??
-                                  controller.selectedCategory.value;
-                          controller.firstLoad();
-                        },
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white),
-                            foregroundColor:
-                                MaterialStateProperty.all(Colors.black54)),
-                        icon: const Icon(Icons.category),
-                        label: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              'Category: ${controller.categories.value[controller.selectedCategory.value]}'),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                controller.selectedCategory
+                                    .value = (await showCategoryDialog(
+                                        controller.categories.value,
+                                        controller.selectedCategory.value)) ??
+                                    controller.selectedCategory.value;
+                                controller.firstLoad();
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  )),
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                  foregroundColor: MaterialStateProperty.all(
+                                      Colors.black54)),
+                              icon: const Icon(Icons.category),
+                              label: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                    'Category: ${controller.categories.value[controller.selectedCategory.value]}'),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                var result = await showSortByDialog(
+                                    controller.orderBy.value,
+                                    controller.selectedOrderBy.value,
+                                    controller.selectedOrderDir.value);
+                                if (result == null) return;
+                                controller.selectedOrderBy.value = result[0];
+                                controller.selectedOrderDir.value = result[1];
+                                controller.firstLoad();
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  )),
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                  foregroundColor: MaterialStateProperty.all(
+                                      Colors.black54)),
+                              icon: const Icon(Icons.category),
+                              label: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                    'Order By: ${controller.orderBy.value[controller.selectedOrderBy.value]},  Sorted: ${(controller.selectedOrderDir.value == 0) ? 'Ascending' : 'Descending'}'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          var result = await showSortByDialog(
-                              controller.orderBy.value,
-                              controller.selectedOrderBy.value,
-                              controller.selectedOrderDir.value);
-                          if (result == null) return;
-                          controller.selectedOrderBy.value = result[0];
-                          controller.selectedOrderDir.value = result[1];
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    IconButton(
+                        onPressed: () {
                           controller.firstLoad();
                         },
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white),
-                            foregroundColor:
-                                MaterialStateProperty.all(Colors.black54)),
-                        icon: const Icon(Icons.category),
-                        label: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                              'Order By: ${controller.orderBy.value[controller.selectedOrderBy.value]},  Sorted: ${(controller.selectedOrderDir.value == 0) ? 'Ascending' : 'Descending'}'),
-                        ),
-                      ),
-                    ],
-                  ),
+                        tooltip: "Referesh",
+                        icon: const Icon(Icons.sync)),
+                  ],
                 ),
               ),
               Expanded(

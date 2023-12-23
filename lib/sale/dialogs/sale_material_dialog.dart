@@ -91,7 +91,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                             child: FittedBox(
                                                 fit: BoxFit.fitWidth,
                                                 child: Text(
-                                                    "${material.salePrice} ${material.currency}")))),
+                                                    "${material.salePrice.toStringAsFixed(2)} ${material.currency}")))),
                                   ]),
                                   const TableRow(children: [
                                     Padding(
@@ -99,8 +99,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         child: Center(
                                             child: FittedBox(
                                                 fit: BoxFit.fitWidth,
-                                                child: Text(
-                                                    "Available Quantity",
+                                                child: Text("Total",
                                                     style: TextStyle(
                                                         fontWeight: FontWeight
                                                             .bold))))),
@@ -113,11 +112,17 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           FittedBox(
                                               fit: BoxFit.fitWidth,
                                               child: Text(
-                                                  "${material.quantity}",
+                                                  (saleController.dialogQuantity
+                                                              .value *
+                                                          (material.salePrice -
+                                                              saleController
+                                                                  .dialogDiscount
+                                                                  .value))
+                                                      .toStringAsFixed(2),
                                                   textAlign: TextAlign.center)),
                                           FittedBox(
                                               fit: BoxFit.fitWidth,
-                                              child: Text(material.unit,
+                                              child: Text(material.currency,
                                                   textAlign: TextAlign.center))
                                         ]))),
                                   ]),
@@ -127,7 +132,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         child: Center(
                                             child: FittedBox(
                                                 fit: BoxFit.fitWidth,
-                                                child: Text("TAX/VAT",
+                                                child: Text("Total TAX/VAT",
                                                     style: TextStyle(
                                                         fontWeight: FontWeight
                                                             .bold))))),
@@ -140,8 +145,22 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           FittedBox(
                                               fit: BoxFit.fitWidth,
                                               child: Text(
-                                                  "${saleController.dialogTax.value} %",
+                                                  (saleController.dialogQuantity
+                                                              .value *
+                                                          (saleController
+                                                                  .dialogTax
+                                                                  .value /
+                                                              100) *
+                                                          (material.salePrice -
+                                                              saleController
+                                                                  .dialogDiscount
+                                                                  .value))
+                                                      .toStringAsFixed(2),
                                                   textAlign: TextAlign.center)),
+                                          FittedBox(
+                                              fit: BoxFit.fitWidth,
+                                              child: Text(material.currency,
+                                                  textAlign: TextAlign.center))
                                         ]))),
                                   ]),
                                 ]),
@@ -237,7 +256,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                                 8.0)),
                                                   ),
                                                   counterText: "",
-                                                  labelText: 'Quantity',
+                                                  labelText:
+                                                      'Quantity Available = ${material.quantity}',
                                                 ),
                                                 keyboardType:
                                                     TextInputType.number,
@@ -310,7 +330,6 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 4.0, horizontal: 18),
                                         child: Form(
-                                          // key: discountFormKey,
                                           autovalidateMode: AutovalidateMode
                                               .onUserInteraction,
                                           child: TextFormField(
@@ -446,8 +465,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     Radius.circular(12.0)),
                                               ),
                                             ),
-                                            minLines: 3,
-                                            maxLines: 3,
+                                            minLines: 6,
+                                            maxLines: 6,
                                             keyboardType:
                                                 TextInputType.multiline),
                                       ),
@@ -463,6 +482,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                           // height: 1,
                           ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: Table(
@@ -491,77 +511,25 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           FittedBox(
                                               fit: BoxFit.fitWidth,
                                               child: Text(
-                                                  "${saleController.dialogQuantity.value * (material.salePrice - saleController.dialogDiscount.value)}",
-                                                  textAlign: TextAlign.center)),
-                                          FittedBox(
-                                              fit: BoxFit.fitWidth,
-                                              child: Text(material.currency,
-                                                  textAlign: TextAlign.center))
-                                        ]))),
-                                  ]),
-                                  const TableRow(children: [
-                                    Padding(
-                                        padding: EdgeInsets.all(4),
-                                        child: Center(
-                                            child: FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text("Total TAX/VAT",
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight
-                                                            .bold))))),
-                                  ]),
-                                  TableRow(children: [
-                                    Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Center(
-                                            child: Column(children: [
-                                          FittedBox(
-                                              fit: BoxFit.fitWidth,
-                                              child: Text(
-                                                  "${saleController.dialogQuantity.value * (saleController.dialogTax.value / 100) * (material.salePrice - saleController.dialogDiscount.value)}",
-                                                  textAlign: TextAlign.center)),
-                                          FittedBox(
-                                              fit: BoxFit.fitWidth,
-                                              child: Text(material.currency,
-                                                  textAlign: TextAlign.center))
-                                        ]))),
-                                  ]),
-                                ]),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Center(
-                              child: Text('='),
-                            ),
-                          ),
-                          Expanded(
-                            child: Table(
-                                border: TableBorder.all(
-                                    color: Colors.black,
-                                    width: 1,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(10))),
-                                children: [
-                                  const TableRow(children: [
-                                    Padding(
-                                        padding: EdgeInsets.all(4),
-                                        child: Center(
-                                            child: FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text("Total",
-                                                    style: TextStyle(
-                                                        fontWeight: FontWeight
-                                                            .bold))))),
-                                  ]),
-                                  TableRow(children: [
-                                    Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Center(
-                                            child: Column(children: [
-                                          FittedBox(
-                                              fit: BoxFit.fitWidth,
-                                              child: Text(
-                                                  "${saleController.dialogQuantity.value * (material.salePrice - saleController.dialogDiscount.value) + saleController.dialogQuantity.value * (saleController.dialogTax.value / 100) * (material.salePrice - saleController.dialogDiscount.value)}",
+                                                  (saleController.dialogQuantity
+                                                                  .value *
+                                                              (material
+                                                                      .salePrice -
+                                                                  saleController
+                                                                      .dialogDiscount
+                                                                      .value) +
+                                                          saleController.dialogQuantity
+                                                                  .value *
+                                                              (saleController
+                                                                      .dialogTax
+                                                                      .value /
+                                                                  100) *
+                                                              (material
+                                                                      .salePrice -
+                                                                  saleController
+                                                                      .dialogDiscount
+                                                                      .value))
+                                                      .toStringAsFixed(2),
                                                   textAlign: TextAlign.center)),
                                           FittedBox(
                                               fit: BoxFit.fitWidth,
@@ -572,7 +540,9 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                 ]),
                           ),
                           Expanded(
+                            flex: 2,
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 ElevatedButton.icon(
                                     onPressed: () async {
@@ -621,10 +591,10 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                     style: ButtonStyle(
                                       backgroundColor:
                                           MaterialStateProperty.all(
-                                              Colors.green),
+                                              Colors.white),
                                       foregroundColor:
                                           MaterialStateProperty.all(
-                                              Colors.black),
+                                              Colors.green),
                                       shape: MaterialStateProperty.all(
                                           RoundedRectangleBorder(
                                         borderRadius:

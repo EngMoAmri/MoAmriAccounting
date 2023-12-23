@@ -108,8 +108,11 @@ class MyMaterialsDataSource extends DataGridSource {
   @override
   Future<void> handleLoadMoreRows() async {
     InventoryController controller = Get.find();
-    await Future.delayed(const Duration(seconds: 1));
-    await controller.loadMore();
-    notifyListeners();
+
+    if (materialsData.length != controller.materialsCount.value) {
+      await Future.delayed(const Duration(seconds: 1));
+      await controller.loadMore();
+      notifyListeners();
+    }
   }
 }

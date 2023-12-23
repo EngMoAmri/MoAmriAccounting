@@ -6,22 +6,31 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
-import 'package:moamri_accounting/dialogs/sale/sale_material_dialog.dart';
+import 'package:moamri_accounting/sale/dialogs/sale_material_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../controllers/sale_controller.dart';
-import '../dialogs/print_dialogs.dart';
-import '../utils/print_order.dart';
+import '../../dialogs/print_dialogs.dart';
+import '../../utils/print_order.dart';
 
 class SalePage extends StatelessWidget {
   SalePage({super.key});
   final MainController mainController = Get.find();
   final SaleController controller = Get.put(SaleController());
+  final categoriesScrollController = ScrollController();
+  final materialsScrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Obx(() => (controller.isFirstLoadRunning.value)
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : 
+        // TODO
+        Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Padding(
@@ -135,30 +144,37 @@ class SalePage extends StatelessWidget {
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
-                        : ListView.builder(
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.selectedCategory.value = index;
-                                  controller.getCategoryMaterials();
-                                  controller.categories.refresh();
+                        : Scrollbar(
+                            controller: categoriesScrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: ListView.builder(
+                                controller: categoriesScrollController,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      controller.selectedCategory.value = index;
+                                      controller.getCategoryMaterials();
+                                      controller.categories.refresh();
+                                    },
+                                    child: Container(
+                                      color:
+                                          (controller.selectedCategory.value ==
+                                                  index)
+                                              ? Colors.blue[200]
+                                              : Colors.transparent,
+                                      child: ListTile(
+                                        dense: true,
+                                        visualDensity: const VisualDensity(
+                                            vertical: -3), // to compact
+                                        title: Text(
+                                            controller.categories.value[index]),
+                                      ),
+                                    ),
+                                  );
                                 },
-                                child: Container(
-                                  color: (controller.selectedCategory.value ==
-                                          index)
-                                      ? Colors.blue[200]
-                                      : Colors.transparent,
-                                  child: ListTile(
-                                    dense: true,
-                                    visualDensity: const VisualDensity(
-                                        vertical: -3), // to compact
-                                    title: Text(
-                                        controller.categories.value[index]),
-                                  ),
-                                ),
-                              );
-                            },
-                            itemCount: controller.categories.value.length),
+                                itemCount: controller.categories.value.length),
+                          ),
                   ),
                 ),
               ),
@@ -179,46 +195,56 @@ class SalePage extends StatelessWidget {
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
-                        : ListView.builder(
-                            itemBuilder: (context, index) {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.selectedMaterial.value = index;
-                                  controller.materials.refresh();
+                        : Scrollbar(
+                            controller: materialsScrollController,
+                            thumbVisibility: true,
+                            trackVisibility: true,
+                            child: ListView.builder(
+                                controller: materialsScrollController,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      controller.selectedMaterial.value = index;
+                                      controller.materials.refresh();
+                                    },
+                                    onDoubleTap: () {
+                                      var index1 = controller.dataSource.value
+                                          .getMaterialIndex(controller
+                                              .materials.value[index]);
+                                      print(index1.toString());
+                                      if (index1 != -1) {
+                                        showSaleMaterialDialog(
+                                            mainController, controller, index1);
+                                      } else {
+                                        controller.selectedMaterial.value =
+                                            index;
+                                        controller.dataSource.value
+                                            .addDataGridRow(
+                                                controller
+                                                    .materials.value[index],
+                                                controller);
+                                        controller.materials.refresh();
+                                        controller.dataSource.refresh();
+                                      }
+                                    },
+                                    child: Container(
+                                      color:
+                                          (controller.selectedMaterial.value ==
+                                                  index)
+                                              ? Colors.blue[200]
+                                              : Colors.transparent,
+                                      child: ListTile(
+                                        dense: true,
+                                        visualDensity: const VisualDensity(
+                                            vertical: -3), // to compact
+                                        title: Text(
+                                            '${controller.materials.value[index].barcode} : ${controller.materials.value[index].unit} :: ${controller.materials.value[index].name}'),
+                                      ),
+                                    ),
+                                  );
                                 },
-                                onDoubleTap: () {
-                                  var index1 = controller.dataSource.value
-                                      .getMaterialIndex(
-                                          controller.materials.value[index]);
-                                  print(index1.toString());
-                                  if (index1 != -1) {
-                                    showSaleMaterialDialog(
-                                        mainController, controller, index1);
-                                  } else {
-                                    controller.selectedMaterial.value = index;
-                                    controller.dataSource.value.addDataGridRow(
-                                        controller.materials.value[index],
-                                        controller);
-                                    controller.materials.refresh();
-                                    controller.dataSource.refresh();
-                                  }
-                                },
-                                child: Container(
-                                  color: (controller.selectedMaterial.value ==
-                                          index)
-                                      ? Colors.blue[200]
-                                      : Colors.transparent,
-                                  child: ListTile(
-                                    dense: true,
-                                    visualDensity: const VisualDensity(
-                                        vertical: -3), // to compact
-                                    title: Text(
-                                        '${controller.materials.value[index].barcode} : ${controller.materials.value[index].unit} :: ${controller.materials.value[index].name}'),
-                                  ),
-                                ),
-                              );
-                            },
-                            itemCount: controller.materials.value.length),
+                                itemCount: controller.materials.value.length),
+                          ),
                   ),
                 ),
               ),

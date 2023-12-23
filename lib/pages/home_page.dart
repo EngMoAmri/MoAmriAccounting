@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_side_menu/flutter_side_menu.dart';
 import 'package:get/get.dart';
-import 'package:moamri_accounting/pages/sale_page.dart';
+import 'package:moamri_accounting/sale/pages/sale_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controllers/main_controller.dart';

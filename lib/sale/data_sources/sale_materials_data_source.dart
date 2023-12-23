@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moamri_accounting/controllers/sale_controller.dart';
+import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../database/entities/my_material.dart';
+import '../../database/entities/my_material.dart';
 
 class SaleMaterialsDataSource extends DataGridSource {
   final List<Map<String, dynamic>> salesData = [];

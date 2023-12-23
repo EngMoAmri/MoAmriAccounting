@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../data_sources/sale_materials_data_source.dart';
-import '../database/entities/my_material.dart';
-import '../database/my_materials_database.dart';
+import '../../database/entities/my_material.dart';
+import '../../database/my_materials_database.dart';
 
 class SaleController extends GetxController {
   final searchController = TextEditingController();

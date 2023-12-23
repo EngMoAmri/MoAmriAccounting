@@ -3,14 +3,23 @@ import 'package:intl/intl.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
+import 'package:moamri_accounting/inventory/controllers/inventory_controller.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
 // TODO arabic
-Future<dynamic> printMaterialsRoll(MainController mainController) async {
-  var materialsMaps = await MyMaterialsDatabase.getAllMaterials();
-  var materialsCount = await MyMaterialsDatabase.getMaterialsCount();
+Future<dynamic> printMaterialsRoll(MainController mainController,
+    InventoryController inventoryController) async {
+  var materialsMaps = await MyMaterialsDatabase.getAllMaterials(
+      inventoryController
+          .categories.value[inventoryController.selectedCategory.value],
+      inventoryController
+          .orderByDatabase.value[inventoryController.selectedOrderBy.value],
+      (inventoryController.selectedOrderDir.value == 0) ? "ASC" : "DESC");
+  var materialsCount = await MyMaterialsDatabase.getMaterialsCount(
+      category: inventoryController
+          .categories.value[inventoryController.selectedCategory.value]);
   final Document pdf = Document(
     deflate: zlib.encode,
     // theme: ThemeData.withFont(
@@ -25,7 +34,9 @@ Future<dynamic> printMaterialsRoll(MainController mainController) async {
   // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
   List<Widget> widgets = [];
   widgets.add(SizedBox(height: 10));
-  widgets.add(Center(child: Text("Materials")));
+  widgets.add(Center(
+      child: Text("Materials",
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
   widgets.add(SizedBox(height: 10));
   widgets.add(Center(
       child: Text(mainController.storeData.value!.name,
@@ -188,9 +199,17 @@ Future<dynamic> printMaterialsRoll(MainController mainController) async {
   // return file;
 }
 
-Future<dynamic> printMaterialsA4(MainController mainController) async {
-  var materialsMaps = await MyMaterialsDatabase.getAllMaterials();
-  var materialsCount = await MyMaterialsDatabase.getMaterialsCount();
+Future<dynamic> printMaterialsA4(MainController mainController,
+    InventoryController inventoryController) async {
+  var materialsMaps = await MyMaterialsDatabase.getAllMaterials(
+      inventoryController
+          .categories.value[inventoryController.selectedCategory.value],
+      inventoryController
+          .orderByDatabase.value[inventoryController.selectedOrderBy.value],
+      (inventoryController.selectedOrderDir.value == 0) ? "ASC" : "DESC");
+  var materialsCount = await MyMaterialsDatabase.getMaterialsCount(
+      category: inventoryController
+          .categories.value[inventoryController.selectedCategory.value]);
   final Document pdf = Document(
     deflate: zlib.encode,
     // theme: ThemeData.withFont(
@@ -201,7 +220,9 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
   final timeFormat = DateFormat('hh:mm a');
   List<Widget> widgets = [];
   widgets.add(SizedBox(height: 10));
-  widgets.add(Center(child: Text("Materials")));
+  widgets.add(Center(
+      child: Text("Materials",
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
   widgets.add(SizedBox(height: 10));
   widgets.add(Center(
       child: Text(mainController.storeData.value!.name,
@@ -313,8 +334,8 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
     widgets.add(Table(
         border: TableBorder.all(color: PdfColors.black, width: 1),
         columnWidths: {
-          0: const FlexColumnWidth(),
-          1: const FlexColumnWidth(1.5),
+          0: const FlexColumnWidth(1.5),
+          1: const FlexColumnWidth(),
           2: const FlexColumnWidth(),
           3: const FlexColumnWidth(),
         },

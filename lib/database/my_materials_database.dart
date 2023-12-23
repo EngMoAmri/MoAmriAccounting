@@ -82,14 +82,21 @@ class MyMaterialsDatabase {
     return categories;
   }
 
-  static Future<int> getMaterialsCount({category}) async {
+  static Future<int> getMaterialsCount({category, searchedText}) async {
     List<Map<String, Object?>> totalRow;
-    if (category == 'All'.tr || category == null) {
-      totalRow = await MyDatabase.myDatabase
-          .rawQuery('SELECT COUNT(id) FROM materials');
+    if (searchedText == null) {
+      if (category == 'All'.tr || category == null) {
+        totalRow = await MyDatabase.myDatabase
+            .rawQuery('SELECT COUNT(id) FROM materials');
+      } else {
+        totalRow = await MyDatabase.myDatabase.rawQuery(
+            "SELECT COUNT(id) FROM materials WHERE category = '$category'");
+      }
     } else {
+      var trimText = searchedText.trim();
+
       totalRow = await MyDatabase.myDatabase.rawQuery(
-          "SELECT COUNT(id) FROM materials WHERE category = '$category'");
+          "SELECT COUNT(id) FROM materials WHERE name like '%$trimText%' or barcode like '%$trimText%'");
     }
     return int.tryParse(totalRow[0]["COUNT(id)"].toString()) ?? 0;
   }
@@ -202,8 +209,8 @@ class MyMaterialsDatabase {
     if (category == 'All'.tr || category == null) {
       maps = await MyDatabase.myDatabase.query(
         'materials',
-        limit: 100,
-        offset: page * 100,
+        limit: 40,
+        offset: page * 40,
         orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
       );
     } else {
@@ -211,11 +218,30 @@ class MyMaterialsDatabase {
         'materials',
         where: 'category = ?',
         whereArgs: [category],
-        limit: 10,
-        offset: page * 10,
+        limit: 40,
+        offset: page * 40,
         orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
       );
     }
+    List<MyMaterial> materials = [];
+    for (var map in maps) {
+      materials.add(MyMaterial.fromMap(map));
+    }
+    return materials;
+  }
+
+  static Future<List<MyMaterial>> getSearchedMaterials(
+      int page, String searchedText) async {
+    var trimText = searchedText.trim();
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query(
+      'materials',
+      where: 'name like ? or barcode like ?',
+      whereArgs: ["%$trimText%", "%$trimText%"],
+      limit: 40,
+      offset: page * 40,
+      orderBy: "id COLLATE NOCASE ASC",
+    );
     List<MyMaterial> materials = [];
     for (var map in maps) {
       materials.add(MyMaterial.fromMap(map));
@@ -237,12 +263,24 @@ class MyMaterialsDatabase {
     return materials;
   }
 
-  static Future<Map<String, List<MyMaterial>>> getAllMaterials() async {
+  static Future<Map<String, List<MyMaterial>>> getAllMaterials(
+      category, orderBy, dir) async {
     List<Map<String, dynamic>> maps;
-    maps = await MyDatabase.myDatabase.query(
-      'materials',
-      orderBy: "id COLLATE NOCASE ASC",
-    );
+
+    if (category == 'All'.tr || category == null) {
+      maps = await MyDatabase.myDatabase.query(
+        'materials',
+        orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
+      );
+    } else {
+      maps = await MyDatabase.myDatabase.query(
+        'materials',
+        where: 'category = ?',
+        whereArgs: [category],
+        orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
+      );
+    }
+
     Map<String, List<MyMaterial>> materialsMap = {};
     for (var map in maps) {
       var material = MyMaterial.fromMap(map);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
-import 'package:moamri_accounting/controllers/sale_controller.dart';
+import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 

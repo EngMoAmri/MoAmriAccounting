@@ -7,7 +7,6 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../data_sources/my_materials_data_source.dart';
 
 class InventoryController extends GetxController {
-  final searchController = TextEditingController();
   final DataGridController dataGridController = DataGridController();
 
   Rx<bool> searching = false.obs;
@@ -18,6 +17,9 @@ class InventoryController extends GetxController {
   Rx<bool> hasNextPage = true.obs;
   Rx<List<String>> categories = Rx(['All'.tr]);
   Rx<int> selectedCategory = 0.obs;
+  final searchController = TextEditingController();
+  Rx<bool> isSearching =
+      false.obs; // this is to hide sort and categories button
 
   final Rx<List<String>> orderBy = Rx([
     'Name',
@@ -28,7 +30,7 @@ class InventoryController extends GetxController {
     'Modification Date',
     'Tax'
   ]);
-  final Rx<List<String>> _orderByDatabase = Rx([
+  final Rx<List<String>> orderByDatabase = Rx([
     'name',
     'quantity',
     'cost_price',
@@ -50,6 +52,7 @@ class InventoryController extends GetxController {
   }
 
   void firstLoad() async {
+    isSearching.value = false;
     // reset variables
     await getCategories();
     materials.value.clear();
@@ -63,7 +66,7 @@ class InventoryController extends GetxController {
         .then((materialsCount) {
       MyMaterialsDatabase.getMaterials(
               category: categories.value[selectedCategory.value],
-              orderBy: _orderByDatabase.value[selectedOrderBy.value],
+              orderBy: orderByDatabase.value[selectedOrderBy.value],
               dir: (selectedOrderDir.value == 0) ? "ASC" : "DESC",
               page.value)
           .then((newLoadedMaterials) {
@@ -80,22 +83,64 @@ class InventoryController extends GetxController {
     });
   }
 
+  void search() async {
+    isSearching.value = true;
+
+    // reset variables
+    materials.value.clear();
+    page.value = 0;
+    materialsCount.value = 0;
+    hasNextPage.value = true;
+    isFirstLoadRunning.value = true;
+
+    MyMaterialsDatabase.getMaterialsCount(searchedText: searchController.text)
+        .then((materialsCount) {
+      MyMaterialsDatabase.getSearchedMaterials(
+              page.value, searchController.text)
+          .then((newLoadedMaterials) {
+        materials.value = newLoadedMaterials;
+        dataSource.value = MyMaterialsDataSource(materials.value);
+        this.materialsCount.value = materialsCount;
+        if (newLoadedMaterials.isEmpty ||
+            (materials.value.length) == materialsCount) {
+          hasNextPage.value = false;
+        }
+        page.value++;
+        isFirstLoadRunning.value = false;
+      });
+    });
+  }
+
   Future<void> loadMore() async {
     if (hasNextPage.value == true) {
-      var newLoadedMaterials = await MyMaterialsDatabase.getMaterials(
-          category: categories.value[selectedCategory.value],
-          orderBy: _orderByDatabase.value[selectedOrderBy.value],
-          dir: (selectedOrderDir.value == 0) ? "ASC" : "DESC",
-          page.value);
-      materials.value.addAll(newLoadedMaterials);
-      materials.refresh();
-      dataSource.value = MyMaterialsDataSource(materials.value);
-      dataSource.refresh();
-      if (newLoadedMaterials.isEmpty ||
-          (materials.value.length) == materialsCount.value) {
-        hasNextPage.value = false;
+      if (!isSearching.value) {
+        var newLoadedMaterials = await MyMaterialsDatabase.getMaterials(
+            category: categories.value[selectedCategory.value],
+            orderBy: orderByDatabase.value[selectedOrderBy.value],
+            dir: (selectedOrderDir.value == 0) ? "ASC" : "DESC",
+            page.value);
+        materials.value.addAll(newLoadedMaterials);
+        materials.refresh();
+        dataSource.value = MyMaterialsDataSource(materials.value);
+        dataSource.refresh();
+        if (newLoadedMaterials.isEmpty ||
+            (materials.value.length) == materialsCount.value) {
+          hasNextPage.value = false;
+        }
+        page.value++;
+      } else {
+        var newLoadedMaterials = await MyMaterialsDatabase.getSearchedMaterials(
+            page.value, searchController.text);
+        materials.value.addAll(newLoadedMaterials);
+        materials.refresh();
+        dataSource.value = MyMaterialsDataSource(materials.value);
+        dataSource.refresh();
+        if (newLoadedMaterials.isEmpty ||
+            (materials.value.length) == materialsCount.value) {
+          hasNextPage.value = false;
+        }
+        page.value++;
       }
-      page.value++;
     }
   }
 

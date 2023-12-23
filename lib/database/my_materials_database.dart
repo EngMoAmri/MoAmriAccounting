@@ -161,6 +161,8 @@ class MyMaterialsDatabase {
       await txn.update(
         'materials',
         material.toMap(),
+        where: 'id = ?',
+        whereArgs: [material.id],
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
       await txn.delete('materials_larger_units',

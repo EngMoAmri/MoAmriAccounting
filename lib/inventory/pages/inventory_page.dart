@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:moamri_accounting/controllers/inventory_controller.dart';
+import 'package:moamri_accounting/inventory/controllers/inventory_controller.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
-import 'package:moamri_accounting/dialogs/materials/edit_material_dialog.dart';
+import 'package:moamri_accounting/inventory/dialogs/edit_material_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../dialogs/materials/add_material_dialog.dart';
-import '../dialogs/print_dialogs.dart';
+import '../../dialogs/select_category_dialog.dart';
+import '../../dialogs/sort_by_dialog.dart';
+import '../dialogs/add_material_dialog.dart';
+import '../../dialogs/print_dialogs.dart';
+import '../print/print_materials.dart';
 
 // TODO sort, search
 class InventoryPage extends StatelessWidget {
-  const InventoryPage({super.key});
+  InventoryPage({super.key});
   Widget _buildProgressIndicator() {
     return Container(
         height: 60.0,
@@ -53,10 +56,11 @@ class InventoryPage extends StatelessWidget {
     );
   }
 
+  final MainController mainController = Get.find();
+  final InventoryController controller = Get.put(InventoryController());
+
   @override
   Widget build(BuildContext context) {
-    final MainController mainController = Get.find();
-    final InventoryController controller = Get.put(InventoryController());
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -94,10 +98,78 @@ class InventoryPage extends StatelessWidget {
                 ),
               ),
             ),
+            Center(
+                child: Obx(
+                    () => Text("Count: ${controller.materialsCount.value}"))),
+            const SizedBox(
+              width: 10,
+            )
           ],
         ),
-        const SizedBox(
-          height: 10,
+        Padding(
+          padding: const EdgeInsets.all(10),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    controller.selectedCategory.value =
+                        (await showCategoryDialog(controller.categories.value,
+                                controller.selectedCategory.value)) ??
+                            controller.selectedCategory.value;
+                    controller.firstLoad();
+                  },
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      )),
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all(Colors.black54)),
+                  icon: const Icon(Icons.category),
+                  label: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => Text(
+                          'Category: ${controller.categories.value[controller.selectedCategory.value]}'),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    var result = await showSortByDialog(
+                        controller.orderBy.value,
+                        controller.selectedOrderBy.value,
+                        controller.selectedOrderDir.value);
+                    if (result == null) return;
+                    controller.selectedOrderBy.value = result[0];
+                    controller.selectedOrderDir.value = result[1];
+                    controller.firstLoad();
+                  },
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      )),
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      foregroundColor:
+                          MaterialStateProperty.all(Colors.black54)),
+                  icon: const Icon(Icons.category),
+                  label: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Obx(
+                      () => Text(
+                          'Order By: ${controller.orderBy.value[controller.selectedOrderBy.value]},  Sorted: ${(controller.selectedOrderDir.value == 0) ? 'Ascending' : 'Descending'}'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         Expanded(
             child: Obx(() => controller.isFirstLoadRunning.value
@@ -204,33 +276,9 @@ class InventoryPage extends StatelessWidget {
                                       overflow: TextOverflow.ellipsis,
                                     ))),
                             GridColumn(
-                                columnName: 'Note',
+                                columnName: 'TAX/VAT',
                                 columnWidthMode:
                                     ColumnWidthMode.fitByColumnName,
-                                minimumWidth: 120,
-                                label: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 2),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'Note',
-                                      overflow: TextOverflow.ellipsis,
-                                    ))),
-                            GridColumn(
-                                columnName: 'Discount',
-                                columnWidthMode: ColumnWidthMode.fitByCellValue,
-                                minimumWidth: 120,
-                                label: Container(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 2),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'Discount',
-                                      overflow: TextOverflow.ellipsis,
-                                    ))),
-                            GridColumn(
-                                columnName: 'TAX/VAT',
-                                columnWidthMode: ColumnWidthMode.lastColumnFill,
                                 minimumWidth: 120,
                                 label: Container(
                                     padding:
@@ -240,17 +288,18 @@ class InventoryPage extends StatelessWidget {
                                       'TAX/VAT',
                                       overflow: TextOverflow.ellipsis,
                                     ))),
-                            // GridColumn(
-                            //     columnName: 'id',
-                            //     columnWidthMode: ColumnWidthMode.fitByColumnName,
-                            // minimumWidth: 120,
-                            //     label: Container(
-                            //         padding: EdgeInsets.symmetric(vertical:4),
-                            //         alignment: Alignment.center,
-                            //         child: Text(
-                            //           'ID',
-                            //           overflow: TextOverflow.ellipsis,
-                            //         ))),
+                            GridColumn(
+                                columnName: 'Note',
+                                columnWidthMode: ColumnWidthMode.lastColumnFill,
+                                minimumWidth: 120,
+                                label: Container(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 2),
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      'Note',
+                                      overflow: TextOverflow.ellipsis,
+                                    ))),
                           ]),
                     ),
                   ))),
@@ -328,6 +377,10 @@ class InventoryPage extends StatelessWidget {
                           "This Material Belong to Some Purchase or Sales, So It Cannot Be Deleted");
                       return;
                     }
+                    if (!(await showConfirmationDialog(
+                        "Are you sure? you want to delete!"))) {
+                      return;
+                    }
                     await MyMaterialsDatabase.deleteMaterial(material);
                     await showSuccessDialog("Material Has Been Deleted");
                     controller.firstLoad();
@@ -366,7 +419,12 @@ class InventoryPage extends StatelessWidget {
                 ),
                 OutlinedButton.icon(
                   onPressed: () async {
-                    await showPrintDialog("Materials", mainController);
+                    var printType = await showPrintDialog("Materials");
+                    if (printType == "Roll") {
+                      await printMaterialsRoll(mainController);
+                    } else {
+                      await printMaterialsA4(mainController);
+                    }
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(

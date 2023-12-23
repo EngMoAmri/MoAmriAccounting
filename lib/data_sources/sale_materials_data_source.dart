@@ -39,6 +39,15 @@ class SaleMaterialsDataSource extends DataGridSource {
           (controller.totals.value[material.currency] ?? 0.0) +
               saleData["Total"];
     }
+    controller.totals.refresh();
+    controller.totalString.value = "";
+    for (var currency in controller.totals.value.keys.toList()) {
+      controller.totalString.value +=
+          ' ${controller.totals.value[currency]} $currency +';
+    }
+    controller.totalString.value = controller.totalString.value
+        .trim()
+        .substring(0, controller.totalString.value.length - 2);
   }
 
   void addDataGridRow(MyMaterial m, SaleController controller) {
@@ -72,7 +81,7 @@ class SaleMaterialsDataSource extends DataGridSource {
   /// This method will return the index of the row contains the material. if not found -1
   int getMaterialIndex(MyMaterial m) {
     for (var element in salesData) {
-      if (element["Material"] == m) {
+      if (element["Material"].id == m.id) {
         return salesData.indexOf(element);
       }
     }

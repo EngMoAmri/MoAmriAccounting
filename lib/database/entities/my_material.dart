@@ -8,7 +8,6 @@ class MyMaterial {
   final int quantity;
   final double costPrice;
   final double salePrice;
-  final double discount;
   final double tax;
   final String? note;
   final int addedBy;
@@ -25,7 +24,6 @@ class MyMaterial {
     required this.quantity,
     required this.costPrice,
     required this.salePrice,
-    required this.discount,
     required this.tax,
     required this.note,
     required this.addedBy,
@@ -45,7 +43,6 @@ class MyMaterial {
       'quantity': quantity,
       'cost_price': costPrice,
       'sale_price': salePrice,
-      'discount': discount,
       'tax': tax,
       'note': note,
       'added_by': addedBy,
@@ -67,7 +64,6 @@ class MyMaterial {
       quantity: map['quantity'] as int,
       costPrice: map['cost_price'] as double,
       salePrice: map['sale_price'] as double,
-      discount: map['discount'] as double,
       tax: map['tax'] as double,
       note: map['note'] as String?,
       addedBy: map['added_by'] as int,

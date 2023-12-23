@@ -1,19 +1,23 @@
 import 'dart:io';
-// import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
-// import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
-// import 'package:flutter/material.dart' show AssetImage;
 
-Future<dynamic> printMaterialsRoll57(MainController mainController) async {
+// TODO arabic
+Future<dynamic> printMaterialsRoll(MainController mainController) async {
   var materialsMaps = await MyMaterialsDatabase.getAllMaterials();
   var materialsCount = await MyMaterialsDatabase.getMaterialsCount();
-  final Document pdf = Document(deflate: zlib.encode);
+  final Document pdf = Document(
+    deflate: zlib.encode,
+    // theme: ThemeData.withFont(
+    //   // base: Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")), TODO
+    //   base: Font.ttf(await rootBundle.load("assets/fonts/VT323-Regular.ttf")),
+    // )
+  );
   final dateFormat = DateFormat('yyyy-MM-dd');
   final timeFormat = DateFormat('hh:mm a');
   // final img = await rootBundle.load('assets/images/customers.png');TODO
@@ -124,17 +128,17 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
                                   "${material.salePrice} ${material.currency}")))
                     ])
                   ]),
-                  TableRow(children: [
-                    Column(children: [
-                      FittedBox(
-                          fit: BoxFit.fitWidth, child: Text("Max Discount: ")),
-                      Center(
-                          child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(
-                                  "${material.discount} ${material.currency}")))
-                    ])
-                  ])
+                  // TableRow(children: [
+                  //   Column(children: [
+                  //     FittedBox(
+                  //         fit: BoxFit.fitWidth, child: Text("Max Discount: ")),
+                  //     Center(
+                  //         child: FittedBox(
+                  //             fit: BoxFit.fitWidth,
+                  //             child: Text(
+                  //                 "${material.discount} ${material.currency}")))
+                  //   ])
+                  // ])
                 ])),
         Padding(
             padding: const EdgeInsets.all(4),
@@ -187,7 +191,12 @@ Future<dynamic> printMaterialsRoll57(MainController mainController) async {
 Future<dynamic> printMaterialsA4(MainController mainController) async {
   var materialsMaps = await MyMaterialsDatabase.getAllMaterials();
   var materialsCount = await MyMaterialsDatabase.getMaterialsCount();
-  final Document pdf = Document(deflate: zlib.encode);
+  final Document pdf = Document(
+    deflate: zlib.encode,
+    // theme: ThemeData.withFont(
+    //   base: Font.ttf(await rootBundle.load("assets/fonts/VT323-Regular.ttf")),
+    // )
+  );
   final dateFormat = DateFormat('yyyy-MM-dd');
   final timeFormat = DateFormat('hh:mm a');
   List<Widget> widgets = [];
@@ -267,14 +276,6 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                 child: Center(
                     child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: Text("Max Discount",
-                            style: TextStyle(fontWeight: FontWeight.bold)))))),
-        Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(
-                child: Center(
-                    child: FittedBox(
-                        fit: BoxFit.fitWidth,
                         child: Text("Quantity",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
@@ -302,10 +303,6 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
                 child: Text("${material.salePrice} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
-            child: Center(
-                child: Text("${material.discount} ${material.currency}"))),
-        Padding(
-            padding: const EdgeInsets.all(4),
             child:
                 Center(child: Text("${material.quantity} ${material.unit}"))),
         Padding(
@@ -320,7 +317,6 @@ Future<dynamic> printMaterialsA4(MainController mainController) async {
           1: const FlexColumnWidth(1.5),
           2: const FlexColumnWidth(),
           3: const FlexColumnWidth(),
-          4: const FlexColumnWidth(),
         },
         children: rows));
     widgets.add(SizedBox(height: 10));

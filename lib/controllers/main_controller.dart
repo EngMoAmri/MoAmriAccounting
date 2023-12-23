@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 
@@ -22,9 +23,19 @@ class MainController extends GetxController {
     if (storeData.value == null) {
       Get.off(() => const StoreSetupPage());
     } else {
-      Get.off(() => const LoginPage());
+      // Get.off(() => const LoginPage());
+      showDialog(
+          context: Get.context!,
+          barrierDismissible: false,
+          useRootNavigator: false,
+          builder: (context) {
+            return const Dialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                child: LoginPage());
+          });
     }
-    loading.value = false;
+    // loading.value = false;
     super.onInit();
   }
 }

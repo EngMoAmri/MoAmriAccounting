@@ -8,7 +8,7 @@ import 'package:moamri_accounting/pages/sale_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controllers/main_controller.dart';
-import 'inventory_page.dart';
+import '../inventory/pages/inventory_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,23 +24,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final MainController mainController = Get.find();
-    WindowOptions windowOptions = const WindowOptions(
-      // size: Size(800, 600),
-      minimumSize: Size(800, 600),
-      center: true,
-      backgroundColor: Colors.white,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-      windowManager.maximize();
-    });
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: DragToMoveArea(
           child: Row(
             children: [
@@ -237,14 +224,16 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
             child: PageView(
+              physics: const NeverScrollableScrollPhysics(),
+              pageSnapping: false,
               controller: pageController,
               children: [
-                const Row(
+                Row(
                   children: [
                     Expanded(child: InventoryPage()),
                   ],
                 ),
-                const Row(
+                Row(
                   children: [
                     Expanded(child: SalePage()),
                   ],

@@ -11,7 +11,7 @@ class SaleController extends GetxController {
   Rx<bool> searching = false.obs;
   Rx<bool?> visible = Rx(null);
   Rx<Map<String, double>> totals = Rx({});
-
+  Rx<String> totalString = ''.obs;
   Rx<bool> loadingCategories = true.obs;
   Rx<List<String>> categories = Rx([]);
   Rx<int> selectedCategory = 0.obs;

@@ -351,74 +351,74 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         ),
                                       ),
                                       const Divider(),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 4.0, horizontal: 18),
-                                        child: Form(
-                                          // key: discountFormKey,
-                                          autovalidateMode: AutovalidateMode
-                                              .onUserInteraction,
-                                          child: TextFormField(
-                                            controller: saleController
-                                                .dialogDiscountTextController,
-                                            decoration: InputDecoration(
-                                              counterText: '',
-                                              labelText:
-                                                  "Discount Per Unit, Max: ${material.discount} ${material.currency}"
-                                                      .tr,
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              isDense: true,
-                                              contentPadding:
-                                                  const EdgeInsets.all(10),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.green),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
-                                              ),
-                                              border: const OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(12.0)),
-                                              ),
-                                            ),
-                                            onChanged: (value) {
-                                              saleController
-                                                      .dialogDiscount.value =
-                                                  double.tryParse(saleController
-                                                          .dialogDiscountTextController
-                                                          .text) ??
-                                                      0;
-                                            },
-                                            // TODO
-                                            // validator: (value) {
-                                            //   // user does not set a discount
-                                            //   if (value!.isEmpty) {
-                                            //     return null;
-                                            //   }
-                                            //   // trying to parse the new discount
-                                            //   var newDiscount = double.tryParse(value);
-                                            //   if (newDiscount != null) {
-                                            //     if (newDiscount < 0 ||
-                                            //         newDiscount > getTotalPrice()) {
-                                            //       return "must_less_or_equal_value".trParams({
-                                            //         'value':
-                                            //             GlobalMethods.getMoneyWithCurrency(
-                                            //                 getTotalPrice()),
-                                            //       });
-                                            //     }
-                                            //   } else {
-                                            //     return "invalid".tr;
-                                            //   }
-                                            //   return null;
-                                            // },
-                                            keyboardType: const TextInputType
-                                                .numberWithOptions(
-                                                signed: false, decimal: true),
-                                          ),
-                                        ),
-                                      ),
-                                      const Divider(),
+                                      // Padding(
+                                      //   padding: const EdgeInsets.symmetric(
+                                      //       vertical: 4.0, horizontal: 18),
+                                      //   child: Form(
+                                      //     // key: discountFormKey,
+                                      //     autovalidateMode: AutovalidateMode
+                                      //         .onUserInteraction,
+                                      //     child: TextFormField(
+                                      //       controller: saleController
+                                      //           .dialogDiscountTextController,
+                                      //       decoration: InputDecoration(
+                                      //         counterText: '',
+                                      //         labelText:
+                                      //             "Discount Per Unit, Max: ${material.discount} ${material.currency}"
+                                      //                 .tr,
+                                      //         filled: true,
+                                      //         fillColor: Colors.white,
+                                      //         isDense: true,
+                                      //         contentPadding:
+                                      //             const EdgeInsets.all(10),
+                                      //         focusedBorder: OutlineInputBorder(
+                                      //           borderSide: const BorderSide(
+                                      //               color: Colors.green),
+                                      //           borderRadius:
+                                      //               BorderRadius.circular(12),
+                                      //         ),
+                                      //         border: const OutlineInputBorder(
+                                      //           borderRadius: BorderRadius.all(
+                                      //               Radius.circular(12.0)),
+                                      //         ),
+                                      //       ),
+                                      //       onChanged: (value) {
+                                      //         saleController
+                                      //                 .dialogDiscount.value =
+                                      //             double.tryParse(saleController
+                                      //                     .dialogDiscountTextController
+                                      //                     .text) ??
+                                      //                 0;
+                                      //       },
+                                      //       // TODO
+                                      //       // validator: (value) {
+                                      //       //   // user does not set a discount
+                                      //       //   if (value!.isEmpty) {
+                                      //       //     return null;
+                                      //       //   }
+                                      //       //   // trying to parse the new discount
+                                      //       //   var newDiscount = double.tryParse(value);
+                                      //       //   if (newDiscount != null) {
+                                      //       //     if (newDiscount < 0 ||
+                                      //       //         newDiscount > getTotalPrice()) {
+                                      //       //       return "must_less_or_equal_value".trParams({
+                                      //       //         'value':
+                                      //       //             GlobalMethods.getMoneyWithCurrency(
+                                      //       //                 getTotalPrice()),
+                                      //       //       });
+                                      //       //     }
+                                      //       //   } else {
+                                      //       //     return "invalid".tr;
+                                      //       //   }
+                                      //       //   return null;
+                                      //       // },
+                                      //       keyboardType: const TextInputType
+                                      //           .numberWithOptions(
+                                      //           signed: false, decimal: true),
+                                      //     ),
+                                      //   ),
+                                      // ),
+                                      // const Divider(),
                                       // if (saleController
                                       //     .dialogNoteCheckBoxValue.value)
                                       Padding(
@@ -611,6 +611,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                             .dialogNoteTextController.text;
                                         saleController.dataSource.value
                                             .notifyListeners();
+                                        saleController.dataSource.value
+                                            .calculateTotals(saleController);
                                         saleController.dataSource.refresh();
 
                                         Get.back();

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:moamri_accounting/controllers/inventory_controller.dart';
+import 'package:moamri_accounting/inventory/controllers/inventory_controller.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../database/entities/my_material.dart';
+import '../../database/entities/my_material.dart';
 
 class MyMaterialsDataSource extends DataGridSource {
   final List<MyMaterial> materialsData;
@@ -21,10 +21,8 @@ class MyMaterialsDataSource extends DataGridSource {
               columnName: 'Cost Price', value: '${m.costPrice} ${m.currency}'),
           DataGridCell(
               columnName: 'Sale Price', value: '${m.salePrice} ${m.currency}'),
-          DataGridCell(columnName: 'Note', value: m.note ?? ''),
-          DataGridCell(
-              columnName: 'Discount', value: '${m.discount} ${m.currency}'),
           DataGridCell(columnName: 'TAX/VAT', value: m.tax),
+          DataGridCell(columnName: 'Note', value: m.note ?? ''),
           // DataGridCell(columnName: 'Expiry Date', value: m.), TODO
         ]);
       }).toList(growable: false);
@@ -92,7 +90,7 @@ class MyMaterialsDataSource extends DataGridSource {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         alignment: Alignment.center,
         child: Text(
-          row.getCells()[7].value.toString(),
+          '${row.getCells()[7].value} %',
           overflow: TextOverflow.ellipsis,
         ),
       ),
@@ -104,22 +102,6 @@ class MyMaterialsDataSource extends DataGridSource {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          '${row.getCells()[9].value} %',
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      // Container(
-      //   padding: EdgeInsets.symmetric(horizontal: 16.0),
-      //   alignment: Alignment.center,
-      //   child: Text(
-      //     row.getCells()[10].value.toString(),
-      //     overflow: TextOverflow.ellipsis,
-      //   ),
-      // ),
     ]);
   }
 

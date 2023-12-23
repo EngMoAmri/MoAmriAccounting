@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:moamri_accounting/controllers/main_controller.dart';
 
-import '../utils/print_materials.dart';
-
-Future<void> showPrintDialog(
-    String printAction, MainController mainController) async {
+Future<String?> showPrintDialog(String printAction) async {
   // set up the AlertDialog
   AlertDialog alert = AlertDialog(
     icon: const Icon(
@@ -27,10 +23,7 @@ Future<void> showPrintDialog(
         ),
         OutlinedButton.icon(
             onPressed: () async {
-              if (printAction == "Materials") {
-                await printMaterialsRoll57(mainController);
-                Get.back();
-              }
+              Get.back(result: "Roll");
             },
             icon: Image.asset('assets/images/roll-of-paper.png', width: 36),
             style: ButtonStyle(
@@ -45,10 +38,7 @@ Future<void> showPrintDialog(
         ),
         OutlinedButton.icon(
             onPressed: () async {
-              if (printAction == "Materials") {
-                await printMaterialsA4(mainController);
-                Get.back();
-              }
+              Get.back(result: "A4");
             },
             icon: Image.asset(
               'assets/images/document.png',
@@ -66,7 +56,7 @@ Future<void> showPrintDialog(
   );
 
   // show the dialog
-  await showDialog(
+  return await showDialog(
     context: Get.context!,
     builder: (BuildContext context) {
       return alert;

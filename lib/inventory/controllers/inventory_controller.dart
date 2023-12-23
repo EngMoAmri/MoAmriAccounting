@@ -19,9 +19,25 @@ class InventoryController extends GetxController {
   Rx<List<String>> categories = Rx(['All'.tr]);
   Rx<int> selectedCategory = 0.obs;
 
-  Rx<List<String>> orderBy =
-      Rx(['ID', 'Name', 'Price', 'Addition', 'Discount', 'Tax']);
-  Rx<int> selectedOrderBy = 0.obs;
+  final Rx<List<String>> orderBy = Rx([
+    'Name',
+    'Quantity',
+    'Cost Price',
+    'Sale Price',
+    'Addition Date',
+    'Modification Date',
+    'Tax'
+  ]);
+  final Rx<List<String>> _orderByDatabase = Rx([
+    'name',
+    'quantity',
+    'cost_price',
+    'sale_price',
+    'created_at',
+    'updated_at',
+    'tax'
+  ]);
+  Rx<int> selectedOrderBy = 4.obs;
   Rx<int> selectedOrderDir = 1.obs;
 
   Rx<MyMaterialsDataSource> dataSource = Rx(MyMaterialsDataSource([]));
@@ -47,7 +63,7 @@ class InventoryController extends GetxController {
         .then((materialsCount) {
       MyMaterialsDatabase.getMaterials(
               category: categories.value[selectedCategory.value],
-              orderBy: orderBy.value[selectedOrderBy.value],
+              orderBy: _orderByDatabase.value[selectedOrderBy.value],
               dir: (selectedOrderDir.value == 0) ? "ASC" : "DESC",
               page.value)
           .then((newLoadedMaterials) {
@@ -68,7 +84,7 @@ class InventoryController extends GetxController {
     if (hasNextPage.value == true) {
       var newLoadedMaterials = await MyMaterialsDatabase.getMaterials(
           category: categories.value[selectedCategory.value],
-          orderBy: orderBy.value[selectedOrderBy.value],
+          orderBy: _orderByDatabase.value[selectedOrderBy.value],
           dir: (selectedOrderDir.value == 0) ? "ASC" : "DESC",
           page.value);
       materials.value.addAll(newLoadedMaterials);

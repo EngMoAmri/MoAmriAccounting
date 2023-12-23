@@ -11,10 +11,10 @@ import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../../../utils/numerical_range_formatter.dart';
+import '../../utils/numerical_range_formatter.dart';
 
-// TODO remove statefull from this and edit dialog
-Future<bool?> showAddMaterialDialog(MainController mainController) async {
+Future<bool?> showEditMaterialDialog(
+    MainController mainController, MyMaterial oldMaterial) async {
   return await showDialog(
       context: Get.context!,
       barrierDismissible: false,
@@ -22,84 +22,96 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
         final formKey = GlobalKey<FormState>();
         final scrollController = ScrollController();
         final barcodeTextController = TextEditingController();
+        barcodeTextController.text = oldMaterial.barcode;
         final categoryTextController = TextEditingController();
+        categoryTextController.text = oldMaterial.category;
         final nameTextController = TextEditingController();
+        nameTextController.text = oldMaterial.name;
         final quantityTextController = TextEditingController();
+        quantityTextController.text = oldMaterial.quantity.toString();
         final unitTextController = TextEditingController();
+        unitTextController.text = oldMaterial.unit;
         final currencyTextController = TextEditingController();
+        currencyTextController.text = oldMaterial.currency;
         final largerMaterialTextController = TextEditingController();
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
+        bool loadingLargerMaterial = true;
         final costPriceTextController = TextEditingController();
+        costPriceTextController.text = oldMaterial.costPrice.toString();
         final salePriceTextController = TextEditingController();
-        double profit = 0.0;
+        salePriceTextController.text = oldMaterial.salePrice.toString();
+        double profit = oldMaterial.salePrice - oldMaterial.costPrice;
         final taxTextController = TextEditingController();
-        double tax = 0.0;
-        final discountTextController = TextEditingController();
-        double discount = 0.0;
-        double salePriceAfterDiscount = 0.0;
+        taxTextController.text = oldMaterial.tax.toString();
+        double tax = oldMaterial.tax;
+
         final noteTextController = TextEditingController();
+        noteTextController.text = oldMaterial.note ?? '';
         var adding = false;
         var visible = false;
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-          child: FocusTraversalGroup(
-            policy: WidgetOrderTraversalPolicy(),
-            child: Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: const DragToMoveArea(
-                  child: Row(
-                    children: [
-                      Text(
-                        "Add Material",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.grey,
-                elevation: 0,
-                systemOverlayStyle: const SystemUiOverlayStyle(
-                    statusBarColor: Colors.white,
-                    systemNavigationBarColor: Colors.transparent,
-                    systemNavigationBarIconBrightness: Brightness.dark,
-                    statusBarIconBrightness: Brightness.dark,
-                    statusBarBrightness: Brightness.light),
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                    child: IconButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.red,
-                      ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: FocusTraversalGroup(
+              policy: WidgetOrderTraversalPolicy(),
+              child: Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  title: const DragToMoveArea(
+                    child: Row(
+                      children: [
+                        Text(
+                          "Edit Material",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: StatefulBuilder(builder: (context, setState) {
-                  return Column(
-                    children: [
-                      Form(
-                        key: formKey,
-                        child: Expanded(
-                          child: Scrollbar(
-                            controller: scrollController,
-                            interactive: true,
-                            thumbVisibility: true,
-                            thickness: 6, //width of scrollbar
-                            radius: const Radius.circular(
-                                10), //corner radius of scrollbar
-                            scrollbarOrientation: ScrollbarOrientation
-                                .left, //which side to show scrollbar
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.grey,
+                  elevation: 0,
+                  systemOverlayStyle: const SystemUiOverlayStyle(
+                      statusBarColor: Colors.white,
+                      systemNavigationBarColor: Colors.transparent,
+                      systemNavigationBarIconBrightness: Brightness.dark,
+                      statusBarIconBrightness: Brightness.dark,
+                      statusBarBrightness: Brightness.light),
+                  actions: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: IconButton(
+                        onPressed: () {
+                          Get.back();
+                        },
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StatefulBuilder(builder: (context, setState) {
+                    if (largerMaterial == null) {
+                      MyMaterialsDatabase.getMaterialLargerUnitItem(oldMaterial)
+                          .then((value) {
+                        largerMaterial = value?.largerMaterial;
+                        suppliedQuantityTextController.text =
+                            value?.suppliedQuantity.toString() ?? "";
+                        loadingLargerMaterial = false;
+                        setState(() {});
+                      });
+                    }
+                    return Column(
+                      children: [
+                        Form(
+                          key: formKey,
+                          child: Expanded(
                             child: SingleChildScrollView(
                               controller: scrollController,
                               scrollDirection: Axis.vertical,
@@ -134,7 +146,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             children: [
                                               Expanded(
                                                 child: Padding(
-                                                  padding: const EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                       horizontal: 10),
                                                   child: TextFormField(
                                                     textCapitalization:
@@ -178,6 +191,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                           true) {
                                                         return "This field required";
                                                       }
+
                                                       return null;
                                                     },
                                                   ),
@@ -223,8 +237,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
                                                     categoryTextController,
@@ -302,23 +317,18 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Divider(
-                                      height: 1,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Row(
-                                        children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TypeAheadField(
                                                 controller:
                                                     currencyTextController,
+                                                emptyBuilder: (context) =>
+                                                    Container(
+                                                  height: 0,
+                                                ),
                                                 onSelected: (value) {
                                                   setState(() {
                                                     currencyTextController
@@ -401,8 +411,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
                                                     TextCapitalization
@@ -458,8 +469,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
                                                     TextCapitalization
@@ -492,8 +504,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                   counterText: "",
                                                   labelText: 'Quantity',
                                                 ),
-                                                keyboardType: TextInputType
-                                                    .number, // TODO
+                                                keyboardType:
+                                                    TextInputType.number,
                                                 validator: (value) {
                                                   if (value?.trim().isEmpty ??
                                                       true) {
@@ -506,8 +518,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TypeAheadField(
                                                 controller: unitTextController,
                                                 emptyBuilder: (context) =>
@@ -591,49 +604,105 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              child: TypeAheadField(
-                                                  controller:
-                                                      largerMaterialTextController,
-                                                  emptyBuilder: (context) =>
-                                                      Container(
-                                                        height: 0,
-                                                      ),
-                                                  onSelected: (value) {
-                                                    setState(() {
-                                                      largerMaterial = value;
-                                                      largerMaterialTextController
-                                                              .text =
-                                                          '${value.barcode}, ${value.name}';
-                                                    });
-                                                  },
-                                                  suggestionsCallback:
-                                                      (String pattern) async {
-                                                    return await MyMaterialsDatabase
-                                                        .getMaterialsSuggestions(
-                                                            pattern, null);
-                                                  },
-                                                  itemBuilder:
-                                                      (context, suggestion) {
-                                                    return ListTile(
-                                                      title: Text(
-                                                          '${suggestion.barcode}, ${suggestion.name}'),
-                                                    );
-                                                  },
-                                                  builder: (context, controller,
-                                                      focusNode) {
-                                                    return TextFormField(
+                                      child: loadingLargerMaterial
+                                          ? const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          : Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10),
+                                                    child: TypeAheadField(
+                                                        controller:
+                                                            largerMaterialTextController,
+                                                        onSelected: (value) {
+                                                          setState(() {
+                                                            largerMaterial =
+                                                                value;
+                                                            largerMaterialTextController
+                                                                    .text =
+                                                                '${value.barcode}, ${value.name}';
+                                                          });
+                                                        },
+                                                        suggestionsCallback:
+                                                            (String
+                                                                pattern) async {
+                                                          return await MyMaterialsDatabase
+                                                              .getMaterialsSuggestions(
+                                                                  pattern,
+                                                                  oldMaterial
+                                                                      .id);
+                                                        },
+                                                        itemBuilder: (context,
+                                                            suggestion) {
+                                                          return ListTile(
+                                                            title: Text(
+                                                                '${suggestion.barcode}, ${suggestion.name}'),
+                                                          );
+                                                        },
+                                                        builder: (context,
+                                                            controller,
+                                                            focusNode) {
+                                                          return TextFormField(
+                                                            textCapitalization:
+                                                                TextCapitalization
+                                                                    .sentences,
+                                                            controller:
+                                                                largerMaterialTextController,
+                                                            focusNode:
+                                                                focusNode,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              filled: true,
+                                                              fillColor:
+                                                                  Colors.white,
+                                                              isDense: true,
+                                                              contentPadding:
+                                                                  const EdgeInsets
+                                                                      .all(10),
+                                                              focusedBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide: const BorderSide(
+                                                                    color: Colors
+                                                                        .green),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              border:
+                                                                  const OutlineInputBorder(
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            8.0)),
+                                                              ),
+                                                              counterText: "",
+                                                              labelText:
+                                                                  'Larger Unit Material Barcode/Name',
+                                                            ),
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .text,
+                                                          );
+                                                        }),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10),
+                                                    child: TextFormField(
                                                       textCapitalization:
                                                           TextCapitalization
                                                               .sentences,
                                                       controller:
-                                                          largerMaterialTextController,
-                                                      focusNode: focusNode,
+                                                          suppliedQuantityTextController,
                                                       decoration:
                                                           InputDecoration(
                                                         filled: true,
@@ -662,66 +731,26 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                         ),
                                                         counterText: "",
                                                         labelText:
-                                                            'Larger Unit Material Barcode/Name',
+                                                            'Quantity to be supplied',
                                                       ),
                                                       keyboardType:
                                                           TextInputType.text,
-                                                    );
-                                                  }),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              child: TextFormField(
-                                                textCapitalization:
-                                                    TextCapitalization
-                                                        .sentences,
-                                                controller:
-                                                    suppliedQuantityTextController,
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(10),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
+                                                      validator: (value) {
+                                                        if ((value
+                                                                    ?.trim()
+                                                                    .isEmpty ??
+                                                                true) &&
+                                                            largerMaterial !=
+                                                                null) {
+                                                          return "This field required";
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
                                                   ),
-                                                  border:
-                                                      const OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  counterText: "",
-                                                  labelText:
-                                                      'Quantity to be supplied',
                                                 ),
-                                                keyboardType:
-                                                    TextInputType.text,
-                                                validator: (value) {
-                                                  if ((value?.trim().isEmpty ??
-                                                          true) &&
-                                                      largerMaterial != null) {
-                                                    return "This field required";
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
+                                              ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
                                     ),
                                     const Divider(
                                       height: 1,
@@ -732,8 +761,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: Column(
                                                 children: [
                                                   TextFormField(
@@ -807,12 +837,6 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                                     costPriceTextController
                                                                         .text) ??
                                                                 0);
-                                                        salePriceAfterDiscount =
-                                                            (double.tryParse(
-                                                                        salePriceTextController
-                                                                            .text) ??
-                                                                    0) -
-                                                                discount;
                                                         tax = (double.tryParse(
                                                                     taxTextController
                                                                         .text) ??
@@ -874,8 +898,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: Column(
                                                 children: [
                                                   Text("Profit: $profit")
@@ -895,8 +920,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TextFormField(
                                                 onChanged: (value) {
                                                   setState(() {
@@ -962,8 +988,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: Column(
                                                 children: [
                                                   Text("TAX/VAT: $tax")
@@ -983,112 +1010,9 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              child: TextFormField(
-                                                onChanged: (value) {
-                                                  if ((double.tryParse(
-                                                              discountTextController
-                                                                  .text) ??
-                                                          0) >
-                                                      (double.tryParse(
-                                                              salePriceTextController
-                                                                  .text) ??
-                                                          0)) {
-                                                    showErrorDialog(
-                                                        "The discount cannot be greater than sale price");
-                                                    discountTextController
-                                                            .text =
-                                                        salePriceTextController
-                                                            .text;
-                                                    return;
-                                                  }
-                                                  setState(() {
-                                                    discount = (double.tryParse(
-                                                            discountTextController
-                                                                .text) ??
-                                                        0);
-                                                    salePriceAfterDiscount =
-                                                        (double.tryParse(
-                                                                    salePriceTextController
-                                                                        .text) ??
-                                                                0) -
-                                                            discount;
-                                                  });
-                                                },
-                                                textCapitalization:
-                                                    TextCapitalization
-                                                        .sentences,
-                                                controller:
-                                                    discountTextController,
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(10),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  counterText: "",
-                                                  labelText: 'Max Discount',
-                                                ),
-                                                keyboardType:
-                                                    TextInputType.number,
-                                                validator: (value) {
-                                                  if (!(value?.trim().isEmpty ??
-                                                      true)) {
-                                                    if (double.tryParse(
-                                                            value!.trim()) ==
-                                                        null) {
-                                                      return "Enter a valid discount";
-                                                    }
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                      "Least Sale Price: $salePriceAfterDiscount")
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const Divider(
-                                      height: 1,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 10),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
                                               child: TextFormField(
                                                 textCapitalization:
                                                     TextCapitalization
@@ -1134,123 +1058,123 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                             ),
                           ),
                         ),
-                      ),
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (adding)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            ElevatedButton.icon(
-                                onPressed: () async {
-                                  if (formKey.currentState!.validate()) {
-                                    setState(() {
-                                      adding = true;
-                                    });
-                                    final barcode = barcodeTextController.text;
-
-                                    var materialByBarcode =
-                                        await MyMaterialsDatabase
-                                            .getMaterialByBarcode(
-                                                barcode.trim());
-                                    if (materialByBarcode != null) {
-                                      showErrorDialog(
-                                          "This barcode is used by another material");
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (adding)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                child: CircularProgressIndicator(),
+                              )
+                            else
+                              ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (formKey.currentState!.validate()) {
                                       setState(() {
-                                        adding = false;
+                                        adding = true;
                                       });
-                                      return;
-                                    }
-                                    final category =
-                                        categoryTextController.text;
-                                    final currency =
-                                        currencyTextController.text;
-                                    final name = nameTextController.text;
-                                    final quantity =
-                                        int.parse(quantityTextController.text);
-                                    final unit = unitTextController.text;
-                                    final suppliedQuantity = int.tryParse(
-                                        suppliedQuantityTextController.text);
-                                    final costPrice = double.parse(
-                                        costPriceTextController.text);
-                                    final salePrice = double.parse(
-                                        salePriceTextController.text);
-                                    final note = noteTextController.text;
-                                    final now =
-                                        DateTime.now().millisecondsSinceEpoch;
-                                    MyMaterial material = MyMaterial(
-                                        name: name,
-                                        barcode: barcode,
-                                        category: category,
-                                        currency: currency,
-                                        unit: unit,
-                                        quantity: quantity,
-                                        costPrice: costPrice,
-                                        salePrice: salePrice,
-                                        discount: double.tryParse(
-                                                discountTextController.text) ??
-                                            0,
-                                        tax: double.tryParse(
-                                                taxTextController.text) ??
-                                            0,
-                                        note: note,
-                                        addedBy:
-                                            mainController
-                                                .currentUser.value!.id!,
-                                        updatedBy: mainController
-                                            .currentUser.value!.id!,
-                                        createdDate: now,
-                                        updatedDate: now);
-                                    try {
-                                      if (largerMaterial != null) {
-                                        MaterialLargerUnit materialLargerUnit =
-                                            MaterialLargerUnit(
-                                                largerMaterialID:
-                                                    largerMaterial!.id!,
-                                                quantitySupplied:
-                                                    suppliedQuantity!);
-                                        await MyMaterialsDatabase
-                                            .insertMaterial(
-                                                material, materialLargerUnit);
-                                      } else {
-                                        await MyMaterialsDatabase
-                                            .insertMaterial(material, null);
+                                      final barcode =
+                                          barcodeTextController.text;
+                                      var materialByBarcode =
+                                          await MyMaterialsDatabase
+                                              .getMaterialByBarcode(
+                                                  barcode.trim());
+                                      if (materialByBarcode != null &&
+                                          materialByBarcode.id !=
+                                              oldMaterial.id) {
+                                        showErrorDialog(
+                                            "This barcode is used by another material");
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        return;
                                       }
-                                      await showSuccessDialog(
-                                          "Material Added Successfully");
-                                      Get.back(result: true);
-                                    } catch (e) {
-                                      setState(() {
-                                        adding = false;
-                                      });
-                                      showErrorDialog('Error $e');
+                                      final category =
+                                          categoryTextController.text;
+                                      final currency =
+                                          currencyTextController.text;
+                                      final name = nameTextController.text;
+                                      final quantity = int.parse(
+                                          quantityTextController.text);
+                                      final unit = unitTextController.text;
+                                      final suppliedQuantity = int.tryParse(
+                                          suppliedQuantityTextController.text);
+                                      final costPrice = double.parse(
+                                          costPriceTextController.text);
+                                      final salePrice = double.parse(
+                                          salePriceTextController.text);
+                                      final note = noteTextController.text;
+                                      final now =
+                                          DateTime.now().millisecondsSinceEpoch;
+                                      MyMaterial material = MyMaterial(
+                                          id: oldMaterial.id,
+                                          name: name,
+                                          barcode: barcode,
+                                          category: category,
+                                          currency: currency,
+                                          unit: unit,
+                                          quantity: quantity,
+                                          costPrice: costPrice,
+                                          salePrice: salePrice,
+                                          tax: double.tryParse(
+                                                  taxTextController.text) ??
+                                              0,
+                                          note: note,
+                                          addedBy: oldMaterial.addedBy,
+                                          updatedBy: mainController
+                                              .currentUser.value!.id!,
+                                          createdDate: oldMaterial.createdDate,
+                                          updatedDate: now);
+                                      try {
+                                        if (largerMaterial != null) {
+                                          MaterialLargerUnit
+                                              materialLargerUnit =
+                                              MaterialLargerUnit(
+                                                  materialID: oldMaterial.id,
+                                                  largerMaterialID:
+                                                      largerMaterial!.id!,
+                                                  quantitySupplied:
+                                                      suppliedQuantity!);
+                                          await MyMaterialsDatabase
+                                              .updateMaterial(
+                                                  material, materialLargerUnit);
+                                        } else {
+                                          await MyMaterialsDatabase
+                                              .updateMaterial(material, null);
+                                        }
+                                        await showSuccessDialog(
+                                            "Material Edited Successfully");
+                                        Get.back(result: true);
+                                      } catch (e) {
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        showErrorDialog('Error $e');
+                                      }
                                     }
-                                  }
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.yellow),
-                                  foregroundColor:
-                                      MaterialStateProperty.all(Colors.black),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  )),
-                                ),
-                                label: Text("Add".tr),
-                                icon: const Icon(Icons.add)),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                    ],
-                  );
-                }),
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.yellow),
+                                    foregroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    )),
+                                  ),
+                                  label: Text("Done".tr),
+                                  icon: const Icon(Icons.done)),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    );
+                  }),
+                ),
               ),
             ),
           ),

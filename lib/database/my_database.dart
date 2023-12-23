@@ -87,7 +87,6 @@ class MyDatabase {
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
-      discount REAL,
       tax REAL,
       note TEXT,
       added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
@@ -201,8 +200,8 @@ class MyDatabase {
     );
   }
 
-  static Future<void> insertUser(User user) async {
-    await MyDatabase.myDatabase.insert(
+  static Future<int> insertUser(User user) async {
+    return await MyDatabase.myDatabase.insert(
       'users',
       user.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,

@@ -13,14 +13,14 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../controllers/sale_controller.dart';
 import '../dialogs/print_dialogs.dart';
+import '../utils/print_order.dart';
 
-// TODO total
 class SalePage extends StatelessWidget {
-  const SalePage({super.key});
+  SalePage({super.key});
+  final MainController mainController = Get.find();
+  final SaleController controller = Get.put(SaleController());
   @override
   Widget build(BuildContext context) {
-    final MainController mainController = Get.find();
-    final SaleController controller = Get.put(SaleController());
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -187,11 +187,13 @@ class SalePage extends StatelessWidget {
                                   controller.materials.refresh();
                                 },
                                 onDoubleTap: () {
-                                  if (controller.dataSource.value.salesData
-                                      .contains(
-                                          controller.materials.value[index])) {
+                                  var index1 = controller.dataSource.value
+                                      .getMaterialIndex(
+                                          controller.materials.value[index]);
+                                  print(index1.toString());
+                                  if (index1 != -1) {
                                     showSaleMaterialDialog(
-                                        mainController, controller, index);
+                                        mainController, controller, index1);
                                   } else {
                                     controller.selectedMaterial.value = index;
                                     controller.dataSource.value.addDataGridRow(
@@ -211,7 +213,7 @@ class SalePage extends StatelessWidget {
                                     visualDensity: const VisualDensity(
                                         vertical: -3), // to compact
                                     title: Text(
-                                        '${controller.materials.value[index].barcode}, ${controller.materials.value[index].unit} ${controller.materials.value[index].name}'),
+                                        '${controller.materials.value[index].barcode} : ${controller.materials.value[index].unit} :: ${controller.materials.value[index].name}'),
                                   ),
                                 ),
                               );
@@ -364,16 +366,12 @@ class SalePage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                           shape: BoxShape.rectangle,
                           color: Colors.white),
-                      child: Obx(() => ListView.builder(
-                            itemBuilder: (context, index) {
-                              var currency =
-                                  controller.totals.value.keys.toList()[index];
-                              var total = controller.totals.value[currency];
-                              return ListTile(
-                                title: Text('$total $currency'),
-                              );
-                            },
-                            itemCount: controller.totals.value.keys.length,
+                      child: Obx(() => Padding(
+                            padding: const EdgeInsets.only(
+                                top: 20, left: 8, right: 8),
+                            child: SingleChildScrollView(
+                                child: Center(
+                                    child: Text(controller.totalString.value))),
                           ))),
                   Positioned(
                     left: 20,
@@ -466,7 +464,12 @@ class SalePage extends StatelessWidget {
                   children: [
                     OutlinedButton.icon(
                       onPressed: () async {
-                        await showPrintDialog("Materials", mainController);
+                        var printType = await showPrintDialog("Order");
+                        if (printType == "Roll") {
+                          await printOrderRoll(mainController, controller);
+                        } else {
+                          await printOrderA4(mainController, controller);
+                        }
                       },
                       style: ButtonStyle(
                           shape:
@@ -490,7 +493,8 @@ class SalePage extends StatelessWidget {
                     ),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        await showPrintDialog("Materials", mainController);
+                        // TODO
+                        // await showPrintDialog("Materials", mainController);
                       },
                       style: ButtonStyle(
                           shape:

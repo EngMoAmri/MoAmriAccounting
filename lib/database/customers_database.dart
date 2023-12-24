@@ -4,12 +4,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'my_database.dart';
 
 class CustomersDatabase {
-  static Future<String> generateCustomerBarcode() async {
+  static Future<int> getCustomersDebt(Customer customer) async {
     List<Map<String, Object?>> totalRow;
-    totalRow =
-        await MyDatabase.myDatabase.rawQuery("SELECT MAX(id) FROM customers");
-    if (totalRow.isEmpty) return '1000';
-    return '${(int.tryParse(totalRow[0]["MAX(id)"].toString()) ?? 0) + 10000}';
+    totalRow = await MyDatabase.myDatabase.rawQuery(
+        "SELECT SUM(id) FROM customers WHERE name like '%$trimText%'");
+    return int.tryParse(totalRow[0]["COUNT(id)"].toString()) ?? 0;
   }
 
   static Future<int> getCustomersCount({searchedText}) async {

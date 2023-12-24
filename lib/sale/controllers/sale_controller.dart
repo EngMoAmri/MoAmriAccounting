@@ -39,17 +39,13 @@ class SaleController extends GetxController {
   }
 
   // sale material dialog variables
-  final dialogFormKey = GlobalKey<FormState>();
-  final dialogScrollController = ScrollController();
-  final dialogQuantityTextController = TextEditingController();
-  Rx<int> dialogQuantity = 1.obs;
-  // var dialogDiscountCheckBoxValue = false.obs;
-  // var dialogNoteCheckBoxValue = false.obs;
-  final dialogDiscountTextController = TextEditingController();
-  Rx<double> dialogDiscount = 0.0.obs;
-  final dialogTaxTextController = TextEditingController();
-  Rx<double> dialogTax = 0.0.obs;
-  final dialogNoteTextController = TextEditingController();
+  final materialDialogFormKey = GlobalKey<FormState>();
+  final materialDialogScrollController = ScrollController();
+  final materialDialogQuantityTextController = TextEditingController();
+  Rx<int> materialDialogQuantity = 1.obs;
+  final materialDialogTaxTextController = TextEditingController();
+  Rx<double> materialDialogTax = 0.0.obs;
+  final materialDialogNoteTextController = TextEditingController();
 
   @override
   void onInit() {

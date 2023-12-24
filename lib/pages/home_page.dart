@@ -8,6 +8,7 @@ import 'package:moamri_accounting/sale/pages/sale_page.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../controllers/main_controller.dart';
+import '../customers/pages/customers_page.dart';
 import '../inventory/pages/inventory_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -122,47 +123,47 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 2,
-                  title: 'Suppliers',
+                  title: 'Customers',
                   onTap: () {
                     pageController.jumpToPage(2);
                     setState(() {
                       selectedPage = 2;
                     });
                   },
-                  icon: Image.asset('assets/images/supplier.png'),
+                  icon: Image.asset('assets/images/customers.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 3,
-                  title: 'Purchases',
+                  title: 'Suppliers',
                   onTap: () {
                     pageController.jumpToPage(3);
                     setState(() {
                       selectedPage = 3;
                     });
                   },
-                  icon: Image.asset('assets/images/purchases.png'),
+                  icon: Image.asset('assets/images/supplier.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 4,
-                  title: 'Sales',
+                  title: 'Purchases',
                   onTap: () {
                     pageController.jumpToPage(4);
                     setState(() {
                       selectedPage = 4;
                     });
                   },
-                  icon: Image.asset('assets/images/sales.png'),
+                  icon: Image.asset('assets/images/purchases.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 5,
-                  title: 'Customers',
+                  title: 'Sales',
                   onTap: () {
                     pageController.jumpToPage(5);
                     setState(() {
                       selectedPage = 5;
                     });
                   },
-                  icon: Image.asset('assets/images/customers.png'),
+                  icon: Image.asset('assets/images/sales.png'),
                 ),
                 SideMenuItemDataTile(
                   isSelected: selectedPage == 6,
@@ -238,10 +239,10 @@ class _HomePageState extends State<HomePage> {
                     Expanded(child: SalePage()),
                   ],
                 ),
-                Container(
-                  child: const Center(
-                    child: Text('Purchases'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(child: CustomersPage()),
+                  ],
                 ),
                 Container(
                   child: const Center(

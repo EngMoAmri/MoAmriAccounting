@@ -118,7 +118,6 @@ class MyDatabase {
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
       description TEXT NOT NULL,
-      enabled INTEGER  CHECK( enabled IN (1, 0) ) NOT NULL DEFAULT 1,
       added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
       updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
       created_at INTEGER NOT NULL,

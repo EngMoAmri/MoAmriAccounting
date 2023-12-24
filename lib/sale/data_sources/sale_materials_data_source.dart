@@ -13,14 +13,11 @@ class SaleMaterialsDataSource extends DataGridSource {
         return DataGridRow(cells: [
           DataGridCell(columnName: 'Barcode', value: m.barcode),
           DataGridCell(columnName: 'Name', value: m.name),
-          DataGridCell(columnName: 'Price', value: m.salePrice),
+          DataGridCell(
+              columnName: 'Price', value: '${m.salePrice} ${m.currency}'),
           DataGridCell(
               columnName: 'Quantity',
               value: "${saleData['Quantity']} ${m.unit}"),
-          DataGridCell(
-              columnName: 'Discount',
-              value:
-                  '${(saleData['Discount'] ?? 0.0) * saleData['Quantity']} ${m.currency}'),
           DataGridCell(
               columnName: 'TAX/VAT',
               value:
@@ -33,28 +30,29 @@ class SaleMaterialsDataSource extends DataGridSource {
 
   void calculateTotals(SaleController controller) {
     controller.totals.value.clear();
-    for (var saleData in salesData) {
-      var material = saleData["Material"] as MyMaterial;
-      controller.totals.value[material.currency] =
-          (controller.totals.value[material.currency] ?? 0.0) +
-              saleData["Total"];
+    if (salesData.isNotEmpty) {
+      for (var saleData in salesData) {
+        var material = saleData["Material"] as MyMaterial;
+        controller.totals.value[material.currency] =
+            (controller.totals.value[material.currency] ?? 0.0) +
+                saleData["Total"];
+      }
+      controller.totals.refresh();
+      controller.totalString.value = "";
+      for (var currency in controller.totals.value.keys.toList()) {
+        controller.totalString.value +=
+            '${controller.totals.value[currency]} $currency \n';
+      }
+      controller.totalString.value = controller.totalString.value.trim();
+    } else {
+      controller.totalString.value = '';
     }
-    controller.totals.refresh();
-    controller.totalString.value = "";
-    for (var currency in controller.totals.value.keys.toList()) {
-      controller.totalString.value +=
-          ' ${controller.totals.value[currency]} $currency +';
-    }
-    controller.totalString.value = controller.totalString.value
-        .trim()
-        .substring(0, controller.totalString.value.length - 2);
   }
 
   void addDataGridRow(MyMaterial m, SaleController controller) {
     salesData.add({
       "Material": m,
       "Quantity": 1,
-      "Discount": 0.0,
       "Tax": m.tax,
       "Total": (m.salePrice * m.tax) + m.salePrice,
       "Note": ''
@@ -144,14 +142,6 @@ class SaleMaterialsDataSource extends DataGridSource {
         alignment: Alignment.center,
         child: Text(
           row.getCells()[6].value.toString(),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[7].value.toString(),
           overflow: TextOverflow.ellipsis,
         ),
       ),

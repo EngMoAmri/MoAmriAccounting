@@ -9,7 +9,6 @@ Future<dynamic> showConfirmationDialog(
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Attention".tr),
-          icon: const Icon(Icons.question_mark),
           content: Text(
             message,
             textAlign: TextAlign.justify,

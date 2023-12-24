@@ -345,18 +345,6 @@ class SalePage extends StatelessWidget {
                                     overflow: TextOverflow.ellipsis,
                                   ))),
                           GridColumn(
-                              columnName: 'Discount',
-                              columnWidthMode: ColumnWidthMode.fitByCellValue,
-                              minimumWidth: 120,
-                              label: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2),
-                                  alignment: Alignment.center,
-                                  child: const Text(
-                                    'Discount',
-                                    overflow: TextOverflow.ellipsis,
-                                  ))),
-                          GridColumn(
                               columnName: 'TAX/VAT',
                               columnWidthMode: ColumnWidthMode.fitByCellValue,
                               minimumWidth: 120,
@@ -410,7 +398,7 @@ class SalePage extends StatelessWidget {
                       children: <Widget>[
                         Container(
                             width: double.infinity,
-                            height: 80,
+                            height: 120,
                             margin: const EdgeInsets.all(8),
                             padding: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
@@ -443,9 +431,7 @@ class SalePage extends StatelessWidget {
                         ),
                       ],
                     )),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    Expanded(child: Container()),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -461,7 +447,7 @@ class SalePage extends StatelessWidget {
                                 controller.dataSource.refresh();
                               } else {
                                 showErrorDialog(
-                                    "Please a material to be deleted");
+                                    "Please select a material to be deleted");
                               }
                             },
                             style: ButtonStyle(
@@ -486,6 +472,12 @@ class SalePage extends StatelessWidget {
                           ),
                           OutlinedButton.icon(
                             onPressed: () async {
+                              if (!(await showConfirmationDialog(
+                                      "Are you sure? you want to clear all items!") ??
+                                  false)) {
+                                return;
+                              }
+
                               controller.dataSource.value
                                   .clearDataGridRows(controller);
                               controller.dataSource.refresh();
@@ -496,9 +488,9 @@ class SalePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8.0),
                                 )),
                                 backgroundColor:
-                                    MaterialStateProperty.all(Colors.white),
+                                    MaterialStateProperty.all(Colors.red),
                                 foregroundColor:
-                                    MaterialStateProperty.all(Colors.red)),
+                                    MaterialStateProperty.all(Colors.white)),
                             icon: const Icon(Icons.clear),
                             label: FittedBox(
                                 fit: BoxFit.fitWidth,
@@ -509,17 +501,7 @@ class SalePage extends StatelessWidget {
                                       'Clear All',
                                     ))),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
+                          const Divider(),
                           OutlinedButton.icon(
                             onPressed: () async {
                               var printType = await showPrintDialog("Order");
@@ -536,40 +518,14 @@ class SalePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8.0),
                                 )),
                                 backgroundColor:
-                                    MaterialStateProperty.all(Colors.white),
+                                    MaterialStateProperty.all(Colors.green),
                                 foregroundColor:
-                                    MaterialStateProperty.all(Colors.black54)),
-                            icon: const Icon(Icons.print),
+                                    MaterialStateProperty.all(Colors.black)),
+                            icon: const Icon(Icons.shopping_bag),
                             label: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 120),
                               child: const FittedBox(
-                                  fit: BoxFit.fitWidth,
-                                  child: Text('Print Current Order')),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 4,
-                          ),
-                          OutlinedButton.icon(
-                            onPressed: () async {
-                              // TODO
-                              // await showPrintDialog("Materials", mainController);
-                            },
-                            style: ButtonStyle(
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                )),
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.white),
-                                foregroundColor:
-                                    MaterialStateProperty.all(Colors.black54)),
-                            icon: const Icon(Icons.print),
-                            label: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 120),
-                              child: const FittedBox(
-                                  fit: BoxFit.fitWidth,
-                                  child: Text('Print Last Order')),
+                                  fit: BoxFit.fitWidth, child: Text('Sale')),
                             ),
                           ),
                         ],

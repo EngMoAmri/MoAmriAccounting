@@ -10,67 +10,72 @@ Future<dynamic> showCategoryDialog(
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 250),
-            child: StatefulBuilder(builder: (context, setState) {
-              return Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Center(
-                    child: Text(
-                      "Category".tr,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400, maxWidth: 250),
+              child: StatefulBuilder(builder: (context, setState) {
+                return Column(
+                  children: [
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListView.builder(
-                              shrinkWrap: true,
-                              itemBuilder: (context, position) {
-                                return RadioListTile(
-                                  activeColor: Colors.blue,
-                                  title: Text(categoriesList[position]),
-                                  value: position,
-                                  groupValue: category,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      category = value!;
-                                    });
-                                  },
-                                );
-                              },
-                              itemCount: categoriesList.length),
-                        ],
+                    const Center(
+                      child: Text(
+                        "الصنف",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ),
-                  const Divider(),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(Get.context!, category);
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.blue),
-                        foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        )),
+                    const Divider(),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListView.builder(
+                                shrinkWrap: true,
+                                itemBuilder: (context, position) {
+                                  return RadioListTile(
+                                    activeColor: Colors.blue,
+                                    title: Text(categoriesList[position]),
+                                    value: position,
+                                    groupValue: category,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        category = value!;
+                                      });
+                                    },
+                                  );
+                                },
+                                itemCount: categoriesList.length),
+                          ],
+                        ),
                       ),
-                      child: Text("OK".tr)),
-                  const SizedBox(
-                    height: 10,
-                  )
-                ],
-              );
-            }),
+                    ),
+                    const Divider(),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(Get.context!, category);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.blue),
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white),
+                          shape:
+                              MaterialStateProperty.all(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          )),
+                        ),
+                        child: const Text("تم")),
+                    const SizedBox(
+                      height: 10,
+                    )
+                  ],
+                );
+              }),
+            ),
           ),
         );
       });

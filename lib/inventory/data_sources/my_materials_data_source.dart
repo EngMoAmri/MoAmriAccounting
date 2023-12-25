@@ -21,7 +21,6 @@ class MyMaterialsDataSource extends DataGridSource {
               columnName: 'Cost Price', value: '${m.costPrice} ${m.currency}'),
           DataGridCell(
               columnName: 'Sale Price', value: '${m.salePrice} ${m.currency}'),
-          DataGridCell(columnName: 'TAX/VAT', value: m.tax),
           DataGridCell(columnName: 'Note', value: m.note ?? ''),
           // DataGridCell(columnName: 'Expiry Date', value: m.), TODO
         ]);
@@ -90,15 +89,7 @@ class MyMaterialsDataSource extends DataGridSource {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         alignment: Alignment.center,
         child: Text(
-          '${row.getCells()[7].value} %',
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[8].value.toString(),
+          row.getCells()[7].value.toString(),
           overflow: TextOverflow.ellipsis,
         ),
       ),

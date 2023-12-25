@@ -20,14 +20,14 @@ class LoginController extends GetxController {
       var username = usernameController.text;
       var password = passwordController.text;
       if (username.trim().isEmpty || password.trim().isEmpty) {
-        showErrorDialog("All Fields Are Required");
+        showErrorDialog("كل الحقول مطلوبة");
         return;
       }
       try {
         mainController.currentUser.value =
             await MyDatabase.getUser(username, password);
         if (mainController.currentUser.value == null) {
-          showErrorDialog("User Not Found");
+          showErrorDialog("معلومات المستخدم غير صحيحة");
           // TODO limit the number of trys
         } else {
           // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
@@ -35,9 +35,7 @@ class LoginController extends GetxController {
         }
       } catch (e) {
         log("Error: $e");
-        Get.showSnackbar(GetSnackBar(
-          title: "Error: $e",
-        ));
+        showErrorDialog("خطأ: $e");
       }
     }
   }

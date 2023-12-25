@@ -19,10 +19,6 @@ class SaleMaterialsDataSource extends DataGridSource {
               columnName: 'Quantity',
               value: "${saleData['Quantity']} ${m.unit}"),
           DataGridCell(
-              columnName: 'TAX/VAT',
-              value:
-                  '${saleData['Tax'] ?? m.tax}% = ${saleData['Quantity'] * ((saleData['Tax'] ?? m.tax) / 100) * (m.salePrice - (saleData['Discount'] ?? 0.0))} ${m.currency}'),
-          DataGridCell(
               columnName: 'Total', value: '${saleData['Total']} ${m.currency}'),
           DataGridCell(columnName: 'Note', value: '${saleData['Note'] ?? ''}'),
         ]);
@@ -50,13 +46,8 @@ class SaleMaterialsDataSource extends DataGridSource {
   }
 
   void addDataGridRow(MyMaterial m, SaleController controller) {
-    salesData.add({
-      "Material": m,
-      "Quantity": 1,
-      "Tax": m.tax,
-      "Total": (m.salePrice * m.tax) + m.salePrice,
-      "Note": ''
-    });
+    salesData
+        .add({"Material": m, "Quantity": 1, "Total": m.salePrice, "Note": ''});
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
@@ -134,14 +125,6 @@ class SaleMaterialsDataSource extends DataGridSource {
         alignment: Alignment.center,
         child: Text(
           row.getCells()[5].value.toString(),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[6].value.toString(),
           overflow: TextOverflow.ellipsis,
         ),
       ),

@@ -1,8 +1,7 @@
-import 'package:get/get.dart';
-import 'package:moamri_accounting/database/entities/material_larger_unit.dart';
 import 'package:moamri_accounting/database/items/material_larger_unit_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'entities/activity.dart';
 import 'entities/my_material.dart';
 import 'my_database.dart';
 
@@ -85,7 +84,7 @@ class MyMaterialsDatabase {
   static Future<int> getMaterialsCount({category, searchedText}) async {
     List<Map<String, Object?>> totalRow;
     if (searchedText == null) {
-      if (category == 'All'.tr || category == null) {
+      if (category == 'الكل' || category == null) {
         totalRow = await MyDatabase.myDatabase
             .rawQuery('SELECT COUNT(id) FROM materials');
       } else {
@@ -127,9 +126,9 @@ class MyMaterialsDatabase {
     );
   }
 
-  static Future<void> insertMaterial(
-      MyMaterial material, MaterialLargerUnit? materialLargerUnit) async {
-    await MyDatabase.myDatabase.transaction((txn) async {
+  static Future<int> insertMaterial(MyMaterial material, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.insert(
         'units',
         {'name': material.unit},
@@ -140,21 +139,37 @@ class MyMaterialsDatabase {
         {'name': material.currency},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
-      var materialID = await txn.insert(
+      material.id = await txn.insert(
         'materials',
         material.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.fail,
+        conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      if (materialLargerUnit != null) {
-        materialLargerUnit.materialID = materialID;
-        await txn.insert('materials_larger_units', materialLargerUnit.toMap());
-      }
+
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate, action: 'add', tableName: 'materials_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = material.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('material_id', () => material.id);
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'materials_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      return material.id!;
     });
   }
 
-  static Future<void> updateMaterial(
-      MyMaterial material, MaterialLargerUnit? materialLargerUnit) async {
-    await MyDatabase.myDatabase.transaction((txn) async {
+  static Future<void> updateMaterial(MyMaterial material, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.insert(
         'units',
         {'name': material.unit},
@@ -172,17 +187,56 @@ class MyMaterialsDatabase {
         whereArgs: [material.id],
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      await txn.delete('materials_larger_units',
-          where: 'material_id = ?', whereArgs: [material.id]);
-      if (materialLargerUnit != null) {
-        await txn.insert('materials_larger_units', materialLargerUnit.toMap());
-      }
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate,
+                action: 'update',
+                tableName: 'materials_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = material.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('material_id', () => material.id);
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'materials_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     });
   }
 
-  static Future<void> deleteMaterial(MyMaterial material) async {
-    await MyDatabase.myDatabase
-        .delete('materials', where: 'id = ?', whereArgs: [material.id]);
+  static Future<void> deleteMaterial(MyMaterial material, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      await txn.delete(
+        'materials',
+        where: 'id = ?',
+        whereArgs: [material.id],
+      );
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate,
+                action: 'delete',
+                tableName: 'materials_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = material.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('material_id', () => material.id);
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'materials_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
   }
 
   static Future<MyMaterial> getMaterialByID(int id) async {
@@ -192,21 +246,10 @@ class MyMaterialsDatabase {
         .first); // the maps can not be empty or this method can not be called with empty material
   }
 
-  static Future<bool> isMaterialDeletable(int id) async {
-    // TODO test
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
-        .query('sales', where: "material_id = ?", whereArgs: [id]);
-    if (maps.isNotEmpty) return false;
-    List<Map<String, dynamic>> maps2 = await MyDatabase.myDatabase
-        .query('purchases', where: "material_id = ?", whereArgs: [id]);
-    if (maps2.isNotEmpty) return false;
-    return true;
-  }
-
   static Future<List<MyMaterial>> getMaterials(int page,
       {category, orderBy, dir}) async {
     List<Map<String, dynamic>> maps;
-    if (category == 'All'.tr || category == null) {
+    if (category == 'الكل' || category == null) {
       maps = await MyDatabase.myDatabase.query(
         'materials',
         limit: 40,
@@ -267,7 +310,7 @@ class MyMaterialsDatabase {
       category, orderBy, dir) async {
     List<Map<String, dynamic>> maps;
 
-    if (category == 'All'.tr || category == null) {
+    if (category == 'الكل' || category == null) {
       maps = await MyDatabase.myDatabase.query(
         'materials',
         orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",

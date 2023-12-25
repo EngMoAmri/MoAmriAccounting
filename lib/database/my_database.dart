@@ -3,6 +3,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'entities/activity.dart';
 import 'entities/store.dart';
 import 'entities/user.dart';
 
@@ -97,19 +98,17 @@ class MyDatabase {
     )
     ''');
     // insert the default units
-    await myDatabase.insert('units', {'name': 'CM'},
+    await myDatabase.insert('units', {'name': 'قطعة'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Meter'},
+    await myDatabase.insert('units', {'name': 'كيلو'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Ton'},
+    await myDatabase.insert('units', {'name': 'طن'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Pound'},
+    await myDatabase.insert('units', {'name': 'جرام'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Kilo'},
+    await myDatabase.insert('units', {'name': 'متر'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Gram'},
-        conflictAlgorithm: ConflictAlgorithm.ignore);
-    await myDatabase.insert('units', {'name': 'Piece'},
+    await myDatabase.insert('units', {'name': 'سم'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS materials (
@@ -122,9 +121,8 @@ class MyDatabase {
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
-      tax REAL,
       note TEXT,
-      larger_material_id INTEGER REFERENCES materials(id) ON DELETE CASCADE,
+      larger_material_id INTEGER REFERENCES materials(id) ON DELETE RESTRICT,
       larger_quantity_supplied INTEGER
     )
     ''');
@@ -140,7 +138,6 @@ class MyDatabase {
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
-      tax REAL,
       note TEXT,
       larger_material_id INTEGER,
       larger_quantity_supplied INTEGER,
@@ -190,15 +187,15 @@ class MyDatabase {
     await myDatabase.execute("""
     CREATE TABLE IF NOT EXISTS offers_materials(
       offer_id INTEGER, 
-      materials_id INTEGER,
+      material_id INTEGER,
       quantity INTEGER NOT NULL, 
-      PRIMARY KEY(offer_id, product_id),
+      PRIMARY KEY(offer_id, material_id),
       FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE, 
-      FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
+      FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE CASCADE
     )
     """);
     await myDatabase.execute("""
-    CREATE TABLE IF NOT EXISTS offers_products_history(
+    CREATE TABLE IF NOT EXISTS offers_materials_history(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       offer_history_id INTEGER NOT NULL REFERENCES offers_history(id) ON DELETE CASCADE,
       offer_id INTEGER, 
@@ -454,7 +451,7 @@ class MyDatabase {
 
   static Future<Store?> getStoreData() async {
     var maps = await myDatabase.rawQuery('''
-      SELECT * FROM store
+      SELECT * FROM store ORDER BY id DESC
     ''');
     if (maps.isEmpty) return null;
     return Store.fromMap(maps.first);
@@ -468,12 +465,34 @@ class MyDatabase {
     );
   }
 
-  static Future<int> insertUser(User user) async {
-    return await MyDatabase.myDatabase.insert(
-      'users',
-      user.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  static Future<int> insertUser(User user, int? actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      user.id = await txn.insert(
+        'users',
+        user.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      await txn.insert(
+        'activities',
+        Activity(date: actionDate, action: 'add', tableName: 'users_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = user.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('user_id', () => user.id);
+      historyMap.putIfAbsent('action_by', () => actionBy ?? user.id);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'users_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      return user.id!;
+    });
   }
 
   static Future<User?> getUser(String username, String password) async {

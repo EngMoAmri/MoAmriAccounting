@@ -13,111 +13,116 @@ Future<dynamic> showSortByDialog(
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 400, maxWidth: 250),
-            child: StatefulBuilder(builder: (context, setState) {
-              return Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Center(
-                    child: Text(
-                      "Order By".tr,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400, maxWidth: 250),
+              child: StatefulBuilder(builder: (context, setState) {
+                return Column(
+                  children: [
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: Scrollbar(
-                      controller: scrollController,
-                      thumbVisibility: true,
-                      trackVisibility: true,
-                      child: SingleChildScrollView(
+                    Center(
+                      child: Text(
+                        "ترتيب حسب".tr,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(),
+                    Expanded(
+                      child: Scrollbar(
                         controller: scrollController,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListView.builder(
-                                shrinkWrap: true,
-                                itemBuilder: (context, position) {
-                                  return RadioListTile(
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListView.builder(
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, position) {
+                                    return RadioListTile(
+                                      activeColor: Colors.blue,
+                                      title: Text(orderByList[position].tr),
+                                      value: position,
+                                      groupValue: orderBy,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          orderBy = value!;
+                                        });
+                                      },
+                                    );
+                                  },
+                                  itemCount: orderByList.length),
+                              const Divider(),
+                              Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      "إتجاة الترتيب".tr,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  RadioListTile(
                                     activeColor: Colors.blue,
-                                    title: Text(orderByList[position].tr),
-                                    value: position,
-                                    groupValue: orderBy,
+                                    title: Text("تصاعدي".tr),
+                                    value: 0,
+                                    groupValue: orderDir,
                                     onChanged: (value) {
                                       setState(() {
-                                        orderBy = value!;
+                                        orderDir = value!;
                                       });
                                     },
-                                  );
-                                },
-                                itemCount: orderByList.length),
-                            const Divider(),
-                            Column(
-                              children: [
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Center(
-                                  child: Text(
-                                    "Order Direction".tr,
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
                                   ),
-                                ),
-                                RadioListTile(
-                                  activeColor: Colors.blue,
-                                  title: Text("Ascending".tr),
-                                  value: 0,
-                                  groupValue: orderDir,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      orderDir = value!;
-                                    });
-                                  },
-                                ),
-                                RadioListTile(
-                                  activeColor: Colors.blue,
-                                  title: Text("Descending".tr),
-                                  value: 1,
-                                  groupValue: orderDir,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      orderDir = value!;
-                                    });
-                                  },
-                                )
-                              ],
-                            ),
-                          ],
+                                  RadioListTile(
+                                    activeColor: Colors.blue,
+                                    title: Text("تنازلي".tr),
+                                    value: 1,
+                                    groupValue: orderDir,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        orderDir = value!;
+                                      });
+                                    },
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const Divider(),
-                  ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(Get.context!, [orderBy, orderDir]);
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.blue),
-                        foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        )),
-                      ),
-                      child: Text("OK".tr)),
-                  const SizedBox(
-                    height: 10,
-                  )
-                ],
-              );
-            }),
+                    const Divider(),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(Get.context!, [orderBy, orderDir]);
+                        },
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.blue),
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white),
+                          shape:
+                              MaterialStateProperty.all(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          )),
+                        ),
+                        child: Text("تم".tr)),
+                    const SizedBox(
+                      height: 10,
+                    )
+                  ],
+                );
+              }),
+            ),
           ),
         );
       });

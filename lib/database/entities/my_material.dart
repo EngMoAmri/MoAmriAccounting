@@ -8,12 +8,10 @@ class MyMaterial {
   final int quantity;
   final double costPrice;
   final double salePrice;
-  final double tax;
   final String? note;
-  final int addedBy;
-  final int updatedBy;
-  final int createdDate;
-  final int updatedDate;
+  final int? largerMaterialID;
+  final int? quantitySupplied;
+
   MyMaterial({
     this.id,
     required this.name,
@@ -24,12 +22,9 @@ class MyMaterial {
     required this.quantity,
     required this.costPrice,
     required this.salePrice,
-    required this.tax,
     required this.note,
-    required this.addedBy,
-    required this.updatedBy,
-    required this.createdDate,
-    required this.updatedDate,
+    this.largerMaterialID,
+    this.quantitySupplied,
   });
 
   Map<String, dynamic> toMap() {
@@ -43,12 +38,9 @@ class MyMaterial {
       'quantity': quantity,
       'cost_price': costPrice,
       'sale_price': salePrice,
-      'tax': tax,
       'note': note,
-      'added_by': addedBy,
-      'updated_by': updatedBy,
-      'created_at': createdDate,
-      'updated_at': updatedDate
+      'larger_material_id': largerMaterialID,
+      'larger_quantity_supplied': quantitySupplied
     };
   }
 
@@ -64,12 +56,9 @@ class MyMaterial {
       quantity: map['quantity'] as int,
       costPrice: map['cost_price'] as double,
       salePrice: map['sale_price'] as double,
-      tax: map['tax'] as double,
       note: map['note'] as String?,
-      addedBy: map['added_by'] as int,
-      updatedBy: map['updated_by'] as int,
-      createdDate: map['created_at'] as int,
-      updatedDate: map['updated_at'] as int,
+      largerMaterialID: map['larger_material_id'] as int?,
+      quantitySupplied: map['quantity_supplied'] as int?,
     );
   }
 }

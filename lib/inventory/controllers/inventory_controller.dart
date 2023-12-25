@@ -15,30 +15,16 @@ class InventoryController extends GetxController {
   Rx<int> materialsCount = 0.obs;
   Rx<bool> isFirstLoadRunning = false.obs;
   Rx<bool> hasNextPage = true.obs;
-  Rx<List<String>> categories = Rx(['All'.tr]);
+  Rx<List<String>> categories = Rx(['الكل']);
   Rx<int> selectedCategory = 0.obs;
   final searchController = TextEditingController();
   Rx<bool> isSearching =
       false.obs; // this is to hide sort and categories button
 
-  final Rx<List<String>> orderBy = Rx([
-    'Name',
-    'Quantity',
-    'Cost Price',
-    'Sale Price',
-    'Addition Date',
-    'Modification Date',
-    'Tax'
-  ]);
-  final Rx<List<String>> orderByDatabase = Rx([
-    'name',
-    'quantity',
-    'cost_price',
-    'sale_price',
-    'created_at',
-    'updated_at',
-    'tax'
-  ]);
+  final Rx<List<String>> orderBy =
+      Rx(['الاسم', 'الكمية', 'سعر الشراء', 'سعر البيع', 'الإضافة']);
+  final Rx<List<String>> orderByDatabase =
+      Rx(['name', 'quantity', 'cost_price', 'sale_price', 'id']);
   Rx<int> selectedOrderBy = 4.obs;
   Rx<int> selectedOrderDir = 1.obs;
 
@@ -46,7 +32,7 @@ class InventoryController extends GetxController {
   Future<void> getCategories() async {
     var categories = await MyMaterialsDatabase.getMaterialsCategories();
     this.categories.value.clear();
-    this.categories.value.add('All'.tr);
+    this.categories.value.add('الكل');
     this.categories.value.addAll(categories);
     this.categories.refresh();
   }

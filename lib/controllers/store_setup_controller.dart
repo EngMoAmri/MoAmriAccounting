@@ -43,13 +43,12 @@ class StoreSetupController extends GetxController {
           adminName.trim().isEmpty ||
           adminUsername.trim().isEmpty ||
           adminPassword.trim().isEmpty) {
-        showErrorDialog("All Feilds Are Required");
+        showErrorDialog("كل الحقول مطلوبة");
 
         return;
       }
       // store data
       Store store = Store(
-          id: 1,
           name: storeName,
           branch: storeBranch,
           address: storeAddress,
@@ -67,13 +66,13 @@ class StoreSetupController extends GetxController {
           updatedDate: DateTime.now().millisecondsSinceEpoch);
       try {
         await MyDatabase.setStoreData(store);
-        user.id = await MyDatabase.insertUser(user);
+        user.id = await MyDatabase.insertUser(user, null);
         await MyMaterialsDatabase.insertCurrency(currency);
         final mainController = Get.put(MainController());
         mainController.storeData.value = store;
         mainController.currentUser.value = user;
         // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
-        await showSuccessDialog("Store Created Successfully");
+        await showSuccessDialog("تم إنشاء متجرك بنجاح");
         WindowOptions windowOptions = const WindowOptions(
           // size: Size(800, 600),
           minimumSize: Size(800, 600),
@@ -91,9 +90,7 @@ class StoreSetupController extends GetxController {
         Get.off(() => const HomePage());
       } catch (e) {
         log("Error: $e");
-        Get.showSnackbar(GetSnackBar(
-          title: "Error: $e",
-        ));
+        showErrorDialog("خطأ: $e");
       }
     }
   }

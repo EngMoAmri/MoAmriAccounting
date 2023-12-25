@@ -163,9 +163,6 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                   fit: BoxFit.fitWidth,
                   child: Text(material.unit, textAlign: TextAlign.center))
             ]))),
-        Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(child: Text("${material.tax} %"))),
       ]));
     }
     widgets.add(Table(
@@ -326,9 +323,6 @@ Future<dynamic> printMaterialsA4(MainController mainController,
             padding: const EdgeInsets.all(4),
             child:
                 Center(child: Text("${material.quantity} ${material.unit}"))),
-        Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(child: Text("${material.tax} %"))),
       ]));
     }
     widgets.add(Table(

@@ -358,9 +358,9 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   .materialDialogTaxTextController,
                                               decoration: InputDecoration(
                                                 counterText: '',
-                                                labelText:
-                                                    "TAX/VAT Default: ${material.tax} %"
-                                                        .tr,
+                                                // labelText:
+                                                //     "TAX/VAT Default: ${material.tax} %"
+                                                //         .tr,
                                                 filled: true,
                                                 fillColor: Colors.white,
                                                 isDense: true,

@@ -26,19 +26,26 @@ class MyDatabase {
     );
     // this is for making on delete cascade works
     await myDatabase.execute("PRAGMA foreign_keys=ON");
-
+    // TODO walk on each one
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS store (
-      id INTEGER PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       branch TEXT NOT NULL,
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
       image BLOB, 
-      created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS activities(
+      date INTEGER PRIMARY KEY, 
+      action TEXT NOT NULL, 
+      table_name TEXT NOT NULL
+    )
+    """);
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,11 +53,22 @@ class MyDatabase {
       enabled INTEGER  CHECK( enabled IN (1, 0) ) NOT NULL DEFAULT 1,
       username TEXT NOT NULL,
       password TEXT NOT NULL,
-      role TEXT CHECK( role IN ('admin','saller') ) NOT NULL DEFAULT 'saller',
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      role TEXT CHECK( role IN ('admin','cashier') ) NOT NULL DEFAULT 'cashier'
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS users_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      enabled INTEGER NOT NULL,
+      username TEXT NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT NOT NULL,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )""");
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS currencies (
       name TEXT PRIMARY KEY
@@ -64,6 +82,15 @@ class MyDatabase {
       PRIMARY KEY(currency_1, currency_2)
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS currencies_exchange_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      currency_1 TEXT NOT NULL,
+      currency_2 TEXT NOT NULL,
+      exchange_rate REAL NOT NULL,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )""");
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS units (
       name TEXT PRIMARY KEY
@@ -97,27 +124,88 @@ class MyDatabase {
       sale_price REAL NOT NULL,
       tax REAL,
       note TEXT,
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      larger_material_id INTEGER REFERENCES materials(id) ON DELETE CASCADE,
+      larger_quantity_supplied INTEGER
     )
     ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS materials_larger_units (
-      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
-      larger_material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
-      quantity_supplied INTEGER NOT NULL,
-      PRIMARY KEY(material_id, larger_material_id)
-    )
-    ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS materials_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      material_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      barcode TEXT UNIQUE,
+      category TEXT NOT NULL,
+      unit TEXT NOT NULL,
+      currency TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      cost_price REAL NOT NULL,
+      sale_price REAL NOT NULL,
+      tax REAL,
+      note TEXT,
+      larger_material_id INTEGER,
+      larger_quantity_supplied INTEGER,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )""");
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS expiries_dates (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE CASCADE,
-      date INTEGER NOT NULL
+      date INTEGER NOT NULL,
+      notify_before INTEGER NOT NULL
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS expiries_dates_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      expiry_date_id INTEGER NOT NULL,
+      material_id INTEGER NOT NULL,
+      date INTEGER NOT NULL,
+      notify_before INTEGER NOT NULL,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )""");
+
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS offers(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT,
+      price REAl NOT NULL,
+      note TEXT
+    )
+    """);
+
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS offers_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      offer_id INTEGER NOT NULL,
+      currency TEXT NOT NULL,
+      price REAl NOT NULL,
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS offers_materials(
+      offer_id INTEGER, 
+      materials_id INTEGER,
+      quantity INTEGER NOT NULL, 
+      PRIMARY KEY(offer_id, product_id),
+      FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE, 
+      FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS offers_products_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      offer_history_id INTEGER NOT NULL REFERENCES offers_history(id) ON DELETE CASCADE,
+      offer_id INTEGER, 
+      materials_id INTEGER,
+      quantity INTEGER NOT NULL
+    )
+    """);
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS customers (
@@ -125,38 +213,126 @@ class MyDatabase {
       name TEXT NOT NULL,
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
-      description TEXT NOT NULL,
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      description TEXT
     )
     ''');
-    await myDatabase.execute('''
-    DROP TABLE invoices;
-    '''); // TODO DELETE
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS customers_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      address TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      description TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS invoices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      customer_id INTEGER REFERENCES customers(id) ON DELETE RESTRICT,
+      customer_id INTEGER REFERENCES customers(id) ON DELETE NO ACTION,
       type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
-      payment_type TEXT CHECK( payment_type IN ('cash','debt') ) NOT NULL,
-      payment_amount REAL NOT NULL,
-      debt_amount REAL NOT NULL,
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      total_amount REAL NOT NULL,
+      discount REAL,
+      note TEXT
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS invoices_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER NOT NULL,
+      customer_id INTEGER,
+      type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
+      total_amount REAL NOT NULL,
+      discount REAL,
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
     await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS invoices_material (
+    CREATE TABLE IF NOT EXISTS invoices_materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
       quantity INTEGER NOT NULL
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS invoices_materials_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_history_id INTEGER NOT NULL REFERENCES invoices_history(id) ON DELETE CASCADE,
+      invoice_id INTEGER NOT NULL,
+      material_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL
+    )
+    """);
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS invoices_offers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+      offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
+      quantity INTEGER NOT NULL
+    )
+    ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS invoices_offers_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_history_id INTEGER NOT NULL REFERENCES invoices_history(id) ON DELETE CASCADE,
+      invoice_id INTEGER NOT NULL,
+      offer_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL
+    )
+    """);
+
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS payments(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
+      customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
+      amount REAL NOT NULL, 
+      note TEXT
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS payments_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      payment_id INTEGER NOT NULL,
+      invoice_id INTEGER,    
+      customer_id INTEGER,  
+      amount REAL NOT NULL, 
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
+    // here we can not delete the customer except if we delete all his/her debts
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS debts(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
+      customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
+      amount REAL NOT NULL, 
+      note TEXT
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS debts_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      debt_id INTEGER NOT NULL,
+      invoice_id INTEGER,    
+      customer_id INTEGER,  
+      amount REAL NOT NULL, 
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS suppliers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -164,35 +340,116 @@ class MyDatabase {
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
       email TEXT NOT NULL,
-      description TEXT NOT NULL,
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      description TEXT
     )
     ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS purchases_invoices (
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS suppliers_history(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
-      payment_type TEXT CHECK( payment_type IN ('cash','later') ) NOT NULL,
-      total_amount REAL NOT NULL,
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      supplier_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      address TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      description TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
     )
-    ''');
+    """);
+
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS purchases (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      invoice_id INTEGER NOT NULL REFERENCES purchases_invoices(id) ON DELETE CASCADE,
-      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
-      received_date INTEGER NOT NULL,
-      quantity INTEGER NOT NULL,
-      unit_price REAL NOT NULL
+      supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE NO ACTION,
+      type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
+      total_amount REAL NOT NULL,
+      discount REAL,
+      note TEXT
     )
     ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchases_id INTEGER NOT NULL,
+      supplier_id INTEGER NOT NULL,
+      type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
+      total_amount REAL NOT NULL,
+      discount REAL,
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
+    await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS purchases_materials (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_id INTEGER NOT NULL REFERENCES purchases(id) ON DELETE CASCADE,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
+      quantity INTEGER NOT NULL,
+      cost_price REAL NOT NULL
+    )
+    ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_materials_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_history_id INTEGER NOT NULL REFERENCES purchases_history(id) ON DELETE CASCADE,
+      purchase_id INTEGER NOT NULL,
+      material_id INTEGER NOT NULL,
+      quantity INTEGER NOT NULL,
+      cost_price REAL NOT NULL
+    )
+    """);
+
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_payments(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
+      supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
+      amount REAL NOT NULL, 
+      note TEXT
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_payments_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_payment_id INTEGER NOT NULL,
+      purchase_id INTEGER,    
+      supplier_id INTEGER,  
+      amount REAL NOT NULL, 
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
+    // here we can not delete the customer except if we delete all his/her debts
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_debts(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
+      supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
+      amount REAL NOT NULL, 
+      note TEXT, 
+      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE NO ACTION,
+      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE NO ACTION,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+    """);
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS purchases_debts_history(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      purchase_debt_id INTEGER NOT NULL,
+      purchase_id INTEGER,    
+      supplier_id INTEGER,  
+      amount REAL NOT NULL, 
+      note TEXT,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )
+    """);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
   }
 
   static Future<Store?> getStoreData() async {
@@ -234,7 +491,7 @@ class MyDatabase {
 
 
 /*
-// ENCRYPTION
+// TODO ENCRYPTION
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';

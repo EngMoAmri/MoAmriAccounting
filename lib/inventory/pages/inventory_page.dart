@@ -224,6 +224,7 @@ class InventoryPage extends StatelessWidget {
                                     controller.columnWidths
                                             .value[details.column.columnName] =
                                         details.width;
+                                    controller.columnWidths.refresh();
                                     return true;
                                   },
                                   headerGridLinesVisibility:
@@ -237,6 +238,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Barcode',
                                         width: controller
                                             .columnWidths.value['Barcode']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -249,6 +251,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Name',
                                         width: controller
                                             .columnWidths.value['Name']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -261,6 +264,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Category',
                                         width: controller
                                             .columnWidths.value['Category']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -273,6 +277,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Quantity',
                                         width: controller
                                             .columnWidths.value['Quantity']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -285,6 +290,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Unit',
                                         width: controller
                                             .columnWidths.value['Unit']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -297,6 +303,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Cost Price',
                                         width: controller
                                             .columnWidths.value['Cost Price']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -309,6 +316,7 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Sale Price',
                                         width: controller
                                             .columnWidths.value['Sale Price']!,
+                                        minimumWidth: 120,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -321,6 +329,9 @@ class InventoryPage extends StatelessWidget {
                                         columnName: 'Note',
                                         width: controller
                                             .columnWidths.value['Note']!,
+                                        minimumWidth: 120,
+                                        columnWidthMode:
+                                            ColumnWidthMode.lastColumnFill,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),

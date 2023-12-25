@@ -29,68 +29,92 @@ class MyMaterialsDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(color: Colors.white, cells: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[0].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[0].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[0].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[1].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[1].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[1].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[2].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[2].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[2].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[3].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[3].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[3].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[4].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[4].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[4].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[5].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[5].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[5].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[6].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[6].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[6].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[7].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[7].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[7].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     ]);

@@ -9,7 +9,6 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
-// TODO arabic
 Future<dynamic> printMaterialsRoll(MainController mainController,
     InventoryController inventoryController) async {
   var materialsMaps = await MyMaterialsDatabase.getAllMaterials(
@@ -24,15 +23,16 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
   final Document pdf = Document(
       deflate: zlib.encode,
       theme: ThemeData.withFont(
-        base: Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
-      ));
+          base:
+              Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
+          bold: Font.ttf(
+              await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
   final dateFormat = intl.DateFormat('yyyy-MM-dd');
   final timeFormat = intl.DateFormat('hh:mm a');
   // final img = await rootBundle.load('assets/images/customers.png');TODO
   // final imageBytes = img.buffer.asUint8List();
   // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
   List<Widget> widgets = [];
-  widgets.add(SizedBox(height: 10));
   widgets.add(Center(
       child: Text("المواد",
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
@@ -48,26 +48,28 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
   widgets.add(SizedBox(height: 10));
   widgets.add(Center(child: Divider()));
   widgets.add(SizedBox(height: 10));
-  widgets.add(Table(
-      // border: TableBorder.all(color: PdfColors.black, width: 2),
-      columnWidths: {
-        0: const IntrinsicColumnWidth(),
-        1: const FlexColumnWidth(),
-      },
-      children: [
-        TableRow(children: [
-          Text("التاريخ"),
-          Center(child: Text(dateFormat.format(DateTime.now()))),
-        ]),
-        TableRow(children: [
-          Text("الوقت"),
-          Center(child: Text(timeFormat.format(DateTime.now()))),
-        ]),
-        TableRow(children: [
-          Text("عدد المواد"),
-          Center(child: Text(materialsCount.toString())),
-        ]),
-      ]));
+  widgets.add(Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Table(
+          // border: TableBorder.all(color: PdfColors.black, width: 2),
+          columnWidths: {
+            0: const FlexColumnWidth(),
+            1: const IntrinsicColumnWidth(),
+          },
+          children: [
+            TableRow(children: [
+              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Text("التاريخ"),
+            ]),
+            TableRow(children: [
+              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Text("الوقت"),
+            ]),
+            TableRow(children: [
+              Center(child: Text(materialsCount.toString())),
+              Text("عدد المواد"),
+            ]),
+          ])));
   widgets.add(Center(child: Divider()));
 
   for (var category in materialsMaps.keys) {
@@ -81,7 +83,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
-                    child: Text("المادة",
+                    child: Text("الكمية",
                         style: TextStyle(fontWeight: FontWeight.bold))))),
         Padding(
             padding: const EdgeInsets.all(4),
@@ -95,7 +97,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
             child: Center(
                 child: FittedBox(
                     fit: BoxFit.fitWidth,
-                    child: Text("الكمية",
+                    child: Text("المادة",
                         style: TextStyle(fontWeight: FontWeight.bold))))),
       ]),
     ];
@@ -103,7 +105,16 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
       rows.add(TableRow(children: [
         Padding(
             padding: const EdgeInsets.all(4),
-            child: Center(child: Text(material.name))),
+            child: Center(
+                child: Column(children: [
+              FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text("${material.quantity}",
+                      textAlign: TextAlign.center)),
+              FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(material.unit, textAlign: TextAlign.center))
+            ]))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Table(
@@ -134,24 +145,15 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                 ])),
         Padding(
             padding: const EdgeInsets.all(4),
-            child: Center(
-                child: Column(children: [
-              FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text("${material.quantity}",
-                      textAlign: TextAlign.center)),
-              FittedBox(
-                  fit: BoxFit.fitWidth,
-                  child: Text(material.unit, textAlign: TextAlign.center))
-            ]))),
+            child: Center(child: Text(material.name))),
       ]));
     }
     widgets.add(Table(
         border: TableBorder.all(color: PdfColors.black, width: 1),
         columnWidths: {
-          0: const FlexColumnWidth(1.5),
+          0: const FlexColumnWidth(),
           1: const FlexColumnWidth(),
-          2: const FlexColumnWidth(),
+          2: const FlexColumnWidth(1.5),
         },
         children: rows));
     widgets.add(SizedBox(height: 10));
@@ -162,7 +164,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
   pdf.addPage(
     Page(
         pageFormat: PdfPageFormat.roll80,
-        // margin: const EdgeInsets.all(4),
+        margin: const EdgeInsets.only(right: 24, left: 2),
         orientation: PageOrientation.portrait,
         build: (Context context) {
           return Directionality(
@@ -192,8 +194,10 @@ Future<dynamic> printMaterialsA4(MainController mainController,
   final Document pdf = Document(
       deflate: zlib.encode,
       theme: ThemeData.withFont(
-        base: Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
-      ));
+          base:
+              Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
+          bold: Font.ttf(
+              await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
   final dateFormat = intl.DateFormat('yyyy-MM-dd');
   final timeFormat = intl.DateFormat('hh:mm a');
   List<Widget> widgets = [];
@@ -217,29 +221,29 @@ Future<dynamic> printMaterialsA4(MainController mainController,
       child: Table(
           // border: TableBorder.all(color: PdfColors.black, width: 2),
           columnWidths: {
-            0: const IntrinsicColumnWidth(),
-            1: const FlexColumnWidth(),
-            2: const IntrinsicColumnWidth(),
-            3: const FlexColumnWidth(),
-            4: const IntrinsicColumnWidth(),
-            5: const FlexColumnWidth(),
+            0: const FlexColumnWidth(),
+            1: const IntrinsicColumnWidth(),
+            2: const FlexColumnWidth(),
+            3: const IntrinsicColumnWidth(),
+            4: const FlexColumnWidth(),
+            5: const IntrinsicColumnWidth(),
           },
           children: [
             TableRow(children: [
-              Text("الفرع", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(mainController.storeData.value!.branch)),
-              Text("التلفون", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(mainController.storeData.value!.phone)),
-              Text("العنوان", style: TextStyle(fontWeight: FontWeight.bold)),
               Center(child: Text(mainController.storeData.value!.address)),
+              Text("العنوان", style: TextStyle(fontWeight: FontWeight.bold)),
+              Center(child: Text(mainController.storeData.value!.phone)),
+              Text("التلفون", style: TextStyle(fontWeight: FontWeight.bold)),
+              Center(child: Text(mainController.storeData.value!.branch)),
+              Text("الفرع", style: TextStyle(fontWeight: FontWeight.bold)),
             ]),
             TableRow(children: [
-              Text("التاريخ", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(dateFormat.format(DateTime.now()))),
-              Text("الوقت", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(timeFormat.format(DateTime.now()))),
-              Text("عدد المواد", style: TextStyle(fontWeight: FontWeight.bold)),
               Center(child: Text(materialsCount.toString())),
+              Text("عدد المواد", style: TextStyle(fontWeight: FontWeight.bold)),
+              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Text("الوقت", style: TextStyle(fontWeight: FontWeight.bold)),
+              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Text("التاريخ", style: TextStyle(fontWeight: FontWeight.bold)),
             ]),
           ])));
   widgets.add(Center(child: Divider()));
@@ -248,7 +252,9 @@ Future<dynamic> printMaterialsA4(MainController mainController,
     widgets.add(SizedBox(height: 10));
     widgets.add(Directionality(
         textDirection: TextDirection.rtl,
-        child: Text(category, style: TextStyle(fontWeight: FontWeight.bold))));
+        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          Text(category, style: TextStyle(fontWeight: FontWeight.bold))
+        ])));
     widgets.add(SizedBox(height: 10));
     List<TableRow> rows = [
       TableRow(children: [
@@ -258,15 +264,7 @@ Future<dynamic> printMaterialsA4(MainController mainController,
                 child: Center(
                     child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: Text("المادة",
-                            style: TextStyle(fontWeight: FontWeight.bold)))))),
-        Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(
-                child: Center(
-                    child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text("سعر الشراء",
+                        child: Text("الكمية",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
         Padding(
             padding: const EdgeInsets.all(4),
@@ -282,7 +280,15 @@ Future<dynamic> printMaterialsA4(MainController mainController,
                 child: Center(
                     child: FittedBox(
                         fit: BoxFit.fitWidth,
-                        child: Text("الكمية",
+                        child: Text("سعر الشراء",
+                            style: TextStyle(fontWeight: FontWeight.bold)))))),
+        Padding(
+            padding: const EdgeInsets.all(4),
+            child: Center(
+                child: Center(
+                    child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text("المادة",
                             style: TextStyle(fontWeight: FontWeight.bold)))))),
       ]),
     ];
@@ -290,19 +296,19 @@ Future<dynamic> printMaterialsA4(MainController mainController,
       rows.add(TableRow(children: [
         Padding(
             padding: const EdgeInsets.all(4),
-            child: Center(child: Text(material.name))),
-        Padding(
-            padding: const EdgeInsets.all(4),
-            child: Center(
-                child: Text("${material.costPrice} ${material.currency}"))),
+            child:
+                Center(child: Text("${material.quantity} ${material.unit}"))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text("${material.salePrice} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
-            child:
-                Center(child: Text("${material.quantity} ${material.unit}"))),
+            child: Center(
+                child: Text("${material.costPrice} ${material.currency}"))),
+        Padding(
+            padding: const EdgeInsets.all(4),
+            child: Center(child: Text(material.name))),
       ]));
     }
     widgets.add(Directionality(
@@ -310,9 +316,10 @@ Future<dynamic> printMaterialsA4(MainController mainController,
         child: Table(
             border: TableBorder.all(color: PdfColors.black, width: 1),
             columnWidths: {
-              0: const FlexColumnWidth(1.5),
+              0: const FlexColumnWidth(),
               1: const FlexColumnWidth(),
               2: const FlexColumnWidth(),
+              3: const FlexColumnWidth(1.5),
             },
             children: rows)));
     widgets.add(SizedBox(height: 10));

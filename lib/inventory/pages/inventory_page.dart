@@ -69,6 +69,9 @@ class InventoryPage extends StatelessWidget {
           : Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                const SizedBox(
+                  height: 10,
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -109,8 +112,23 @@ class InventoryPage extends StatelessWidget {
                             Text("العدد: ${controller.materialsCount.value}")),
                     const SizedBox(
                       width: 10,
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          controller.firstLoad();
+                        },
+                        tooltip: "تحديث",
+                        icon: const Icon(Icons.sync)),
+                    const SizedBox(
+                      width: 10,
                     )
                   ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Divider(
+                  height: 1,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10),
@@ -170,26 +188,17 @@ class InventoryPage extends StatelessWidget {
                                         MaterialStateProperty.all(Colors.white),
                                     foregroundColor: MaterialStateProperty.all(
                                         Colors.black54)),
-                                icon: const Icon(Icons.category),
+                                icon: const Icon(Icons.sort),
                                 label: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                      'ترتيب حسب: ${controller.orderBy.value[controller.selectedOrderBy.value]},  ترتيباً: ${(controller.selectedOrderDir.value == 0) ? 'تصاعدياً' : 'تنازلياً'}'),
+                                      'ترتيب حسب: ${controller.orderBy.value[controller.selectedOrderBy.value]} ترتيباً: ${(controller.selectedOrderDir.value == 0) ? 'تصاعدياً' : 'تنازلياً'}'),
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            controller.firstLoad();
-                          },
-                          tooltip: "تحديث",
-                          icon: const Icon(Icons.sync)),
                     ],
                   ),
                 ),
@@ -207,6 +216,16 @@ class InventoryPage extends StatelessWidget {
                               child: SfDataGrid(
                                   controller: controller.dataGridController,
                                   gridLinesVisibility: GridLinesVisibility.both,
+                                  allowColumnsResizing: true,
+                                  columnResizeMode:
+                                      ColumnResizeMode.onResizeEnd,
+                                  onColumnResizeUpdate:
+                                      (ColumnResizeUpdateDetails details) {
+                                    controller.columnWidths
+                                            .value[details.column.columnName] =
+                                        details.width;
+                                    return true;
+                                  },
                                   headerGridLinesVisibility:
                                       GridLinesVisibility.both,
                                   source: controller.dataSource.value,
@@ -215,10 +234,9 @@ class InventoryPage extends StatelessWidget {
                                   frozenColumnsCount: 2,
                                   columns: [
                                     GridColumn(
-                                        columnName: 'الباركود',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Barcode',
+                                        width: controller
+                                            .columnWidths.value['Barcode']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -228,10 +246,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'الاسم',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Name',
+                                        width: controller
+                                            .columnWidths.value['Name']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -241,10 +258,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'الصنف',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Category',
+                                        width: controller
+                                            .columnWidths.value['Category']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -254,10 +270,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'الكمية',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Quantity',
+                                        width: controller
+                                            .columnWidths.value['Quantity']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -267,10 +282,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'الوحدة',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Unit',
+                                        width: controller
+                                            .columnWidths.value['Unit']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -280,10 +294,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'سعر الشراء',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Cost Price',
+                                        width: controller
+                                            .columnWidths.value['Cost Price']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -293,10 +306,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'سعر البيع',
-                                        columnWidthMode:
-                                            ColumnWidthMode.fitByCellValue,
-                                        minimumWidth: 120,
+                                        columnName: 'Sale Price',
+                                        width: controller
+                                            .columnWidths.value['Sale Price']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -306,10 +318,9 @@ class InventoryPage extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ))),
                                     GridColumn(
-                                        columnName: 'ملاحظات',
-                                        columnWidthMode:
-                                            ColumnWidthMode.lastColumnFill,
-                                        minimumWidth: 120,
+                                        columnName: 'Note',
+                                        width: controller
+                                            .columnWidths.value['Note']!,
                                         label: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 2),
@@ -450,7 +461,7 @@ class InventoryPage extends StatelessWidget {
                           icon: const Icon(Icons.print),
                           label: const Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text('Print'),
+                            child: Text('طباعة'),
                           ),
                         ),
                         const SizedBox(

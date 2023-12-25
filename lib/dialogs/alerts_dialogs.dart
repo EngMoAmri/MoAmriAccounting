@@ -8,7 +8,7 @@ Future<dynamic> showConfirmationDialog(
       context: Get.context!,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Attention".tr),
+          title: const Text("إنتباه"),
           content: Text(
             message,
             textAlign: TextAlign.justify,
@@ -26,8 +26,8 @@ Future<dynamic> showConfirmationDialog(
                     borderRadius: BorderRadius.circular(10.0),
                   )),
                 ),
-                child: Text("Yes".tr,
-                    style: const TextStyle(fontWeight: FontWeight.bold))),
+                child: const Text("نعم",
+                    style: TextStyle(fontWeight: FontWeight.bold))),
             TextButton(
                 onPressed: () {
                   Navigator.of(Get.context!).pop(false);
@@ -39,8 +39,8 @@ Future<dynamic> showConfirmationDialog(
                     borderRadius: BorderRadius.circular(10.0),
                   )),
                 ),
-                child: Text("No".tr,
-                    style: const TextStyle(fontWeight: FontWeight.bold)))
+                child: const Text("لا",
+                    style: TextStyle(fontWeight: FontWeight.bold)))
           ],
         );
       });
@@ -49,7 +49,7 @@ Future<dynamic> showConfirmationDialog(
 Future<void> showErrorDialog(String message) async {
 // set up the button
   Widget okButton = TextButton(
-    child: const Text("OK"),
+    child: const Text("حسناً"),
     onPressed: () {
       Get.back();
     },
@@ -59,7 +59,7 @@ Future<void> showErrorDialog(String message) async {
   AlertDialog alert = AlertDialog(
     icon: const Icon(Icons.error),
     iconColor: Colors.red,
-    title: const Text("Attention"),
+    title: const Text("خطأ"),
     content: Text(
       message,
       textAlign: TextAlign.center,
@@ -81,7 +81,7 @@ Future<void> showErrorDialog(String message) async {
 Future<void> showSuccessDialog(String message) async {
 // set up the button
   Widget okButton = TextButton(
-    child: const Text("OK"),
+    child: const Text("حسناً"),
     onPressed: () {
       Get.back();
     },
@@ -91,7 +91,7 @@ Future<void> showSuccessDialog(String message) async {
   AlertDialog alert = AlertDialog(
     icon: const Icon(Icons.done),
     iconColor: Colors.green,
-    title: const Text("Success"),
+    title: const Text("نجاح"),
     content: Text(
       message,
       textAlign: TextAlign.center,

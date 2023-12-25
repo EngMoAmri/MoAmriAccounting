@@ -8,6 +8,16 @@ import '../data_sources/my_materials_data_source.dart';
 
 class InventoryController extends GetxController {
   final DataGridController dataGridController = DataGridController();
+  Rx<Map<String, double>> columnWidths = Rx({
+    'Barcode': double.nan,
+    'Name': double.nan,
+    'Category': double.nan,
+    'Quantity': double.nan,
+    'Unit': double.nan,
+    'Cost Price': double.nan,
+    'Sale Price': double.nan,
+    'Note': double.nan
+  });
 
   Rx<bool> searching = false.obs;
   Rx<List<MyMaterial>> materials = Rx([]);

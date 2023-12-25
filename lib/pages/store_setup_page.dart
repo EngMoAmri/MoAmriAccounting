@@ -95,7 +95,7 @@ class StoreSetupPage extends StatelessWidget {
                             Container(
                               width: double.infinity,
                               height: 260,
-                              margin: const EdgeInsets.fromLTRB(20, 20, 5, 10),
+                              margin: const EdgeInsets.fromLTRB(5, 20, 20, 10),
                               padding: const EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
                                   border: Border.all(
@@ -334,7 +334,7 @@ class StoreSetupPage extends StatelessWidget {
                               ),
                             ),
                             Positioned(
-                              left: 40,
+                              right: 40,
                               top: 12,
                               child: Container(
                                 padding: const EdgeInsets.only(
@@ -355,7 +355,7 @@ class StoreSetupPage extends StatelessWidget {
                             Container(
                               width: double.infinity,
                               height: 260,
-                              margin: const EdgeInsets.fromLTRB(5, 20, 20, 10),
+                              margin: const EdgeInsets.fromLTRB(20, 20, 5, 10),
                               padding: const EdgeInsets.only(bottom: 10),
                               decoration: BoxDecoration(
                                   border: Border.all(
@@ -523,7 +523,7 @@ class StoreSetupPage extends StatelessWidget {
                               ),
                             ),
                             Positioned(
-                              left: 20,
+                              right: 20,
                               top: 12,
                               child: Container(
                                 padding: const EdgeInsets.only(

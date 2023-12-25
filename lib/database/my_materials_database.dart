@@ -1,4 +1,3 @@
-import 'package:moamri_accounting/database/items/material_larger_unit_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/activity.dart';
@@ -336,15 +335,12 @@ class MyMaterialsDatabase {
     return materialsMap;
   }
 
-  static Future<MaterialLargerUnitItem?> getMaterialLargerUnitItem(
+  static Future<MyMaterial?> getMaterialLargerUnitItem(
       MyMaterial material) async {
     List<Map<String, dynamic>> maps;
-    maps = await MyDatabase.myDatabase.query('materials_larger_units',
-        where: "material_id = ?", whereArgs: [material.id]);
+    maps = await MyDatabase.myDatabase.query('materials',
+        where: "id = ?", whereArgs: [material.largerMaterialID]);
     if (maps.isEmpty) return null;
-    return MaterialLargerUnitItem(
-        material: material,
-        largerMaterial: await getMaterialByID(maps.first['larger_material_id']),
-        suppliedQuantity: maps.first['quantity_supplied']);
+    return MyMaterial.fromMap(maps.first);
   }
 }

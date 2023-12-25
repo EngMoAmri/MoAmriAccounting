@@ -182,7 +182,7 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                         Positioned(
-                          left: 30,
+                          right: 30,
                           top: 12,
                           child: Container(
                             padding: const EdgeInsets.only(

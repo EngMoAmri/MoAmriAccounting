@@ -20,8 +20,12 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
-  runApp(
-      const GetMaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
+  runApp(GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'ReadexPro',
+      ),
+      home: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

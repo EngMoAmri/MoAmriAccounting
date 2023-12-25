@@ -5,8 +5,6 @@ class User {
   final String username;
   final String password;
   final String role;
-  final int createdDate;
-  final int updatedDate;
   User({
     this.id,
     required this.name,
@@ -14,8 +12,6 @@ class User {
     required this.username,
     required this.password,
     required this.role,
-    required this.createdDate,
-    required this.updatedDate,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,8 +22,6 @@ class User {
       'username': username,
       'password': password,
       'role': role,
-      'created_at': createdDate,
-      'updated_at': updatedDate
     };
   }
 
@@ -40,8 +34,6 @@ class User {
       username: map['username'] as String,
       password: map['password'] as String,
       role: map['role'] as String,
-      createdDate: map['created_at'] as int,
-      updatedDate: map['updated_at'] as int,
     );
   }
 }

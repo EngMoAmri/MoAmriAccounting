@@ -53,17 +53,15 @@ class StoreSetupController extends GetxController {
           branch: storeBranch,
           address: storeAddress,
           phone: storePhone,
-          createdDate: DateTime.now().millisecondsSinceEpoch,
           updatedDate: DateTime.now().millisecondsSinceEpoch);
       // admin data
       User user = User(
-          name: adminName,
-          enabled: 1,
-          username: adminUsername,
-          password: adminPassword,
-          role: "admin",
-          createdDate: DateTime.now().millisecondsSinceEpoch,
-          updatedDate: DateTime.now().millisecondsSinceEpoch);
+        name: adminName,
+        enabled: 1,
+        username: adminUsername,
+        password: adminPassword,
+        role: "admin",
+      );
       try {
         await MyDatabase.setStoreData(store);
         user.id = await MyDatabase.insertUser(user, null);

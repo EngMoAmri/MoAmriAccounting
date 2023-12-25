@@ -7,7 +7,6 @@ class Store {
   final Uint8List? image;
   final String address;
   final String phone;
-  final int createdDate;
   final int updatedDate;
   Store({
     this.id,
@@ -16,7 +15,6 @@ class Store {
     this.image,
     required this.address,
     required this.phone,
-    required this.createdDate,
     required this.updatedDate,
   });
 
@@ -28,7 +26,6 @@ class Store {
       'image': image,
       'address': address,
       'phone': phone,
-      'created_at': createdDate,
       'updated_at': updatedDate
     };
   }
@@ -42,7 +39,6 @@ class Store {
       image: map['image'] as Uint8List?,
       address: map['address'] as String,
       phone: map['phone'] as String,
-      createdDate: map['created_at'] as int,
       updatedDate: map['updated_at'] as int,
     );
   }

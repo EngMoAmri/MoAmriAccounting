@@ -6,14 +6,18 @@ import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
 import '../../database/my_materials_database.dart';
 
-Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
+Future<Currency?> showEditCurrencyDialog(
+    MainController mainController, Currency oldCurrency) async {
   return await showDialog(
       context: Get.context!,
       barrierDismissible: false,
       builder: (BuildContext context) {
         final formKey = GlobalKey<FormState>();
         final nameTextController = TextEditingController();
+        nameTextController.text = oldCurrency.name;
         final exchangeRateTextController = TextEditingController();
+        exchangeRateTextController.text = oldCurrency.exchangeRate.toString();
+
         var adding = false;
         return Dialog(
           shape:
@@ -37,7 +41,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                             ),
                             const Expanded(
                               child: Text(
-                                "إضافة عملة",
+                                "تعديل عملة",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold),
@@ -154,6 +158,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                             ),
                           ),
                         ),
+                        // ),
                         const Divider(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -173,8 +178,9 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                       final name =
                                           nameTextController.text.trim();
 
-                                      if (await MyMaterialsDatabase
-                                          .isCurrencyExists(name.trim())) {
+                                      if ((name.trim() != oldCurrency.name) &&
+                                          await MyMaterialsDatabase
+                                              .isCurrencyExists(name.trim())) {
                                         showErrorDialog(
                                             "هذه العملة موجودة مسبقاً");
                                         setState(() {
@@ -190,12 +196,13 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                           exchangeRate: exchangeRate);
                                       try {
                                         await MyMaterialsDatabase
-                                            .insertCurrency(
+                                            .updateCurrency(
                                                 currency,
+                                                oldCurrency,
                                                 mainController
                                                     .currentUser.value!.id!);
                                         await showSuccessDialog(
-                                            "تم إضافة العملة بنجاح");
+                                            "تم تعديل العملة بنجاح");
                                         Get.back(result: currency);
                                       } catch (e) {
                                         setState(() {
@@ -215,7 +222,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                       borderRadius: BorderRadius.circular(10.0),
                                     )),
                                   ),
-                                  label: Text("إضافة".tr),
+                                  label: const Text("تم"),
                                   icon: const Icon(Icons.add)),
                             const SizedBox(width: 10)
                           ],

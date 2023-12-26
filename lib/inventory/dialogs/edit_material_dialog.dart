@@ -11,6 +11,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../database/entities/currency.dart';
 import 'add_currency_dialog.dart';
 
+// TODO make it maximum always
 Future<bool?> showEditMaterialDialog(
     MainController mainController, MyMaterial oldMaterial) async {
   return await showDialog(
@@ -31,7 +32,7 @@ Future<bool?> showEditMaterialDialog(
         unitTextController.text = oldMaterial.unit;
         final currencyTextController = TextEditingController();
         currencyTextController.text = oldMaterial.currency;
-        Currency currency = Currency(
+        Currency? currency = Currency(
             name: oldMaterial.currency,
             exchangeRate:
                 0.0); // here we set the exchangerate to 0 coz we won't use it
@@ -73,6 +74,7 @@ Future<bool?> showEditMaterialDialog(
                       });
                     }
                     return Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
                           children: [
@@ -102,42 +104,787 @@ Future<bool?> showEditMaterialDialog(
                           ],
                         ),
                         const Divider(height: 1),
-                        Expanded(
-                          child: Form(
-                            key: formKey,
-                            child:
-                                // SingleChildScrollView(
-                                //   controller: scrollController,
-                                //   scrollDirection: Axis.vertical,
-                                //   child:
+                        Form(
+                          key: formKey,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
                                 Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    // Add visiblity detector to handle barcode
-                                    // values only when widget is visible
-                                    child: VisibilityDetector(
-                                      onVisibilityChanged:
-                                          (VisibilityInfo info) {
-                                        visible = info.visibleFraction > 0;
+                                  padding: const EdgeInsets.all(8),
+                                  // Add visiblity detector to handle barcode
+                                  // values only when widget is visible
+                                  child: VisibilityDetector(
+                                    onVisibilityChanged: (VisibilityInfo info) {
+                                      visible = info.visibleFraction > 0;
+                                    },
+                                    key: const Key('visible-detector-key'),
+                                    child: BarcodeKeyboardListener(
+                                      bufferDuration:
+                                          const Duration(milliseconds: 200),
+                                      onBarcodeScanned: (barcode) {
+                                        if (!visible) return;
+                                        setState(() {
+                                          barcodeTextController.text = barcode;
+                                        });
                                       },
-                                      key: const Key('visible-detector-key'),
-                                      child: BarcodeKeyboardListener(
-                                        bufferDuration:
-                                            const Duration(milliseconds: 200),
-                                        onBarcodeScanned: (barcode) {
-                                          if (!visible) return;
-                                          setState(() {
-                                            barcodeTextController.text =
-                                                barcode;
-                                          });
-                                        },
-                                        child: Row(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              child: TextFormField(
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                                controller:
+                                                    barcodeTextController,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                  border:
+                                                      const OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                8.0)),
+                                                  ),
+                                                  counterText: "",
+                                                  labelText: 'الباركود',
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                validator: (value) {
+                                                  if (value?.trim().isEmpty ??
+                                                      true) {
+                                                    return "هذا الحقل مطلوب";
+                                                  }
+
+                                                  return null;
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          OutlinedButton.icon(
+                                              style: ButtonStyle(
+                                                  shape:
+                                                      MaterialStateProperty.all(
+                                                          RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12.0),
+                                                  )),
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all(
+                                                          Colors.blue),
+                                                  foregroundColor:
+                                                      MaterialStateProperty.all(
+                                                          Colors.white)),
+                                              onPressed: () async {
+                                                var barcode =
+                                                    await MyMaterialsDatabase
+                                                        .generateMaterialBarcode();
+                                                setState(() {
+                                                  barcodeTextController.text =
+                                                      (barcode).toString();
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                  Icons.barcode_reader),
+                                              label: const Text('توليد')),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TypeAheadField(
+                                            controller: categoryTextController,
+                                            emptyBuilder: (context) =>
+                                                Container(
+                                              height: 0,
+                                            ),
+                                            onSelected: (value) {
+                                              setState(() {
+                                                categoryTextController.text =
+                                                    value;
+                                              });
+                                            },
+                                            suggestionsCallback:
+                                                (String pattern) async {
+                                              return await MyMaterialsDatabase
+                                                  .searchForCategories(pattern);
+                                            },
+                                            itemBuilder: (context, suggestion) {
+                                              return ListTile(
+                                                title: Text(suggestion),
+                                              );
+                                            },
+                                            builder: (context, controller,
+                                                focusNode) {
+                                              return TextFormField(
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                                controller:
+                                                    categoryTextController,
+                                                focusNode: focusNode,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                  border:
+                                                      const OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                8.0)),
+                                                  ),
+                                                  counterText: "",
+                                                  labelText: 'الصنف',
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                validator: (value) {
+                                                  if (value?.trim().isEmpty ??
+                                                      true) {
+                                                    return "هذا الحقل مطلوب";
+                                                  }
+                                                  return null;
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: nameTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'الاسم',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: quantityTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'الكمية',
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              if (int.tryParse(value!.trim()) ==
+                                                  null) {
+                                                return "إدخل الرقم بشكل صحيح";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TypeAheadField(
+                                            controller: unitTextController,
+                                            emptyBuilder: (context) =>
+                                                Container(
+                                              height: 0,
+                                            ),
+                                            onSelected: (value) {
+                                              setState(() {
+                                                unitTextController.text = value;
+                                              });
+                                            },
+                                            suggestionsCallback:
+                                                (String pattern) async {
+                                              return await MyMaterialsDatabase
+                                                  .searchForUnits(pattern);
+                                            },
+                                            itemBuilder: (context, suggestion) {
+                                              return ListTile(
+                                                title: Text(suggestion),
+                                              );
+                                            },
+                                            builder: (context, controller,
+                                                focusNode) {
+                                              return TextFormField(
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                                controller: unitTextController,
+                                                focusNode: focusNode,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                  border:
+                                                      const OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                8.0)),
+                                                  ),
+                                                  counterText: "",
+                                                  labelText: 'الوحدة',
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                validator: (value) {
+                                                  if (value?.trim().isEmpty ??
+                                                      true) {
+                                                    return "هذا الحقل مطلوب";
+                                                  }
+                                                  return null;
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            onChanged: (value) {
+                                              setState(() {
+                                                profit = (double.tryParse(
+                                                            salePriceTextController
+                                                                .text
+                                                                .trim()) ??
+                                                        0) -
+                                                    (double.tryParse(value) ??
+                                                        0);
+                                              });
+                                            },
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: costPriceTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'سعر شراء الوحدة',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              if (double.tryParse(
+                                                      value!.trim()) ==
+                                                  null) {
+                                                return "إدخل المبلغ بشكل صحيح";
+                                              }
+
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: (currency == null)
+                                              ? Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 10),
+                                                        child: TypeAheadField(
+                                                          controller:
+                                                              currencyTextController,
+                                                          emptyBuilder:
+                                                              (context) =>
+                                                                  Container(
+                                                            height: 0,
+                                                          ),
+                                                          onSelected: (value) {
+                                                            setState(() {
+                                                              currency = value;
+                                                              currencyTextController
+                                                                      .text =
+                                                                  value.name;
+                                                            });
+                                                          },
+                                                          suggestionsCallback:
+                                                              (String
+                                                                  pattern) async {
+                                                            return await MyMaterialsDatabase
+                                                                .searchForCurrencies(
+                                                                    pattern);
+                                                          },
+                                                          itemBuilder: (context,
+                                                              suggestion) {
+                                                            return ListTile(
+                                                              title: Text(
+                                                                  suggestion
+                                                                      .name),
+                                                            );
+                                                          },
+                                                          builder: (context,
+                                                              controller,
+                                                              focusNode) {
+                                                            return TextFormField(
+                                                              textCapitalization:
+                                                                  TextCapitalization
+                                                                      .sentences,
+                                                              controller:
+                                                                  currencyTextController,
+                                                              focusNode:
+                                                                  focusNode,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                filled: true,
+                                                                fillColor:
+                                                                    Colors
+                                                                        .white,
+                                                                isDense: true,
+                                                                contentPadding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        10),
+                                                                focusedBorder:
+                                                                    OutlineInputBorder(
+                                                                  borderSide:
+                                                                      const BorderSide(
+                                                                          color:
+                                                                              Colors.green),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8),
+                                                                ),
+                                                                border:
+                                                                    const OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius.all(
+                                                                          Radius.circular(
+                                                                              8.0)),
+                                                                ),
+                                                                counterText: "",
+                                                                labelText:
+                                                                    'العملة',
+                                                              ),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .text,
+                                                              validator:
+                                                                  (value) {
+                                                                if (value
+                                                                        ?.trim()
+                                                                        .isEmpty ??
+                                                                    true) {
+                                                                  return "هذا الحقل مطلوب";
+                                                                }
+                                                                return null;
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    OutlinedButton.icon(
+                                                        style: ButtonStyle(
+                                                            shape: MaterialStateProperty.all(
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          12.0),
+                                                            )),
+                                                            backgroundColor:
+                                                                MaterialStateProperty
+                                                                    .all(Colors
+                                                                        .blue),
+                                                            foregroundColor:
+                                                                MaterialStateProperty
+                                                                    .all(Colors
+                                                                        .white)),
+                                                        onPressed: () async {
+                                                          currency =
+                                                              await showAddCurrencyDialog(
+                                                                  mainController);
+                                                          setState(() {
+                                                            currencyTextController
+                                                                .text = currency
+                                                                    ?.name ??
+                                                                currencyTextController
+                                                                    .text;
+                                                          });
+                                                        },
+                                                        icon: const Icon(
+                                                            Icons.money),
+                                                        label: const Text(
+                                                            'إضافة')),
+                                                  ],
+                                                )
+                                              : Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                                  horizontal:
+                                                                      10),
+                                                          child: Text(
+                                                              'العملة ${currency!.name}')),
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                          .fromLTRB(
+                                                          20, 0, 20, 0),
+                                                      child: IconButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            currencyTextController
+                                                                .text = "";
+
+                                                            currency = null;
+                                                          });
+                                                        },
+                                                        icon: const Icon(
+                                                          Icons.close,
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            onChanged: (value) {
+                                              setState(() {
+                                                profit = (double.tryParse(
+                                                            value) ??
+                                                        0) -
+                                                    (double.tryParse(
+                                                            costPriceTextController
+                                                                .text
+                                                                .trim()) ??
+                                                        0);
+                                              });
+                                            },
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: salePriceTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'سعر بيع الوحدة',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              if (double.tryParse(
+                                                      value!.trim()) ==
+                                                  null) {
+                                                return "إدخل الرقم بشكل صحيح";
+                                              }
+
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            child: Text(
+                                                "الربح: $profit ${currency?.name ?? ''}"),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: loadingLargerMaterial
+                                      ? const Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                      : Row(
                                           children: [
+                                            Expanded(
+                                              flex: 2,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10),
+                                                child: TypeAheadField(
+                                                    controller:
+                                                        largerMaterialTextController,
+                                                    onSelected: (value) {
+                                                      setState(() {
+                                                        largerMaterial = value;
+                                                        largerMaterialTextController
+                                                                .text =
+                                                            '${value.barcode}, ${value.name}';
+                                                      });
+                                                    },
+                                                    suggestionsCallback:
+                                                        (String pattern) async {
+                                                      return await MyMaterialsDatabase
+                                                          .getMaterialsSuggestions(
+                                                              pattern, null);
+                                                    },
+                                                    itemBuilder:
+                                                        (context, suggestion) {
+                                                      return ListTile(
+                                                        title: Text(
+                                                            '${suggestion.barcode}, ${suggestion.name}'),
+                                                      );
+                                                    },
+                                                    builder: (context,
+                                                        controller, focusNode) {
+                                                      return TextFormField(
+                                                        textCapitalization:
+                                                            TextCapitalization
+                                                                .sentences,
+                                                        controller:
+                                                            largerMaterialTextController,
+                                                        focusNode: focusNode,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          filled: true,
+                                                          fillColor:
+                                                              Colors.white,
+                                                          isDense: true,
+                                                          contentPadding:
+                                                              const EdgeInsets
+                                                                  .all(10),
+                                                          focusedBorder:
+                                                              OutlineInputBorder(
+                                                            borderSide:
+                                                                const BorderSide(
+                                                                    color: Colors
+                                                                        .green),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                          ),
+                                                          border:
+                                                              const OutlineInputBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            8.0)),
+                                                          ),
+                                                          counterText: "",
+                                                          labelText:
+                                                              'الباركود أو اسم المادة ذو الوحدة اﻷكبر',
+                                                        ),
+                                                        keyboardType:
+                                                            TextInputType.text,
+                                                      );
+                                                    }),
+                                              ),
+                                            ),
                                             Expanded(
                                               child: Padding(
                                                 padding:
@@ -148,493 +895,7 @@ Future<bool?> showEditMaterialDialog(
                                                       TextCapitalization
                                                           .sentences,
                                                   controller:
-                                                      barcodeTextController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'الباركود',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "هذا الحقل مطلوب";
-                                                    }
-
-                                                    return null;
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            OutlinedButton.icon(
-                                                style: ButtonStyle(
-                                                    shape: MaterialStateProperty
-                                                        .all(
-                                                            RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              12.0),
-                                                    )),
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.blue),
-                                                    foregroundColor:
-                                                        MaterialStateProperty
-                                                            .all(Colors.white)),
-                                                onPressed: () async {
-                                                  var barcode =
-                                                      await MyMaterialsDatabase
-                                                          .generateMaterialBarcode();
-                                                  setState(() {
-                                                    barcodeTextController.text =
-                                                        (barcode).toString();
-                                                  });
-                                                },
-                                                icon: const Icon(
-                                                    Icons.barcode_reader),
-                                                label: const Text('توليد')),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TypeAheadField(
-                                              controller:
-                                                  categoryTextController,
-                                              emptyBuilder: (context) =>
-                                                  Container(
-                                                height: 0,
-                                              ),
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  categoryTextController.text =
-                                                      value;
-                                                });
-                                              },
-                                              suggestionsCallback:
-                                                  (String pattern) async {
-                                                return await MyMaterialsDatabase
-                                                    .searchForCategories(
-                                                        pattern);
-                                              },
-                                              itemBuilder:
-                                                  (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              builder: (context, controller,
-                                                  focusNode) {
-                                                return TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      categoryTextController,
-                                                  focusNode: focusNode,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'الصنف',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "هذا الحقل مطلوب";
-                                                    }
-                                                    return null;
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TypeAheadField(
-                                              controller:
-                                                  currencyTextController,
-                                              emptyBuilder: (context) =>
-                                                  Container(
-                                                height: 0,
-                                              ),
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  currency = value;
-                                                  currencyTextController.text =
-                                                      value.name;
-                                                });
-                                              },
-                                              suggestionsCallback:
-                                                  (String pattern) async {
-                                                return await MyMaterialsDatabase
-                                                    .searchForCurrencies(
-                                                        pattern);
-                                              },
-                                              itemBuilder:
-                                                  (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion.name),
-                                                );
-                                              },
-                                              builder: (context, controller,
-                                                  focusNode) {
-                                                return TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      currencyTextController,
-                                                  focusNode: focusNode,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'العملة',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "هذا الحقل مطلوب";
-                                                    }
-                                                    return null;
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        OutlinedButton.icon(
-                                            style: ButtonStyle(
-                                                shape:
-                                                    MaterialStateProperty.all(
-                                                        RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          12.0),
-                                                )),
-                                                backgroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.blue),
-                                                foregroundColor:
-                                                    MaterialStateProperty.all(
-                                                        Colors.white)),
-                                            onPressed: () async {
-                                              currency =
-                                                  await showAddCurrencyDialog(
-                                                          mainController) ??
-                                                      currency;
-                                              setState(() {
-                                                currencyTextController.text =
-                                                    currency.name;
-                                              });
-                                            },
-                                            icon:
-                                                const Icon(Icons.attach_money),
-                                            label: const Text('إضافة عملة')),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller: nameTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'الاسم',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                              validator: (value) {
-                                                if (value?.trim().isEmpty ??
-                                                    true) {
-                                                  return "هذا الحقل مطلوب";
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller:
-                                                  quantityTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'الكمية',
-                                              ),
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              validator: (value) {
-                                                if (value?.trim().isEmpty ??
-                                                    true) {
-                                                  return "هذا الحقل مطلوب";
-                                                }
-                                                if (int.tryParse(
-                                                        value!.trim()) ==
-                                                    null) {
-                                                  return "إدخل الرقم بشكل صحيح";
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TypeAheadField(
-                                              controller: unitTextController,
-                                              emptyBuilder: (context) =>
-                                                  Container(
-                                                height: 0,
-                                              ),
-                                              onSelected: (value) {
-                                                setState(() {
-                                                  unitTextController.text =
-                                                      value;
-                                                });
-                                              },
-                                              suggestionsCallback:
-                                                  (String pattern) async {
-                                                return await MyMaterialsDatabase
-                                                    .searchForUnits(pattern);
-                                              },
-                                              itemBuilder:
-                                                  (context, suggestion) {
-                                                return ListTile(
-                                                  title: Text(suggestion),
-                                                );
-                                              },
-                                              builder: (context, controller,
-                                                  focusNode) {
-                                                return TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      unitTextController,
-                                                  focusNode: focusNode,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'الوحدة',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "هذا الحقل مطلوب";
-                                                    }
-                                                    return null;
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Column(
-                                              children: [
-                                                TextFormField(
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      profit = (double.tryParse(
-                                                                  salePriceTextController
-                                                                      .text
-                                                                      .trim()) ??
-                                                              0) -
-                                                          (double.tryParse(
-                                                                  value) ??
-                                                              0);
-                                                    });
-                                                  },
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      costPriceTextController,
+                                                      suppliedQuantityTextController,
                                                   decoration: InputDecoration(
                                                     filled: true,
                                                     fillColor: Colors.white,
@@ -661,314 +922,82 @@ Future<bool?> showEditMaterialDialog(
                                                     ),
                                                     counterText: "",
                                                     labelText:
-                                                        'سعر شراء الوحدة',
+                                                        'الكمية الموردة منها',
                                                   ),
                                                   keyboardType:
                                                       TextInputType.text,
                                                   validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
+                                                    if ((value
+                                                                ?.trim()
+                                                                .isEmpty ??
+                                                            true) &&
+                                                        largerMaterial !=
+                                                            null) {
                                                       return "هذا الحقل مطلوب";
                                                     }
-                                                    if (double.tryParse(
-                                                            value!.trim()) ==
-                                                        null) {
-                                                      return "إدخل المبلغ بشكل صحيح";
+                                                    if ((value
+                                                                ?.trim()
+                                                                .isNotEmpty ??
+                                                            false) &&
+                                                        (int.tryParse(value!
+                                                                .trim()) ==
+                                                            null)) {
+                                                      return "إدخل الرقم بشكل صحيح";
                                                     }
 
                                                     return null;
                                                   },
                                                 ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                TextFormField(
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      profit = (double.tryParse(
-                                                                  value) ??
-                                                              0) -
-                                                          (double.tryParse(
-                                                                  costPriceTextController
-                                                                      .text
-                                                                      .trim()) ??
-                                                              0);
-                                                    });
-                                                  },
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      salePriceTextController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'سعر بيع الوحدة',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                  validator: (value) {
-                                                    if (value?.trim().isEmpty ??
-                                                        true) {
-                                                      return "هذا الحقل مطلوب";
-                                                    }
-                                                    if (double.tryParse(
-                                                            value!.trim()) ==
-                                                        null) {
-                                                      return "إدخل المبلغ بشكل صحيح";
-                                                    }
-
-                                                    return null;
-                                                  },
-                                                ),
-                                              ],
+                                              ),
                                             ),
+                                          ],
+                                        ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: noteTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'ملاحظات',
+                                            ),
+                                            keyboardType: TextInputType.text,
                                           ),
                                         ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Column(
-                                              children: [
-                                                Text("الربح: $profit")
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: loadingLargerMaterial
-                                        ? const Center(
-                                            child: CircularProgressIndicator(),
-                                          )
-                                        : Row(
-                                            children: [
-                                              Expanded(
-                                                flex: 2,
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10),
-                                                  child: TypeAheadField(
-                                                      controller:
-                                                          largerMaterialTextController,
-                                                      onSelected: (value) {
-                                                        setState(() {
-                                                          largerMaterial =
-                                                              value;
-                                                          largerMaterialTextController
-                                                                  .text =
-                                                              '${value.barcode}, ${value.name}';
-                                                        });
-                                                      },
-                                                      suggestionsCallback:
-                                                          (String
-                                                              pattern) async {
-                                                        return await MyMaterialsDatabase
-                                                            .getMaterialsSuggestions(
-                                                                pattern, null);
-                                                      },
-                                                      itemBuilder: (context,
-                                                          suggestion) {
-                                                        return ListTile(
-                                                          title: Text(
-                                                              '${suggestion.barcode}, ${suggestion.name}'),
-                                                        );
-                                                      },
-                                                      builder: (context,
-                                                          controller,
-                                                          focusNode) {
-                                                        return TextFormField(
-                                                          textCapitalization:
-                                                              TextCapitalization
-                                                                  .sentences,
-                                                          controller:
-                                                              largerMaterialTextController,
-                                                          focusNode: focusNode,
-                                                          decoration:
-                                                              InputDecoration(
-                                                            filled: true,
-                                                            fillColor:
-                                                                Colors.white,
-                                                            isDense: true,
-                                                            contentPadding:
-                                                                const EdgeInsets
-                                                                    .all(10),
-                                                            focusedBorder:
-                                                                OutlineInputBorder(
-                                                              borderSide:
-                                                                  const BorderSide(
-                                                                      color: Colors
-                                                                          .green),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8),
-                                                            ),
-                                                            border:
-                                                                const OutlineInputBorder(
-                                                              borderRadius: BorderRadius
-                                                                  .all(Radius
-                                                                      .circular(
-                                                                          8.0)),
-                                                            ),
-                                                            counterText: "",
-                                                            labelText:
-                                                                'الباركود أو اسم المادة ذو الوحدة اﻷكبر',
-                                                          ),
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .text,
-                                                        );
-                                                      }),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10),
-                                                  child: TextFormField(
-                                                    textCapitalization:
-                                                        TextCapitalization
-                                                            .sentences,
-                                                    controller:
-                                                        suppliedQuantityTextController,
-                                                    decoration: InputDecoration(
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      isDense: true,
-                                                      contentPadding:
-                                                          const EdgeInsets.all(
-                                                              10),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderSide:
-                                                            const BorderSide(
-                                                                color: Colors
-                                                                    .green),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                      ),
-                                                      border:
-                                                          const OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    8.0)),
-                                                      ),
-                                                      counterText: "",
-                                                      labelText:
-                                                          'الكمية الموردة منها',
-                                                    ),
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                    validator: (value) {
-                                                      if ((value
-                                                                  ?.trim()
-                                                                  .isEmpty ??
-                                                              true) &&
-                                                          largerMaterial !=
-                                                              null) {
-                                                        return "هذا الحقل مطلوب";
-                                                      }
-                                                      if ((value
-                                                                  ?.trim()
-                                                                  .isNotEmpty ??
-                                                              false) &&
-                                                          (int.tryParse(value!
-                                                                  .trim()) ==
-                                                              null)) {
-                                                        return "إدخل الرقم بشكل صحيح";
-                                                      }
-
-                                                      return null;
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller: noteTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'ملاحظات',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            // ),
                           ),
+                          // ),
                         ),
                         const Divider(),
                         Row(
@@ -1002,8 +1031,9 @@ Future<bool?> showEditMaterialDialog(
                                         });
                                         return;
                                       }
-                                      if (currencyTextController.text.trim() !=
-                                          currency.name) {
+                                      if (currency == null ||
+                                          (currencyTextController.text.trim() !=
+                                              currency?.name)) {
                                         showErrorDialog("يرجى إختيار عملة");
                                         setState(() {
                                           adding = false;
@@ -1058,7 +1088,7 @@ Future<bool?> showEditMaterialDialog(
                                           name: name,
                                           barcode: barcode,
                                           category: category,
-                                          currency: currency.name,
+                                          currency: currency!.name,
                                           unit: unit,
                                           quantity: quantity,
                                           costPrice: costPrice,

@@ -12,6 +12,7 @@ import '../../dialogs/select_category_dialog.dart';
 import '../../dialogs/sort_by_dialog.dart';
 import '../dialogs/add_material_dialog.dart';
 import '../../dialogs/print_dialogs.dart';
+import '../dialogs/currencies_dialog.dart';
 import '../print/print_materials.dart';
 
 class InventoryPage extends StatelessWidget {
@@ -457,6 +458,28 @@ class InventoryPage extends StatelessWidget {
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text('طباعة'),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          showCurrenciesDialog(mainController);
+                        },
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            )),
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.white),
+                            foregroundColor:
+                                MaterialStateProperty.all(Colors.black54)),
+                        icon: const Icon(Icons.money),
+                        label: const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('العملات'),
                         ),
                       ),
                       const SizedBox(

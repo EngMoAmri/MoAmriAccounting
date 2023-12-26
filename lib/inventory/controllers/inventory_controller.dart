@@ -33,8 +33,13 @@ class InventoryController extends GetxController {
 
   final Rx<List<String>> orderBy =
       Rx(['الاسم', 'الكمية', 'سعر الشراء', 'سعر البيع', 'الإضافة']);
-  final Rx<List<String>> orderByDatabase =
-      Rx(['name', 'quantity', 'cost_price', 'sale_price', 'id']);
+  final Rx<List<String>> orderByDatabase = Rx([
+    'name',
+    'quantity',
+    'exchanged_cost_price',
+    'exchanged_sale_price',
+    'id'
+  ]);
   Rx<int> selectedOrderBy = 4.obs;
   Rx<int> selectedOrderDir = 1.obs;
 

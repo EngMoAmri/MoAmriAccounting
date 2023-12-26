@@ -76,6 +76,17 @@ class MyMaterialsDatabase {
     return currencies;
   }
 
+  static Future<List<Currency>> getCurrencies() async {
+    List<Map<String, dynamic>> maps =
+        await MyDatabase.myDatabase.query('currencies');
+
+    List<Currency> currencies = [];
+    for (var map in maps) {
+      currencies.add(Currency.fromMap(map));
+    }
+    return currencies;
+  }
+
   static Future<List<String>> getMaterialsCategories() async {
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
         .query('materials', columns: ['category'], distinct: true);
@@ -267,14 +278,15 @@ class MyMaterialsDatabase {
     });
   }
 
-  static Future<void> updateCurrency(Currency currency, int actionBy) async {
+  static Future<void> updateCurrency(
+      Currency currency, Currency oldCurrency, int actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
       var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.update(
         'currencies',
         currency.toMap(),
         where: 'name = ?',
-        whereArgs: [currency.name],
+        whereArgs: [oldCurrency.name],
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
@@ -337,21 +349,40 @@ class MyMaterialsDatabase {
       {category, orderBy, dir}) async {
     List<Map<String, dynamic>> maps;
     if (category == 'الكل' || category == null) {
-      maps = await MyDatabase.myDatabase.query(
-        'materials',
-        limit: 40,
-        offset: page * 40,
-        orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
-      );
+      maps = await MyDatabase.myDatabase.rawQuery('''
+        SELECT *, 
+          (cost_price * (
+          SELECT exchange_rate 
+          FROM currencies 
+          WHERE name=currency
+          )) as exchanged_cost_price,
+          (sale_price * (
+          SELECT exchange_rate 
+          FROM currencies 
+          WHERE name=currency
+          )) as exchanged_sale_price 
+        FROM materials 
+        ORDER BY ${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"} 
+        LIMIT ${page * 40}, 40
+     ''');
     } else {
-      maps = await MyDatabase.myDatabase.query(
-        'materials',
-        where: 'category = ?',
-        whereArgs: [category],
-        limit: 40,
-        offset: page * 40,
-        orderBy: "${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}",
-      );
+      maps = await MyDatabase.myDatabase.rawQuery('''
+        SELECT *, 
+          (cost_price * (
+          SELECT exchange_rate 
+          FROM currencies 
+          WHERE name=currency
+          )) as exchanged_cost_price,
+          (sale_price * (
+          SELECT exchange_rate 
+          FROM currencies 
+          WHERE name=currency
+          )) as exchanged_sale_price 
+        FROM materials 
+        WHERE category = '$category'
+        ORDER BY ${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"} 
+        LIMIT ${page * 40}, 40
+     ''');
     }
     List<MyMaterial> materials = [];
     for (var map in maps) {

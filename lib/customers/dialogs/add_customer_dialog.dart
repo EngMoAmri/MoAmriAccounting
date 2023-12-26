@@ -11,7 +11,6 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
       barrierDismissible: false,
       builder: (BuildContext context) {
         final formKey = GlobalKey<FormState>();
-        final scrollController = ScrollController();
         final nameTextController = TextEditingController();
         final phoneTextController = TextEditingController();
         final addressTextController = TextEditingController();
@@ -20,66 +19,210 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: FocusTraversalGroup(
-              policy: WidgetOrderTraversalPolicy(),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: StatefulBuilder(builder: (context, setState) {
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Expanded(
-                            child: Text(
-                              "Add Customer",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: FocusTraversalGroup(
+                policy: WidgetOrderTraversalPolicy(),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StatefulBuilder(builder: (context, setState) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 20,
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            child: IconButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.red,
+                            const Expanded(
+                              child: Text(
+                                "إضافة عميل",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Divider(height: 1),
-                      Expanded(
-                        child: Form(
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                              child: IconButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 1),
+                        Form(
                           key: formKey,
-                          child: SingleChildScrollView(
-                            controller: scrollController,
-                            scrollDirection: Axis.vertical,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: nameTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'الاسم',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: phoneTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'الجوال',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            controller: addressTextController,
+                                            decoration: InputDecoration(
+                                              filled: true,
+                                              fillColor: Colors.white,
+                                              isDense: true,
+                                              contentPadding:
+                                                  const EdgeInsets.all(10),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: const BorderSide(
+                                                    color: Colors.green),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                              ),
+                                              counterText: "",
+                                              labelText: 'العنوان',
+                                            ),
+                                            keyboardType: TextInputType.text,
+                                            validator: (value) {
+                                              if (value?.trim().isEmpty ??
+                                                  true) {
+                                                return "هذا الحقل مطلوب";
+                                              }
+                                              return null;
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: TextFormField(
                                               textCapitalization:
                                                   TextCapitalization.sentences,
-                                              controller: nameTextController,
+                                              controller:
+                                                  descriptionTextController,
                                               decoration: InputDecoration(
                                                 filled: true,
                                                 fillColor: Colors.white,
@@ -100,251 +243,92 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
                                                           Radius.circular(8.0)),
                                                 ),
                                                 counterText: "",
-                                                labelText: 'Name',
+                                                labelText: 'الوصف',
                                               ),
-                                              keyboardType: TextInputType.text,
-                                              validator: (value) {
-                                                if (value?.trim().isEmpty ??
-                                                    true) {
-                                                  return "This field required";
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
+                                              minLines: 3,
+                                              maxLines: 3,
+                                              keyboardType:
+                                                  TextInputType.multiline),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller: phoneTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'Phone',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                              validator: (value) {
-                                                if (value?.trim().isEmpty ??
-                                                    true) {
-                                                  return "This field required";
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller: addressTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'Address',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                              validator: (value) {
-                                                if (value?.trim().isEmpty ??
-                                                    true) {
-                                                  return "This field required";
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Divider(
-                                    height: 1,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: TextFormField(
-                                                textCapitalization:
-                                                    TextCapitalization
-                                                        .sentences,
-                                                controller:
-                                                    descriptionTextController,
-                                                decoration: InputDecoration(
-                                                  filled: true,
-                                                  fillColor: Colors.white,
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets.all(10),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color:
-                                                                Colors.green),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
-                                                  border:
-                                                      const OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.all(
-                                                            Radius.circular(
-                                                                8.0)),
-                                                  ),
-                                                  counterText: "",
-                                                  labelText: 'Description',
-                                                ),
-                                                minLines: 3,
-                                                maxLines: 3,
-                                                keyboardType:
-                                                    TextInputType.multiline),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                      const Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          if (adding)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0),
-                              child: CircularProgressIndicator(),
-                            )
-                          else
-                            ElevatedButton.icon(
-                                onPressed: () async {
-                                  if (formKey.currentState!.validate()) {
-                                    setState(() {
-                                      adding = true;
-                                    });
-                                    final name = nameTextController.text;
-                                    final phone = phoneTextController.text;
-                                    final address = addressTextController.text;
-                                    final description =
-                                        descriptionTextController.text;
-                                    final now =
-                                        DateTime.now().millisecondsSinceEpoch;
-                                    Customer customer = Customer(
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            if (adding)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                child: CircularProgressIndicator(),
+                              )
+                            else
+                              ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (formKey.currentState!.validate()) {
+                                      setState(() {
+                                        adding = true;
+                                      });
+                                      final name =
+                                          nameTextController.text.trim();
+                                      final phone =
+                                          phoneTextController.text.trim();
+                                      final address =
+                                          addressTextController.text.trim();
+                                      final description =
+                                          descriptionTextController.text.trim();
+                                      Customer customer = Customer(
                                         name: name,
                                         phone: phone,
                                         address: address,
                                         description: description,
-                                        addedBy: mainController
-                                            .currentUser.value!.id!,
-                                        updatedBy: mainController
-                                            .currentUser.value!.id!,
-                                        createdDate: now,
-                                        updatedDate: now);
+                                      );
 
-                                    try {
-                                      await CustomersDatabase.insertCustomer(
-                                          customer);
-                                      await showSuccessDialog(
-                                          "Customer Added Successfully");
-                                      Get.back(result: true);
-                                    } catch (e) {
-                                      setState(() {
-                                        adding = false;
-                                      });
-                                      showErrorDialog('Error $e');
+                                      try {
+                                        await CustomersDatabase.insertCustomer(
+                                            customer,
+                                            mainController
+                                                .currentUser.value!.id!);
+                                        await showSuccessDialog(
+                                            "تم إضافة العميل");
+                                        Get.back(result: true);
+                                      } catch (e) {
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        showErrorDialog('خطأ $e');
+                                      }
                                     }
-                                  }
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(Colors.yellow),
-                                  foregroundColor:
-                                      MaterialStateProperty.all(Colors.black),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  )),
-                                ),
-                                label: Text("Add".tr),
-                                icon: const Icon(Icons.add)),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                    ],
-                  );
-                }),
+                                  },
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.green),
+                                    foregroundColor:
+                                        MaterialStateProperty.all(Colors.black),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    )),
+                                  ),
+                                  label: Text("إضافة".tr),
+                                  icon: const Icon(Icons.add)),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      ],
+                    );
+                  }),
+                ),
               ),
             ),
           ),

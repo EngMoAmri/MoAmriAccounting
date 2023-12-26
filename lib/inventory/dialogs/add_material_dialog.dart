@@ -4,9 +4,12 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
-import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../../database/entities/currency.dart';
+import '../../database/my_materials_database.dart';
+import 'add_currency_dialog.dart';
 
 Future<bool?> showAddMaterialDialog(MainController mainController) async {
   return await showDialog(
@@ -21,6 +24,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
         final quantityTextController = TextEditingController();
         final unitTextController = TextEditingController();
         final currencyTextController = TextEditingController();
+        Currency? currency;
+
         final largerMaterialTextController = TextEditingController();
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
@@ -290,19 +295,21 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               ),
                                               onSelected: (value) {
                                                 setState(() {
+                                                  currency = value;
                                                   currencyTextController.text =
-                                                      value;
+                                                      value.name;
                                                 });
                                               },
                                               suggestionsCallback:
                                                   (String pattern) async {
                                                 return await MyMaterialsDatabase
-                                                    .searchForCurrency(pattern);
+                                                    .searchForCurrencies(
+                                                        pattern);
                                               },
                                               itemBuilder:
                                                   (context, suggestion) {
                                                 return ListTile(
-                                                  title: Text(suggestion),
+                                                  title: Text(suggestion.name),
                                                 );
                                               },
                                               builder: (context, controller,
@@ -355,6 +362,35 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             ),
                                           ),
                                         ),
+                                        OutlinedButton.icon(
+                                            style: ButtonStyle(
+                                                shape:
+                                                    MaterialStateProperty.all(
+                                                        RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12.0),
+                                                )),
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.blue),
+                                                foregroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.white)),
+                                            onPressed: () async {
+                                              currency =
+                                                  await showAddCurrencyDialog(
+                                                      mainController);
+                                              setState(() {
+                                                currencyTextController.text =
+                                                    currency?.name ??
+                                                        currencyTextController
+                                                            .text;
+                                              });
+                                            },
+                                            icon:
+                                                const Icon(Icons.attach_money),
+                                            label: const Text('إضافة عملة')),
                                       ],
                                     ),
                                   ),
@@ -563,7 +599,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                     setState(() {
                                                       profit = (double.tryParse(
                                                                   salePriceTextController
-                                                                      .text) ??
+                                                                      .text
+                                                                      .trim()) ??
                                                               0) -
                                                           (double.tryParse(
                                                                   value) ??
@@ -630,7 +667,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                               0) -
                                                           (double.tryParse(
                                                                   costPriceTextController
-                                                                      .text) ??
+                                                                      .text
+                                                                      .trim()) ??
                                                               0);
                                                     });
                                                   },
@@ -901,7 +939,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         adding = true;
                                       });
                                       final barcode =
-                                          barcodeTextController.text;
+                                          barcodeTextController.text.trim();
 
                                       var materialByBarcode =
                                           await MyMaterialsDatabase
@@ -910,6 +948,15 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                       if (materialByBarcode != null) {
                                         showErrorDialog(
                                             "هذا الباركود ينتمي لمادة أخرى");
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        return;
+                                      }
+                                      if (currency == null ||
+                                          (currencyTextController.text.trim() !=
+                                              currency?.name)) {
+                                        showErrorDialog("يرجى إختيار عملة");
                                         setState(() {
                                           adding = false;
                                         });
@@ -929,7 +976,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                       if (largerMaterial != null &&
                                           (int.parse(
                                                   suppliedQuantityTextController
-                                                      .text) <=
+                                                      .text
+                                                      .trim()) <=
                                               0)) {
                                         showErrorDialog(
                                             "يرجى اختيار الكمية المزودة من الوحدة الأكبر بشكل صحيح");
@@ -939,25 +987,27 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                         return;
                                       }
                                       final category =
-                                          categoryTextController.text;
-                                      final currency =
-                                          currencyTextController.text;
-                                      final name = nameTextController.text;
+                                          categoryTextController.text.trim();
+                                      final name =
+                                          nameTextController.text.trim();
                                       final quantity = int.parse(
-                                          quantityTextController.text);
-                                      final unit = unitTextController.text;
+                                          quantityTextController.text.trim());
+                                      final unit =
+                                          unitTextController.text.trim();
                                       final suppliedQuantity = int.tryParse(
-                                          suppliedQuantityTextController.text);
+                                          suppliedQuantityTextController.text
+                                              .trim());
                                       final costPrice = double.parse(
-                                          costPriceTextController.text);
+                                          costPriceTextController.text.trim());
                                       final salePrice = double.parse(
-                                          salePriceTextController.text);
-                                      final note = noteTextController.text;
+                                          salePriceTextController.text.trim());
+                                      final note =
+                                          noteTextController.text.trim();
                                       MyMaterial material = MyMaterial(
                                           name: name,
                                           barcode: barcode,
                                           category: category,
-                                          currency: currency,
+                                          currency: currency!.name,
                                           unit: unit,
                                           quantity: quantity,
                                           costPrice: costPrice,

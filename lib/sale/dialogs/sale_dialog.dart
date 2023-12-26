@@ -406,7 +406,7 @@
 //                                                       saleData['Note'] =
 //                                                           saleController
 //                                                               .materialDialogNoteTextController
-//                                                               .text;
+//                                                               .text.trim();
 //                                                       saleController
 //                                                           .dataSource.value
 //                                                           .notifyListeners();

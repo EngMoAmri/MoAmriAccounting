@@ -1,3 +1,4 @@
+import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/activity.dart';
@@ -10,6 +11,13 @@ class MyMaterialsDatabase {
         .query('materials', where: "barcode = ?", whereArgs: [barcode]);
     if (maps.isEmpty) return null;
     return MyMaterial.fromMap(maps.first);
+  }
+
+  static Future<bool> isCurrencyExists(String currency) async {
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .query('currencies', where: "name = ?", whereArgs: [currency.trim()]);
+    if (maps.isEmpty) return false;
+    return true;
   }
 
   static Future<String> generateMaterialBarcode() async {
@@ -52,7 +60,7 @@ class MyMaterialsDatabase {
     return categories;
   }
 
-  static Future<List<String>> searchForCurrency(String text) async {
+  static Future<List<Currency>> searchForCurrencies(String text) async {
     var trimText = text.trim();
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.query(
         'currencies',
@@ -61,9 +69,9 @@ class MyMaterialsDatabase {
         whereArgs: ["%$trimText%"],
         limit: 10);
 
-    List<String> currencies = [];
+    List<Currency> currencies = [];
     for (var map in maps) {
-      currencies.add(map['name']);
+      currencies.add(Currency.fromMap(map));
     }
     return currencies;
   }
@@ -117,14 +125,6 @@ class MyMaterialsDatabase {
     return materials;
   }
 
-  static Future<void> insertCurrency(String currency) async {
-    await MyDatabase.myDatabase.insert(
-      'currencies',
-      {'name': currency},
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
-  }
-
   static Future<int> insertMaterial(MyMaterial material, int actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
       var actionDate = DateTime.now().millisecondsSinceEpoch;
@@ -133,11 +133,11 @@ class MyMaterialsDatabase {
         {'name': material.unit},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
-      await txn.insert(
-        'currencies',
-        {'name': material.currency},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      // await txn.insert(
+      //   'currencies',
+      //   {'name': material.currency},
+      //   conflictAlgorithm: ConflictAlgorithm.ignore,
+      // );
       material.id = await txn.insert(
         'materials',
         material.toMap(),
@@ -174,11 +174,11 @@ class MyMaterialsDatabase {
         {'name': material.unit},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
-      await txn.insert(
-        'currencies',
-        {'name': material.currency},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
+      // await txn.insert(
+      //   'currencies',
+      //   {'name': material.currency},
+      //   conflictAlgorithm: ConflictAlgorithm.ignore,
+      // );
       await txn.update(
         'materials',
         material.toMap(),
@@ -232,6 +232,94 @@ class MyMaterialsDatabase {
       historyMap.putIfAbsent('action_date', () => actionDate);
       await txn.insert(
         'materials_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
+  }
+
+  static Future<void> insertCurrency(Currency currency, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      await txn.insert(
+        'currencies',
+        currency.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate,
+                action: 'add',
+                tableName: 'currencies_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = currency.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'currencies_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
+  }
+
+  static Future<void> updateCurrency(Currency currency, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      await txn.update(
+        'currencies',
+        currency.toMap(),
+        where: 'name = ?',
+        whereArgs: [currency.name],
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate,
+                action: 'update',
+                tableName: 'currencies_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = currency.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'currencies_history',
+        historyMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
+  }
+
+// TODO prevent deleting main currency
+  static Future<void> deleteCurrency(Currency currency, int actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      await txn
+          .delete('currencies', where: 'name = ?', whereArgs: [currency.name]);
+      await txn.insert(
+        'activities',
+        Activity(
+                date: actionDate,
+                action: 'delete',
+                tableName: 'currencies_history')
+            .toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      var historyMap = currency.toMap();
+      historyMap['id'] = null;
+      historyMap.putIfAbsent('action_by', () => actionBy);
+      historyMap.putIfAbsent('action_date', () => actionDate);
+      await txn.insert(
+        'currencies_history',
         historyMap,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );

@@ -13,57 +13,20 @@ import '../dialogs/edit_customer_dialog.dart';
 
 class CustomersPage extends StatelessWidget {
   CustomersPage({super.key});
-  Widget _buildProgressIndicator() {
-    return Container(
-        height: 60.0,
-        alignment: Alignment.center,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-            border: BorderDirectional(
-                top: BorderSide(
-          width: 1.0,
-        ))),
-        child: Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            child: const CircularProgressIndicator(
-              backgroundColor: Colors.transparent,
-            )));
-  }
-
-  Widget _buildLoadMoreView(BuildContext context, LoadMoreRows loadMoreRows) {
-    Future<String> loadRows() async {
-      // Call the loadMoreRows function to call the
-      // DataGridSource.handleLoadMoreRows method. So, additional
-      // rows can be added from handleLoadMoreRows method.
-      await loadMoreRows();
-      return Future<String>.value('Completed');
-    }
-
-    return FutureBuilder<String>(
-      initialData: 'Loading',
-      future: loadRows(),
-      builder: (context, snapShot) {
-        return snapShot.data == 'Loading'
-            ? _buildProgressIndicator()
-            : SizedBox.fromSize(size: Size.zero);
-      },
-    );
-  }
 
   final MainController mainController = Get.find();
   final CustomersController controller = Get.put(CustomersController());
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => (controller.isFirstLoadRunning.value)
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
-        : Column(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Obx(() => Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
+              const SizedBox(
+                height: 10,
+              ),
               Row(
                 children: [
                   Expanded(
@@ -86,7 +49,7 @@ class CustomersPage extends StatelessWidget {
                                 BorderRadius.all(Radius.circular(8.0)),
                           ),
                           counterText: "",
-                          hintText: 'Search by name',
+                          hintText: 'بحث بالاسم',
                         ),
                         keyboardType: TextInputType.text,
                         onChanged: (value) {
@@ -100,7 +63,7 @@ class CustomersPage extends StatelessWidget {
                     ),
                   ),
                   Center(
-                      child: Text("Count: ${controller.customersCount.value}")),
+                      child: Text("العدد: ${controller.customersCount.value}")),
                   const SizedBox(
                     width: 10,
                   )
@@ -140,7 +103,7 @@ class CustomersPage extends StatelessWidget {
                               label: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                    'Order By: ${controller.orderBy.value[controller.selectedOrderBy.value]},  Sorted: ${(controller.selectedOrderDir.value == 0) ? 'Ascending' : 'Descending'}'),
+                                    'ترتيب حسب: ${controller.orderBy.value[controller.selectedOrderBy.value]} ترتيباً: ${(controller.selectedOrderDir.value == 0) ? 'تصاعدياً' : 'تنازلياً'}'),
                               ),
                             ),
                           ],
@@ -154,7 +117,7 @@ class CustomersPage extends StatelessWidget {
                         onPressed: () {
                           controller.firstLoad();
                         },
-                        tooltip: "Referesh",
+                        tooltip: "تحديث",
                         icon: const Icon(Icons.sync)),
                   ],
                 ),
@@ -173,76 +136,132 @@ class CustomersPage extends StatelessWidget {
                             child: SfDataGrid(
                                 controller: controller.dataGridController,
                                 gridLinesVisibility: GridLinesVisibility.both,
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResizeEnd,
+                                onColumnResizeUpdate:
+                                    (ColumnResizeUpdateDetails details) {
+                                  controller.columnWidths
+                                          .value[details.column.columnName] =
+                                      details.width;
+                                  controller.columnWidths.refresh();
+                                  return true;
+                                },
                                 headerGridLinesVisibility:
                                     GridLinesVisibility.both,
                                 source: controller.dataSource.value,
-                                loadMoreViewBuilder: _buildLoadMoreView,
+                                isScrollbarAlwaysShown: true,
+                                loadMoreViewBuilder: (BuildContext context,
+                                    LoadMoreRows loadMoreRows) {
+                                  Future<String> loadRows() async {
+                                    await loadMoreRows();
+                                    return Future<String>.value('Completed');
+                                  }
+
+                                  return FutureBuilder<String>(
+                                    initialData: controller.hasNextPage.value
+                                        ? 'Loading'
+                                        : 'Completed',
+                                    future: loadRows(),
+                                    builder: (context, snapShot) {
+                                      return snapShot.data == 'Loading'
+                                          ? Container(
+                                              height: 60.0,
+                                              alignment: Alignment.center,
+                                              width: double.infinity,
+                                              child: Container(
+                                                  width: 40,
+                                                  height: 40,
+                                                  alignment: Alignment.center,
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                    backgroundColor:
+                                                        Colors.blue,
+                                                  )))
+                                          : SizedBox.fromSize(size: Size.zero);
+                                    },
+                                  );
+                                },
                                 selectionMode: SelectionMode.single,
                                 frozenColumnsCount: 2,
                                 columns: [
                                   GridColumn(
                                       columnName: 'ID',
-                                      columnWidthMode:
-                                          ColumnWidthMode.fitByCellValue,
+                                      width:
+                                          controller.columnWidths.value['ID']!,
                                       minimumWidth: 120,
                                       label: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 2),
                                           alignment: Alignment.center,
                                           child: const Text(
-                                            'ID',
+                                            'المعرف',
                                             overflow: TextOverflow.ellipsis,
                                           ))),
                                   GridColumn(
                                       columnName: 'Name',
-                                      columnWidthMode:
-                                          ColumnWidthMode.fitByCellValue,
+                                      width: controller
+                                          .columnWidths.value['Name']!,
                                       minimumWidth: 120,
                                       label: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 2),
                                           alignment: Alignment.center,
                                           child: const Text(
-                                            'Name',
+                                            'الاسم',
+                                            overflow: TextOverflow.ellipsis,
+                                          ))),
+                                  GridColumn(
+                                      columnName: 'Debt',
+                                      width: controller
+                                          .columnWidths.value['Debt']!,
+                                      minimumWidth: 120,
+                                      label: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 2),
+                                          alignment: Alignment.center,
+                                          child: const Text(
+                                            'إجمالي الدين',
                                             overflow: TextOverflow.ellipsis,
                                           ))),
                                   GridColumn(
                                       columnName: 'Phone',
-                                      columnWidthMode:
-                                          ColumnWidthMode.fitByCellValue,
+                                      width: controller
+                                          .columnWidths.value['Phone']!,
                                       minimumWidth: 120,
                                       label: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 2),
                                           alignment: Alignment.center,
                                           child: const Text(
-                                            'Phone',
+                                            'الجوال',
                                             overflow: TextOverflow.ellipsis,
                                           ))),
                                   GridColumn(
                                       columnName: 'Address',
-                                      columnWidthMode:
-                                          ColumnWidthMode.fitByCellValue,
+                                      width: controller
+                                          .columnWidths.value['Address']!,
                                       minimumWidth: 120,
                                       label: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 2),
                                           alignment: Alignment.center,
                                           child: const Text(
-                                            'Address',
+                                            'العنوان',
                                             overflow: TextOverflow.ellipsis,
                                           ))),
                                   GridColumn(
                                       columnName: 'Description',
                                       columnWidthMode:
                                           ColumnWidthMode.lastColumnFill,
+                                      width: controller
+                                          .columnWidths.value['Description']!,
                                       minimumWidth: 120,
                                       label: Container(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 2),
                                           alignment: Alignment.center,
                                           child: const Text(
-                                            'Description',
+                                            'الوصف',
                                             overflow: TextOverflow.ellipsis,
                                           ))),
                                 ]),
@@ -277,7 +296,7 @@ class CustomersPage extends StatelessWidget {
                         icon: const Icon(Icons.add),
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text('Add'),
+                          child: Text('إضافة'),
                         ),
                       ),
                       const SizedBox(
@@ -286,13 +305,16 @@ class CustomersPage extends StatelessWidget {
                       OutlinedButton.icon(
                         onPressed: () async {
                           if (controller.dataGridController.selectedIndex < 0) {
-                            showErrorDialog("You Must Select a Customer");
+                            showErrorDialog("يجب عليك إختيار عميل");
                             return;
                           }
                           if ((await showEditCustomerDialog(
                                   mainController,
-                                  controller.customers.value[controller
-                                      .dataGridController.selectedIndex])) ??
+                                  controller
+                                      .customersWithDebts
+                                      .value[controller
+                                          .dataGridController.selectedIndex]
+                                      .customer)) ??
                               false) {
                             controller.firstLoad();
                           }
@@ -309,7 +331,7 @@ class CustomersPage extends StatelessWidget {
                         icon: const Icon(Icons.edit),
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text('Edit'),
+                          child: Text('تعديل'),
                         ),
                       ),
                       const SizedBox(
@@ -318,26 +340,21 @@ class CustomersPage extends StatelessWidget {
                       OutlinedButton.icon(
                         onPressed: () async {
                           if (controller.dataGridController.selectedIndex < 0) {
-                            showErrorDialog("You Must Select a Customer");
+                            showErrorDialog("يجب عليك إختيار عميل");
                             return;
                           }
-                          var customer = controller.customers.value[
+                          var customer = controller.customersWithDebts.value[
                               controller.dataGridController.selectedIndex];
-                          var deletable =
-                              await CustomersDatabase.isCustomerDeletable(
-                                  customer.id!);
-                          if (!deletable) {
-                            showErrorDialog(
-                                "This Customer Has Some Invoices, So He/She Cannot Be Deleted");
-                            return;
-                          }
+                          throw Exception("Deletable or not?");
                           if (!(await showConfirmationDialog(
-                                  "Are you sure? you want to delete!") ??
+                                  "هل أنت متأكد من الحذف؟!") ??
                               false)) {
                             return;
                           }
-                          await CustomersDatabase.deleteCustomer(customer);
-                          await showSuccessDialog("Customer Has Been Deleted");
+                          await CustomersDatabase.deleteCustomer(
+                              customer.customer,
+                              mainController.currentUser.value!.id!);
+                          await showSuccessDialog("تم حذف العميل");
                           controller.firstLoad();
                         },
                         style: ButtonStyle(
@@ -352,7 +369,7 @@ class CustomersPage extends StatelessWidget {
                         icon: const Icon(Icons.delete),
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text('Delete'),
+                          child: Text('حذف'),
                         ),
                       ),
                       const SizedBox(
@@ -381,7 +398,7 @@ class CustomersPage extends StatelessWidget {
                         icon: const Icon(Icons.print),
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text('Print'),
+                          child: Text('طباعة'),
                         ),
                       ),
                       const SizedBox(
@@ -392,6 +409,7 @@ class CustomersPage extends StatelessWidget {
                 ),
               ),
             ],
-          ));
+          )),
+    );
   }
 }

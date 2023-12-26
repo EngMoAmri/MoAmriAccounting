@@ -29,12 +29,28 @@ class MyDatabase {
     await myDatabase.execute("PRAGMA foreign_keys=ON");
     // TODO walk on each one
     await myDatabase.execute('''
+    CREATE TABLE IF NOT EXISTS currencies (
+      name TEXT PRIMARY KEY,
+      exchange_rate REAL NOT NULL
+    )
+    ''');
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS currencies_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      exchange_rate REAL NOT NULL,
+      action_by INTEGER NOT NULL,
+      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
+    )""");
+
+    await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS store (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       branch TEXT NOT NULL,
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
       image BLOB, 
       updated_at INTEGER NOT NULL
     )
@@ -71,28 +87,6 @@ class MyDatabase {
     )""");
 
     await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS currencies (
-      name TEXT PRIMARY KEY
-    )
-    ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS currencies_exchange (
-      currency_1 TEXT NOT NULL REFERENCES currencies(name) ON DELETE CASCADE,
-      currency_2 TEXT NOT NULL REFERENCES currencies(name) ON DELETE CASCADE,
-      exchange_rate REAL NOT NULL,
-      PRIMARY KEY(currency_1, currency_2)
-    )
-    ''');
-    await myDatabase.execute("""
-    CREATE TABLE IF NOT EXISTS currencies_exchange_history (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency_1 TEXT NOT NULL,
-      currency_2 TEXT NOT NULL,
-      exchange_rate REAL NOT NULL,
-      action_by INTEGER NOT NULL,
-      action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
-    )""");
-    await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS units (
       name TEXT PRIMARY KEY
     )
@@ -117,7 +111,7 @@ class MyDatabase {
       barcode TEXT UNIQUE,
       category TEXT NOT NULL,
       unit TEXT NOT NULL REFERENCES units(name) ON DELETE RESTRICT,
-      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
       quantity INTEGER NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
@@ -167,7 +161,7 @@ class MyDatabase {
     await myDatabase.execute("""
     CREATE TABLE IF NOT EXISTS offers(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
       price REAl NOT NULL,
       note TEXT
     )
@@ -291,6 +285,7 @@ class MyDatabase {
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
       customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
       amount REAL NOT NULL, 
+      currency REAL NOT NULL REFERENCES currency(name) ON DELETE RESTRICT ON UPDATE CASCADE,
       note TEXT
     )
     """);
@@ -301,6 +296,7 @@ class MyDatabase {
       invoice_id INTEGER,    
       customer_id INTEGER,  
       amount REAL NOT NULL, 
+      currency REAL NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
@@ -314,6 +310,7 @@ class MyDatabase {
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
       customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
       amount REAL NOT NULL, 
+      currency REAL NOT NULL REFERENCES currency(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
       note TEXT
     )
     """);
@@ -324,6 +321,7 @@ class MyDatabase {
       invoice_id INTEGER,    
       customer_id INTEGER,  
       amount REAL NOT NULL, 
+      currency REAL NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE

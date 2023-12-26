@@ -7,41 +7,44 @@ Future<dynamic> showConfirmationDialog(
   return showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("إنتباه"),
-          content: Text(
-            message,
-            textAlign: TextAlign.justify,
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: AlertDialog(
+            title: const Text("إنتباه"),
+            content: Text(
+              message,
+              textAlign: TextAlign.center,
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(Get.context!).pop(true);
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.white),
+                    foregroundColor: MaterialStateProperty.all(Colors.blue),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    )),
+                  ),
+                  child: const Text("نعم",
+                      style: TextStyle(fontWeight: FontWeight.bold))),
+              OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(Get.context!).pop(false);
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.white),
+                    foregroundColor: MaterialStateProperty.all(Colors.green),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    )),
+                  ),
+                  child: const Text("لا",
+                      style: TextStyle(fontWeight: FontWeight.bold)))
+            ],
           ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(Get.context!).pop(true);
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  foregroundColor: MaterialStateProperty.all(Colors.blue),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  )),
-                ),
-                child: const Text("نعم",
-                    style: TextStyle(fontWeight: FontWeight.bold))),
-            TextButton(
-                onPressed: () {
-                  Navigator.of(Get.context!).pop(false);
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  foregroundColor: MaterialStateProperty.all(Colors.green),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  )),
-                ),
-                child: const Text("لا",
-                    style: TextStyle(fontWeight: FontWeight.bold)))
-          ],
         );
       });
 }

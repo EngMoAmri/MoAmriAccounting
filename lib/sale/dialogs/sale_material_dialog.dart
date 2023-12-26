@@ -208,7 +208,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     var currentQuantity =
                                                         int.tryParse(saleController
                                                                 .materialDialogQuantityTextController
-                                                                .text) ??
+                                                                .text
+                                                                .trim()) ??
                                                             0;
                                                     if (currentQuantity == 1) {
                                                       return;
@@ -321,7 +322,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     var currentQuantity =
                                                         int.tryParse(saleController
                                                                 .materialDialogQuantityTextController
-                                                                .text) ??
+                                                                .text
+                                                                .trim()) ??
                                                             0;
                                                     if (currentQuantity >=
                                                         material.quantity) {
@@ -386,7 +388,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     .value = double.tryParse(
                                                         saleController
                                                             .materialDialogTaxTextController
-                                                            .text) ??
+                                                            .text
+                                                            .trim()) ??
                                                     0;
                                               },
                                               keyboardType:
@@ -442,7 +445,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         //                 .dialogDiscount.value =
                                         //             double.tryParse(saleController
                                         //                     .dialogDiscountTextController
-                                        //                     .text) ??
+                                        //                     .text.trim()) ??
                                         //                 0;
                                         //       },
                                         //       // TODO
@@ -619,7 +622,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                         material.salePrice;
                                                 saleData['Note'] = saleController
                                                     .materialDialogNoteTextController
-                                                    .text;
+                                                    .text
+                                                    .trim();
                                                 saleController.dataSource.value
                                                     .notifyListeners();
                                                 saleController.dataSource.value

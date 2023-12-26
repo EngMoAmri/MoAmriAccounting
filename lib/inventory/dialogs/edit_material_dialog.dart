@@ -8,6 +8,9 @@ import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../database/entities/currency.dart';
+import 'add_currency_dialog.dart';
+
 Future<bool?> showEditMaterialDialog(
     MainController mainController, MyMaterial oldMaterial) async {
   return await showDialog(
@@ -28,6 +31,11 @@ Future<bool?> showEditMaterialDialog(
         unitTextController.text = oldMaterial.unit;
         final currencyTextController = TextEditingController();
         currencyTextController.text = oldMaterial.currency;
+        Currency currency = Currency(
+            name: oldMaterial.currency,
+            exchangeRate:
+                0.0); // here we set the exchangerate to 0 coz we won't use it
+
         final largerMaterialTextController = TextEditingController();
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
@@ -312,19 +320,21 @@ Future<bool?> showEditMaterialDialog(
                                               ),
                                               onSelected: (value) {
                                                 setState(() {
+                                                  currency = value;
                                                   currencyTextController.text =
-                                                      value;
+                                                      value.name;
                                                 });
                                               },
                                               suggestionsCallback:
                                                   (String pattern) async {
                                                 return await MyMaterialsDatabase
-                                                    .searchForCurrency(pattern);
+                                                    .searchForCurrencies(
+                                                        pattern);
                                               },
                                               itemBuilder:
                                                   (context, suggestion) {
                                                 return ListTile(
-                                                  title: Text(suggestion),
+                                                  title: Text(suggestion.name),
                                                 );
                                               },
                                               builder: (context, controller,
@@ -377,6 +387,34 @@ Future<bool?> showEditMaterialDialog(
                                             ),
                                           ),
                                         ),
+                                        OutlinedButton.icon(
+                                            style: ButtonStyle(
+                                                shape:
+                                                    MaterialStateProperty.all(
+                                                        RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12.0),
+                                                )),
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.blue),
+                                                foregroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.white)),
+                                            onPressed: () async {
+                                              currency =
+                                                  await showAddCurrencyDialog(
+                                                          mainController) ??
+                                                      currency;
+                                              setState(() {
+                                                currencyTextController.text =
+                                                    currency.name;
+                                              });
+                                            },
+                                            icon:
+                                                const Icon(Icons.attach_money),
+                                            label: const Text('إضافة عملة')),
                                       ],
                                     ),
                                   ),
@@ -584,7 +622,8 @@ Future<bool?> showEditMaterialDialog(
                                                     setState(() {
                                                       profit = (double.tryParse(
                                                                   salePriceTextController
-                                                                      .text) ??
+                                                                      .text
+                                                                      .trim()) ??
                                                               0) -
                                                           (double.tryParse(
                                                                   value) ??
@@ -651,7 +690,8 @@ Future<bool?> showEditMaterialDialog(
                                                               0) -
                                                           (double.tryParse(
                                                                   costPriceTextController
-                                                                      .text) ??
+                                                                      .text
+                                                                      .trim()) ??
                                                               0);
                                                     });
                                                   },
@@ -934,7 +974,6 @@ Future<bool?> showEditMaterialDialog(
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-
                             if (adding)
                               const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -948,7 +987,7 @@ Future<bool?> showEditMaterialDialog(
                                         adding = true;
                                       });
                                       final barcode =
-                                          barcodeTextController.text;
+                                          barcodeTextController.text.trim();
                                       var materialByBarcode =
                                           await MyMaterialsDatabase
                                               .getMaterialByBarcode(
@@ -958,6 +997,14 @@ Future<bool?> showEditMaterialDialog(
                                               oldMaterial.id) {
                                         showErrorDialog(
                                             "هذا الباركود ينتمي لمادة أخرى");
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        return;
+                                      }
+                                      if (currencyTextController.text.trim() !=
+                                          currency.name) {
+                                        showErrorDialog("يرجى إختيار عملة");
                                         setState(() {
                                           adding = false;
                                         });
@@ -978,7 +1025,8 @@ Future<bool?> showEditMaterialDialog(
                                       if (largerMaterial != null &&
                                           (int.parse(
                                                   suppliedQuantityTextController
-                                                      .text) <=
+                                                      .text
+                                                      .trim()) <=
                                               0)) {
                                         showErrorDialog(
                                             "يرجى اختيار الكمية المزودة من الوحدة الأكبر بشكل صحيح");
@@ -989,26 +1037,28 @@ Future<bool?> showEditMaterialDialog(
                                       }
 
                                       final category =
-                                          categoryTextController.text;
-                                      final currency =
-                                          currencyTextController.text;
-                                      final name = nameTextController.text;
+                                          categoryTextController.text.trim();
+                                      final name =
+                                          nameTextController.text.trim();
                                       final quantity = int.parse(
-                                          quantityTextController.text);
-                                      final unit = unitTextController.text;
+                                          quantityTextController.text.trim());
+                                      final unit =
+                                          unitTextController.text.trim();
                                       final suppliedQuantity = int.tryParse(
-                                          suppliedQuantityTextController.text);
+                                          suppliedQuantityTextController.text
+                                              .trim());
                                       final costPrice = double.parse(
-                                          costPriceTextController.text);
+                                          costPriceTextController.text.trim());
                                       final salePrice = double.parse(
-                                          salePriceTextController.text);
-                                      final note = noteTextController.text;
+                                          salePriceTextController.text.trim());
+                                      final note =
+                                          noteTextController.text.trim();
                                       MyMaterial material = MyMaterial(
                                           id: oldMaterial.id,
                                           name: name,
                                           barcode: barcode,
                                           category: category,
-                                          currency: currency,
+                                          currency: currency.name,
                                           unit: unit,
                                           quantity: quantity,
                                           costPrice: costPrice,
@@ -1045,7 +1095,7 @@ Future<bool?> showEditMaterialDialog(
                                   ),
                                   label: Text("تم".tr),
                                   icon: const Icon(Icons.done)),
-                                  const SizedBox(width: 10)
+                            const SizedBox(width: 10)
                           ],
                         ),
                         const SizedBox(

@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
-import 'package:moamri_accounting/database/customers_database.dart';
+import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
-import '../../database/entities/customer.dart';
+import '../../database/my_materials_database.dart';
 
-Future<bool?> showEditCustomerDialog(
-    MainController mainController, Customer oldCustomer) async {
+Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
   return await showDialog(
       context: Get.context!,
       barrierDismissible: false,
       builder: (BuildContext context) {
         final formKey = GlobalKey<FormState>();
         final nameTextController = TextEditingController();
-        nameTextController.text = oldCustomer.name;
-
-        final phoneTextController = TextEditingController();
-        phoneTextController.text = oldCustomer.phone;
-
-        final addressTextController = TextEditingController();
-        addressTextController.text = oldCustomer.address;
-
-        final descriptionTextController = TextEditingController();
-        descriptionTextController.text = oldCustomer.description;
+        final exchangeRateTextController = TextEditingController();
         var adding = false;
         return Dialog(
           shape:
@@ -47,7 +37,7 @@ Future<bool?> showEditCustomerDialog(
                             ),
                             const Expanded(
                               child: Text(
-                                "تعديل عميل",
+                                "إضافة عملة",
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold),
@@ -71,7 +61,8 @@ Future<bool?> showEditCustomerDialog(
                         Form(
                           key: formKey,
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -104,7 +95,7 @@ Future<bool?> showEditCustomerDialog(
                                                     Radius.circular(8.0)),
                                               ),
                                               counterText: "",
-                                              labelText: 'الاسم',
+                                              labelText: 'رمز العملة أو اسمها',
                                             ),
                                             keyboardType: TextInputType.text,
                                             validator: (value) {
@@ -117,16 +108,6 @@ Future<bool?> showEditCustomerDialog(
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Row(
-                                    children: [
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
@@ -134,7 +115,8 @@ Future<bool?> showEditCustomerDialog(
                                           child: TextFormField(
                                             textCapitalization:
                                                 TextCapitalization.sentences,
-                                            controller: phoneTextController,
+                                            controller:
+                                                exchangeRateTextController,
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
@@ -152,7 +134,8 @@ Future<bool?> showEditCustomerDialog(
                                                     Radius.circular(8.0)),
                                               ),
                                               counterText: "",
-                                              labelText: 'الجوال',
+                                              labelText:
+                                                  'سعر صرف هذه العملة إلى ${mainController.storeData.value!.currency}',
                                             ),
                                             keyboardType: TextInputType.text,
                                             validator: (value) {
@@ -160,104 +143,14 @@ Future<bool?> showEditCustomerDialog(
                                                   true) {
                                                 return "هذا الحقل مطلوب";
                                               }
-                                              return null;
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          child: TextFormField(
-                                            textCapitalization:
-                                                TextCapitalization.sentences,
-                                            controller: addressTextController,
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: Colors.white,
-                                              isDense: true,
-                                              contentPadding:
-                                                  const EdgeInsets.all(10),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: const BorderSide(
-                                                    color: Colors.green),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              border: const OutlineInputBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(8.0)),
-                                              ),
-                                              counterText: "",
-                                              labelText: 'العنوان',
-                                            ),
-                                            keyboardType: TextInputType.text,
-                                            validator: (value) {
-                                              if (value?.trim().isEmpty ??
-                                                  true) {
-                                                return "هذا الحقل مطلوب";
+                                              if (double.tryParse(
+                                                      value!.trim()) ==
+                                                  null) {
+                                                return "إدخل المبلغ بشكل صحيح";
                                               }
                                               return null;
                                             },
                                           ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Divider(
-                                  height: 1,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller:
-                                                  descriptionTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'الوصف',
-                                              ),
-                                              minLines: 3,
-                                              maxLines: 3,
-                                              keyboardType:
-                                                  TextInputType.multiline),
                                         ),
                                       ),
                                     ],
@@ -267,6 +160,7 @@ Future<bool?> showEditCustomerDialog(
                             ),
                           ),
                         ),
+                        // ),
                         const Divider(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -285,28 +179,31 @@ Future<bool?> showEditCustomerDialog(
                                       });
                                       final name =
                                           nameTextController.text.trim();
-                                      final phone =
-                                          phoneTextController.text.trim();
-                                      final address =
-                                          addressTextController.text.trim();
-                                      final description =
-                                          descriptionTextController.text.trim();
 
-                                      Customer customer = Customer(
-                                        id: oldCustomer.id,
-                                        name: name,
-                                        phone: phone,
-                                        address: address,
-                                        description: description,
-                                      );
+                                      if (await MyMaterialsDatabase
+                                          .isCurrencyExists(name.trim())) {
+                                        showErrorDialog(
+                                            "هذه العملة موجودة مسبقاً");
+                                        setState(() {
+                                          adding = false;
+                                        });
+                                        return;
+                                      }
+                                      final exchangeRate = double.parse(
+                                          exchangeRateTextController.text
+                                              .trim());
+                                      var currency = Currency(
+                                          name: name,
+                                          exchangeRate: exchangeRate);
                                       try {
-                                        await CustomersDatabase.updateCustomer(
-                                            customer,
-                                            mainController
-                                                .currentUser.value!.id!);
+                                        await MyMaterialsDatabase
+                                            .insertCurrency(
+                                                currency,
+                                                mainController
+                                                    .currentUser.value!.id!);
                                         await showSuccessDialog(
-                                            "تم تعديل العميل");
-                                        Get.back(result: true);
+                                            "تم إضافة المادة بنجاح");
+                                        Get.back(result: currency);
                                       } catch (e) {
                                         setState(() {
                                           adding = false;
@@ -325,11 +222,9 @@ Future<bool?> showEditCustomerDialog(
                                       borderRadius: BorderRadius.circular(10.0),
                                     )),
                                   ),
-                                  label: Text("تم".tr),
-                                  icon: const Icon(Icons.done)),
-                            const SizedBox(
-                              width: 10,
-                            ),
+                                  label: Text("إضافة".tr),
+                                  icon: const Icon(Icons.add)),
+                            const SizedBox(width: 10)
                           ],
                         ),
                         const SizedBox(

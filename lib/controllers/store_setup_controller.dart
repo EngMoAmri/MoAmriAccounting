@@ -6,10 +6,11 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/store.dart';
 import 'package:moamri_accounting/database/entities/user.dart';
 import 'package:moamri_accounting/database/my_database.dart';
-import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../database/entities/currency.dart';
+import '../database/my_materials_database.dart';
 import '../dialogs/alerts_dialogs.dart';
 
 class StoreSetupController extends GetxController {
@@ -27,22 +28,22 @@ class StoreSetupController extends GetxController {
 
   Future<void> createStore() async {
     if (formKey.currentState!.validate()) {
-      var storeName = storeNameController.text;
-      var storeBranch = storeBranchController.text;
-      var storeAddress = storeAddressController.text;
-      var storePhone = storePhoneController.text;
-      var currency = storeCurrencyController.text;
-      var adminName = adminNameController.text;
-      var adminUsername = adminUsernameController.text;
-      var adminPassword = adminPasswordController.text;
-      if (storeName.trim().isEmpty ||
-          storeBranch.trim().isEmpty ||
-          storeAddress.trim().isEmpty ||
-          storePhone.trim().isEmpty ||
-          currency.trim().isEmpty ||
-          adminName.trim().isEmpty ||
-          adminUsername.trim().isEmpty ||
-          adminPassword.trim().isEmpty) {
+      var storeName = storeNameController.text.trim();
+      var storeBranch = storeBranchController.text.trim();
+      var storeAddress = storeAddressController.text.trim();
+      var storePhone = storePhoneController.text.trim();
+      var currency = storeCurrencyController.text.trim();
+      var adminName = adminNameController.text.trim();
+      var adminUsername = adminUsernameController.text.trim();
+      var adminPassword = adminPasswordController.text.trim();
+      if (storeName.isEmpty ||
+          storeBranch.isEmpty ||
+          storeAddress.isEmpty ||
+          storePhone.isEmpty ||
+          currency.isEmpty ||
+          adminName.isEmpty ||
+          adminUsername.isEmpty ||
+          adminPassword.isEmpty) {
         showErrorDialog("كل الحقول مطلوبة");
 
         return;
@@ -53,6 +54,7 @@ class StoreSetupController extends GetxController {
           branch: storeBranch,
           address: storeAddress,
           phone: storePhone,
+          currency: currency,
           updatedDate: DateTime.now().millisecondsSinceEpoch);
       // admin data
       User user = User(
@@ -63,9 +65,10 @@ class StoreSetupController extends GetxController {
         role: "admin",
       );
       try {
-        await MyDatabase.setStoreData(store);
         user.id = await MyDatabase.insertUser(user, null);
-        await MyMaterialsDatabase.insertCurrency(currency);
+        await MyMaterialsDatabase.insertCurrency(
+            Currency(name: currency, exchangeRate: 1), user.id!);
+        await MyDatabase.setStoreData(store);
         final mainController = Get.put(MainController());
         mainController.storeData.value = store;
         mainController.currentUser.value = user;

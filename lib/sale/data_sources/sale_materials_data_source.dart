@@ -3,6 +3,7 @@ import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../database/entities/my_material.dart';
+import '../../utils/global_methods.dart';
 
 class SaleMaterialsDataSource extends DataGridSource {
   final List<Map<String, dynamic>> salesData = [];
@@ -13,13 +14,16 @@ class SaleMaterialsDataSource extends DataGridSource {
         return DataGridRow(cells: [
           DataGridCell(columnName: 'Barcode', value: m.barcode),
           DataGridCell(columnName: 'Name', value: m.name),
+          DataGridCell(columnName: 'Unit', value: m.unit),
           DataGridCell(
-              columnName: 'Price', value: '${m.salePrice} ${m.currency}'),
+              columnName: 'Price',
+              value: '${GlobalMethods.getMoney(m.salePrice)} ${m.currency}'),
           DataGridCell(
-              columnName: 'Quantity',
-              value: "${saleData['Quantity']} ${m.unit}"),
+              columnName: 'Quantity', value: "${saleData['Quantity']}"),
           DataGridCell(
-              columnName: 'Total', value: '${saleData['Total']} ${m.currency}'),
+              columnName: 'Total',
+              value:
+                  '${GlobalMethods.getMoney(saleData['Total'])} ${m.currency}'),
           DataGridCell(columnName: 'Note', value: '${saleData['Note'] ?? ''}'),
         ]);
       }).toList(growable: true);
@@ -37,7 +41,7 @@ class SaleMaterialsDataSource extends DataGridSource {
       controller.totalString.value = "";
       for (var currency in controller.totals.value.keys.toList()) {
         controller.totalString.value +=
-            '${controller.totals.value[currency]} $currency \n';
+            '${GlobalMethods.getMoney(controller.totals.value[currency])} $currency \n';
       }
       controller.totalString.value = controller.totalString.value.trim();
     } else {
@@ -88,12 +92,15 @@ class SaleMaterialsDataSource extends DataGridSource {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        alignment: Alignment.center,
-        child: Text(
-          row.getCells()[1].value.toString(),
-          overflow: TextOverflow.ellipsis,
+      Tooltip(
+        message: row.getCells()[1].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[1].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
       Container(
@@ -126,6 +133,17 @@ class SaleMaterialsDataSource extends DataGridSource {
         child: Text(
           row.getCells()[5].value.toString(),
           overflow: TextOverflow.ellipsis,
+        ),
+      ),
+      Tooltip(
+        message: row.getCells()[6].value.toString(),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          child: Text(
+            row.getCells()[6].value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     ]);

@@ -7,6 +7,8 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
+import '../../utils/global_methods.dart';
+
 Future<dynamic> printCurrenciesRoll(
     MainController mainController, List<Currency> currencies) async {
   final Document pdf = Document(
@@ -85,7 +87,7 @@ Future<dynamic> printCurrenciesRoll(
       Padding(
           padding: const EdgeInsets.all(4),
           child: Center(
-              child: Text(currency.exchangeRate.toString(),
+              child: Text(GlobalMethods.getMoney(currency.exchangeRate),
                   textAlign: TextAlign.center))),
       Padding(
           padding: const EdgeInsets.all(4),
@@ -207,7 +209,7 @@ Future<dynamic> printCurrenciesA4(
       Padding(
           padding: const EdgeInsets.all(4),
           child: Center(
-              child: Text(currency.exchangeRate.toString(),
+              child: Text(GlobalMethods.getMoney(currency.exchangeRate),
                   textAlign: TextAlign.center))),
       Padding(
           padding: const EdgeInsets.all(4),

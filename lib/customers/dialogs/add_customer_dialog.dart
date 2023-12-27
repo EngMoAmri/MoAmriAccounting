@@ -5,7 +5,7 @@ import 'package:moamri_accounting/database/customers_database.dart';
 import 'package:moamri_accounting/database/entities/customer.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
-Future<bool?> showAddCustomerDialog(MainController mainController) async {
+Future<Customer?> showAddCustomerDialog(MainController mainController) async {
   return await showDialog(
       context: Get.context!,
       barrierDismissible: false,
@@ -288,7 +288,6 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
                                         address: address,
                                         description: description,
                                       );
-                                      print(customer.toMap());
                                       try {
                                         await CustomersDatabase.insertCustomer(
                                             customer,
@@ -296,7 +295,7 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
                                                 .currentUser.value!.id!);
                                         await showSuccessDialog(
                                             "تم إضافة العميل");
-                                        Get.back(result: true);
+                                        Get.back(result: customer);
                                       } catch (e) {
                                         setState(() {
                                           adding = false;

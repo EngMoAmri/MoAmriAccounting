@@ -286,9 +286,17 @@ class SalePage extends StatelessWidget {
               child: SfDataGrid(
                   controller: controller.dataGridController,
                   gridLinesVisibility: GridLinesVisibility.both,
+                  allowColumnsResizing: true,
+                  columnResizeMode: ColumnResizeMode.onResizeEnd,
+                  onColumnResizeUpdate: (ColumnResizeUpdateDetails details) {
+                    controller.columnWidths.value[details.column.columnName] =
+                        details.width;
+                    controller.columnWidths.refresh();
+                    return true;
+                  },
                   headerGridLinesVisibility: GridLinesVisibility.both,
                   source: controller.dataSource.value,
-                  selectionMode: SelectionMode.single,
+                  isScrollbarAlwaysShown: true,
                   onCellTap: (details) {
                     if (details.rowColumnIndex.rowIndex < 1) return;
                     if ((details.rowColumnIndex.rowIndex - 1) !=
@@ -298,6 +306,7 @@ class SalePage extends StatelessWidget {
                     showSaleMaterialDialog(mainController, controller,
                         details.rowColumnIndex.rowIndex - 1);
                   },
+                  selectionMode: SelectionMode.single,
                   frozenColumnsCount: 2,
                   columns: [
                     GridColumn(
@@ -323,14 +332,25 @@ class SalePage extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ))),
                     GridColumn(
-                        columnName: 'Price',
+                        columnName: 'Unit',
                         columnWidthMode: ColumnWidthMode.fitByCellValue,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             alignment: Alignment.center,
                             child: const Text(
-                              'السعر',
+                              'الوحدة',
+                              overflow: TextOverflow.ellipsis,
+                            ))),
+                    GridColumn(
+                        columnName: 'Unit Price',
+                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        minimumWidth: 120,
+                        label: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              'سعر الوحدة',
                               overflow: TextOverflow.ellipsis,
                             ))),
                     GridColumn(
@@ -437,7 +457,7 @@ class SalePage extends StatelessWidget {
                               controller);
                           controller.dataSource.refresh();
                         } else {
-                          showErrorDialog("يرجى إختيار المادة المراد حذفها");
+                          showErrorDialog("يرجى إختيار المادة المراد إزالتها");
                         }
                       },
                       style: ButtonStyle(
@@ -454,7 +474,7 @@ class SalePage extends StatelessWidget {
                         constraints: const BoxConstraints(maxWidth: 120),
                         child: const FittedBox(
                             fit: BoxFit.fitWidth,
-                            child: Text('حذف المادة المختارة')),
+                            child: Text('إزالة المادة المختارة')),
                       ),
                     ),
                     const SizedBox(
@@ -463,7 +483,7 @@ class SalePage extends StatelessWidget {
                     OutlinedButton.icon(
                       onPressed: () async {
                         if (!(await showConfirmationDialog(
-                                "هل أنت متأكد من أنك تريد حذف القائمة؟!") ??
+                                "هل أنت متأكد من أنك تريد تفريغ قائمة البيع؟!") ??
                             false)) {
                           return;
                         }
@@ -487,7 +507,7 @@ class SalePage extends StatelessWidget {
                           child: ConstrainedBox(
                               constraints: const BoxConstraints(maxWidth: 120),
                               child: const Text(
-                                'حذف الكل',
+                                'تفريغ قائمة البيع',
                               ))),
                     ),
                     const Divider(),

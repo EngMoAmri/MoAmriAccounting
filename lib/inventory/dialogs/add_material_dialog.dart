@@ -10,6 +10,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../database/currencies_database.dart';
 import '../../database/entities/currency.dart';
 import '../../database/my_materials_database.dart';
+import '../../utils/global_methods.dart';
 import 'add_currency_dialog.dart';
 
 Future<bool?> showAddMaterialDialog(MainController mainController) async {
@@ -762,7 +763,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10),
                                             child: Text(
-                                                "الربح: $profit ${currency?.name ?? ''}"),
+                                                "الربح: ${GlobalMethods.getMoney(profit)} ${currency?.name ?? ''}"),
                                           ),
                                         ),
                                       ),

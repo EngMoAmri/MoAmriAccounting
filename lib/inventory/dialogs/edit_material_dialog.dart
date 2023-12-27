@@ -10,6 +10,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../database/currencies_database.dart';
 import '../../database/entities/currency.dart';
+import '../../utils/global_methods.dart';
 import 'add_currency_dialog.dart';
 
 // TODO make it maximum always
@@ -788,7 +789,7 @@ Future<bool?> showEditMaterialDialog(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10),
                                             child: Text(
-                                                "الربح: $profit ${currency?.name ?? ''}"),
+                                                "الربح: ${GlobalMethods.getMoney(profit)} ${currency?.name ?? ''}"),
                                           ),
                                         ),
                                       ),

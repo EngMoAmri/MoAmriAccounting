@@ -279,8 +279,8 @@ class CustomersPage extends StatelessWidget {
                     children: [
                       OutlinedButton.icon(
                         onPressed: () async {
-                          if ((await showAddCustomerDialog(mainController)) ??
-                              false) {
+                          if ((await showAddCustomerDialog(mainController) !=
+                              null)) {
                             controller.firstLoad();
                           }
                         },

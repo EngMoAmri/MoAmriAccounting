@@ -9,6 +9,8 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
+import '../../utils/global_methods.dart';
+
 Future<dynamic> printMaterialsRoll(MainController mainController,
     InventoryController inventoryController) async {
   var materialsMaps = await MyMaterialsDatabase.getAllMaterials(
@@ -128,7 +130,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                           child: FittedBox(
                               fit: BoxFit.fitWidth,
                               child: Text(
-                                  "${material.costPrice} ${material.currency}")))
+                                  "${GlobalMethods.getMoney(material.costPrice)} ${material.currency}")))
                     ])
                   ]),
                   TableRow(children: [
@@ -139,7 +141,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                           child: FittedBox(
                               fit: BoxFit.fitWidth,
                               child: Text(
-                                  "${material.salePrice} ${material.currency}")))
+                                  "${GlobalMethods.getMoney(material.salePrice)} ${material.currency}")))
                     ])
                   ]),
                 ])),
@@ -301,11 +303,13 @@ Future<dynamic> printMaterialsA4(MainController mainController,
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(
-                child: Text("${material.salePrice} ${material.currency}"))),
+                child: Text(
+                    "${GlobalMethods.getMoney(material.salePrice)} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(
-                child: Text("${material.costPrice} ${material.currency}"))),
+                child: Text(
+                    "${GlobalMethods.getMoney(material.costPrice)} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(child: Text(material.name))),

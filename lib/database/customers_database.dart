@@ -3,6 +3,7 @@ import 'package:moamri_accounting/database/entities/customer.dart';
 import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import '../utils/global_methods.dart';
 import 'entities/activity.dart';
 import 'my_database.dart';
 
@@ -169,7 +170,8 @@ class CustomersDatabase {
       """);
       String debt = '';
       for (var debtMap in debtsMaps) {
-        debt = '$debt${debtMap['total_debt']} ${debtMap['currency']}\n';
+        debt =
+            '$debt${GlobalMethods.getMoney(debtMap['total_debt'])} ${debtMap['currency']}\n';
       }
       if (debt.isEmpty) {
         debt = 'لا يوجد دين';
@@ -206,7 +208,8 @@ class CustomersDatabase {
       """);
       String debt = '';
       for (var debtMap in debtsMaps) {
-        debt = '$debt${debtMap['total_debt']} ${debtMap['currency']}\n';
+        debt =
+            '$debt${GlobalMethods.getMoney(debtMap['total_debt'])} ${debtMap['currency']}\n';
       }
       customersWithDebts.add(CustomerDebtItem(customer: customer, debt: debt));
     }

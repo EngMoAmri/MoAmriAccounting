@@ -157,7 +157,7 @@ class _HomePageState extends State<HomePage> {
                             )),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 2,
-                            title: 'البيع/المرتجع',
+                            title: 'البيع',
                             onTap: () {
                               pageController.jumpToPage(2);
                               setState(() {
@@ -171,12 +171,27 @@ class _HomePageState extends State<HomePage> {
                             )),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 3,
+                            title: 'المرتجع',
+                            onTap: () {
+                              // pageController.jumpToPage(3);
+                              // setState(() {
+                              //   selectedPage = 3;
+                              // });
+                            },
+                            icon: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              child: Image.asset(
+                                  'assets/images/cart.png'), // TODO change the image
+                            )),
+                        SideMenuItemDataTile(
+                            isSelected: selectedPage == 4,
                             title: 'الموردين',
                             onTap: () {
-                              pageController.jumpToPage(3);
-                              setState(() {
-                                selectedPage = 3;
-                              });
+                              // pageController.jumpToPage(4);
+                              // setState(() {
+                              //   selectedPage = 4;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -184,13 +199,13 @@ class _HomePageState extends State<HomePage> {
                               child: Image.asset('assets/images/supplier.png'),
                             )),
                         SideMenuItemDataTile(
-                            isSelected: selectedPage == 4,
+                            isSelected: selectedPage == 5,
                             title: 'فواتير المبيعات/المرتجع',
                             onTap: () {
-                              pageController.jumpToPage(4);
-                              setState(() {
-                                selectedPage = 4;
-                              });
+                              // pageController.jumpToPage(5);
+                              // setState(() {
+                              //   selectedPage = 5;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -201,10 +216,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 5,
                             title: 'فواتير المشتريات/المرتجع',
                             onTap: () {
-                              pageController.jumpToPage(5);
-                              setState(() {
-                                selectedPage = 5;
-                              });
+                              // pageController.jumpToPage(5);
+                              // setState(() {
+                              //   selectedPage = 5;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -215,10 +230,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 6,
                             title: 'النفقات',
                             onTap: () {
-                              pageController.jumpToPage(6);
-                              setState(() {
-                                selectedPage = 6;
-                              });
+                              // pageController.jumpToPage(6);
+                              // setState(() {
+                              //   selectedPage = 6;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -229,10 +244,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 7,
                             title: 'التقارير',
                             onTap: () {
-                              pageController.jumpToPage(7);
-                              setState(() {
-                                selectedPage = 7;
-                              });
+                              // pageController.jumpToPage(7);
+                              // setState(() {
+                              //   selectedPage = 7;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -243,10 +258,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 8,
                             title: 'الملاحظات و التنبيهات',
                             onTap: () {
-                              pageController.jumpToPage(8);
-                              setState(() {
-                                selectedPage = 8;
-                              });
+                              // pageController.jumpToPage(8);
+                              // setState(() {
+                              //   selectedPage = 8;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -257,10 +272,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 9,
                             title: 'المستخدمين',
                             onTap: () {
-                              pageController.jumpToPage(9);
-                              setState(() {
-                                selectedPage = 9;
-                              });
+                              // pageController.jumpToPage(9);
+                              // setState(() {
+                              //   selectedPage = 9;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -271,10 +286,10 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 10,
                             title: 'الإعدادات',
                             onTap: () {
-                              pageController.jumpToPage(10);
-                              setState(() {
-                                selectedPage = 10;
-                              });
+                              // pageController.jumpToPage(10);
+                              // setState(() {
+                              //   selectedPage = 10;
+                              // });
                             },
                             icon: Padding(
                               padding:
@@ -307,6 +322,11 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Expanded(child: SalePage()),
                           ],
+                        ),
+                        Container(
+                          child: const Center(
+                            child: Text('Add Material'),
+                          ),
                         ),
                         Container(
                           child: const Center(

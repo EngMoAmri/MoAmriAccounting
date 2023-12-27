@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../../utils/global_methods.dart';
+
 class CurrenciesDataSource extends DataGridSource {
   final List<Currency> currenciesData;
   CurrenciesDataSource(this.currenciesData);
@@ -10,7 +12,9 @@ class CurrenciesDataSource extends DataGridSource {
   List<DataGridRow> get rows => currenciesData.map<DataGridRow>((c) {
         return DataGridRow(cells: [
           DataGridCell(columnName: 'Currency', value: c.name),
-          DataGridCell(columnName: 'Exchange Rate', value: c.exchangeRate),
+          DataGridCell(
+              columnName: 'Exchange Rate',
+              value: GlobalMethods.getMoney(c.exchangeRate)),
         ]);
       }).toList(growable: false);
 

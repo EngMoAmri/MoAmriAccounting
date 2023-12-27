@@ -19,6 +19,16 @@ class SaleController extends GetxController {
   Rx<List<MyMaterial>> materials = Rx([]);
   Rx<int> selectedMaterial = (-1).obs;
   final DataGridController dataGridController = DataGridController();
+  Rx<Map<String, double>> columnWidths = Rx({
+    'Barcode': double.nan,
+    'Name': double.nan,
+    'Unit': double.nan,
+    'Unit Price': double.nan,
+    'Quantity': double.nan,
+    'Total': double.nan,
+    'Note': double.nan
+  });
+
   Rx<SaleMaterialsDataSource> dataSource = Rx(SaleMaterialsDataSource());
   Future<void> getCategories() async {
     loadingCategories.value = true;
@@ -42,7 +52,6 @@ class SaleController extends GetxController {
 
   // sale material dialog variables
   final materialDialogFormKey = GlobalKey<FormState>();
-  final materialDialogScrollController = ScrollController();
   final materialDialogQuantityTextController = TextEditingController();
   Rx<int> materialDialogQuantity = 1.obs;
   final materialDialogNoteTextController = TextEditingController();

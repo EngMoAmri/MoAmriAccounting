@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 Future<dynamic> showCategoryDialog(
     List<dynamic> categoriesList, int selectedCategory) async {
   var category = selectedCategory; // this is to be return
+  // var scrollController = ScrollController();
   return await showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
@@ -30,11 +31,13 @@ Future<dynamic> showCategoryDialog(
                     const Divider(),
                     Expanded(
                       child: SingleChildScrollView(
+                        // controller: scrollController,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ListView.builder(
                                 shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, position) {
                                   return RadioListTile(
                                     activeColor: Colors.blue,

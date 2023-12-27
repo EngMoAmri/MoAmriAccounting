@@ -18,7 +18,7 @@ class Customer {
       'name': name,
       'address': address,
       'phone': phone,
-      'description': description,
+      'description': description
     };
   }
 

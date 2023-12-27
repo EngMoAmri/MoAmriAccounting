@@ -153,6 +153,35 @@ class InventoryPage extends StatelessWidget {
                                     'ترتيب حسب: ${controller.orderBy.value[controller.selectedOrderBy.value]} ترتيباً: ${(controller.selectedOrderDir.value == 0) ? 'تصاعدياً' : 'تنازلياً'}'),
                               ),
                             ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                var refersh =
+                                    await showCurrenciesDialog(mainController);
+                                if (refersh) {
+                                  controller.firstLoad();
+                                }
+                              },
+                              style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  )),
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white),
+                                  foregroundColor: MaterialStateProperty.all(
+                                      Colors.black54)),
+                              icon: const Icon(Icons.money),
+                              label: const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text('العملات'),
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
                           ],
                         ),
                       ),
@@ -339,7 +368,6 @@ class InventoryPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       OutlinedButton.icon(
                         onPressed: () async {
@@ -406,6 +434,13 @@ class InventoryPage extends StatelessWidget {
                           }
                           var material = controller.materials.value[
                               controller.dataGridController.selectedIndex];
+                          if (!(await MyMaterialsDatabase.isMaterialDeletable(
+                              material.id!))) {
+                            showErrorDialog(
+                                "لا يمكن حذف المادة لأنها مستخدمة مع بعض البيانات الأخرى");
+                            return;
+                          }
+
                           if (!(await showConfirmationDialog(
                                   "هل أنت متأكد من أنك تريد الحذف؟") ??
                               false)) {
@@ -458,28 +493,6 @@ class InventoryPage extends StatelessWidget {
                         label: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text('طباعة'),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          showCurrenciesDialog(mainController);
-                        },
-                        style: ButtonStyle(
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            )),
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.white),
-                            foregroundColor:
-                                MaterialStateProperty.all(Colors.black54)),
-                        icon: const Icon(Icons.money),
-                        label: const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('العملات'),
                         ),
                       ),
                       const SizedBox(

@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
               child: IconButton(
                 onPressed: () {
                   exit(0);
@@ -143,7 +143,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 1,
-                            title: 'البيع/المرتجع',
+                            title: 'العملاء',
                             onTap: () {
                               pageController.jumpToPage(1);
                               setState(() {
@@ -153,11 +153,11 @@ class _HomePageState extends State<HomePage> {
                             icon: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 5),
-                              child: Image.asset('assets/images/cart.png'),
+                              child: Image.asset('assets/images/customers.png'),
                             )),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 2,
-                            title: 'العملاء',
+                            title: 'البيع/المرتجع',
                             onTap: () {
                               pageController.jumpToPage(2);
                               setState(() {
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                             icon: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 5),
-                              child: Image.asset('assets/images/customers.png'),
+                              child: Image.asset('assets/images/cart.png'),
                             )),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 3,
@@ -300,12 +300,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Row(
                           children: [
-                            Expanded(child: SalePage()),
+                            Expanded(child: CustomersPage()),
                           ],
                         ),
                         Row(
                           children: [
-                            Expanded(child: CustomersPage()),
+                            Expanded(child: SalePage()),
                           ],
                         ),
                         Container(

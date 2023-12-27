@@ -15,7 +15,7 @@ class SaleController extends GetxController {
   Rx<bool> loadingCategories = true.obs;
   Rx<List<String>> categories = Rx([]);
   Rx<int> selectedCategory = 0.obs;
-  Rx<bool> loadingMaterials = true.obs;
+  Rx<bool> loadingMaterials = false.obs;
   Rx<List<MyMaterial>> materials = Rx([]);
   Rx<int> selectedMaterial = (-1).obs;
   final DataGridController dataGridController = DataGridController();
@@ -26,7 +26,9 @@ class SaleController extends GetxController {
     categories.value.addAll(await MyMaterialsDatabase.getMaterialsCategories());
     categories.refresh();
     loadingCategories.value = false;
-    getCategoryMaterials();
+    if (categories.value.isNotEmpty) {
+      getCategoryMaterials();
+    }
   }
 
   Future<void> getCategoryMaterials() async {
@@ -43,8 +45,6 @@ class SaleController extends GetxController {
   final materialDialogScrollController = ScrollController();
   final materialDialogQuantityTextController = TextEditingController();
   Rx<int> materialDialogQuantity = 1.obs;
-  final materialDialogTaxTextController = TextEditingController();
-  Rx<double> materialDialogTax = 0.0.obs;
   final materialDialogNoteTextController = TextEditingController();
 
   @override

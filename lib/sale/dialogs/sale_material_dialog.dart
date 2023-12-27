@@ -14,9 +14,6 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
   saleController.materialDialogQuantity.value = saleData['Quantity'];
   saleController.materialDialogQuantityTextController.text =
       "${saleData['Quantity']}";
-  saleController.materialDialogTax.value = saleData['Tax'];
-  saleController.materialDialogTaxTextController.text =
-      saleData['Tax'].toString();
   saleController.materialDialogNoteTextController.text = saleData['Note'];
 
   return await showDialog(
@@ -56,7 +53,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           child: Center(
                                               child: FittedBox(
                                                   fit: BoxFit.fitWidth,
-                                                  child: Text("Material",
+                                                  child: Text("المادة",
                                                       style: TextStyle(
                                                           fontWeight: FontWeight
                                                               .bold))))),
@@ -80,7 +77,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           child: Center(
                                               child: FittedBox(
                                                   fit: BoxFit.fitWidth,
-                                                  child: Text("Price",
+                                                  child: Text("سعر الوحدة",
                                                       style: TextStyle(
                                                           fontWeight: FontWeight
                                                               .bold))))),
@@ -100,7 +97,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                           child: Center(
                                               child: FittedBox(
                                                   fit: BoxFit.fitWidth,
-                                                  child: Text("Total",
+                                                  child: Text("الإجمالي",
                                                       style: TextStyle(
                                                           fontWeight: FontWeight
                                                               .bold))))),
@@ -116,43 +113,6 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     (saleController
                                                                 .materialDialogQuantity
                                                                 .value *
-                                                            material.salePrice)
-                                                        .toStringAsFixed(2),
-                                                    textAlign:
-                                                        TextAlign.center)),
-                                            FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text(material.currency,
-                                                    textAlign:
-                                                        TextAlign.center))
-                                          ]))),
-                                    ]),
-                                    const TableRow(children: [
-                                      Padding(
-                                          padding: EdgeInsets.all(4),
-                                          child: Center(
-                                              child: FittedBox(
-                                                  fit: BoxFit.fitWidth,
-                                                  child: Text("Total TAX/VAT",
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))))),
-                                    ]),
-                                    TableRow(children: [
-                                      Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Center(
-                                              child: Column(children: [
-                                            FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text(
-                                                    (saleController
-                                                                .materialDialogQuantity
-                                                                .value *
-                                                            (saleController
-                                                                    .materialDialogTax
-                                                                    .value /
-                                                                100) *
                                                             material.salePrice)
                                                         .toStringAsFixed(2),
                                                     textAlign:
@@ -265,7 +225,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     ),
                                                     counterText: "",
                                                     labelText:
-                                                        'Quantity Available = ${material.quantity}',
+                                                        'الكمية المتوفرة = ${material.quantity}',
                                                   ),
                                                   keyboardType:
                                                       TextInputType.number,
@@ -273,33 +233,40 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     var currentQuantity =
                                                         int.tryParse(value) ??
                                                             0;
+                                                    if (currentQuantity >=
+                                                        material.quantity) {
+                                                      showErrorDialog(
+                                                          "الكمية المتوفرة في المستودع تم تجاوزها!");
+                                                      saleController
+                                                              .materialDialogQuantity
+                                                              .value =
+                                                          material.quantity;
+                                                      return;
+                                                    }
+                                                    if (currentQuantity < 1) {
+                                                      showErrorDialog(
+                                                          "لا يمكن أن تكون الكمية أقل من أو تساوي الصفر!");
+                                                      saleController
+                                                              .materialDialogQuantity
+                                                              .value =
+                                                          material.quantity;
+                                                      return;
+                                                    }
+
                                                     saleController
                                                         .materialDialogQuantity
                                                         .value = currentQuantity;
-
-                                                    // if (currentQuantity >=
-                                                    //     material.quantity) {
-                                                    //   showErrorDialog(
-                                                    //       "The Quantity at the warehouse is exceeded");
-                                                    // } else if (currentQuantity <
-                                                    //     1) {
-                                                    //   showErrorDialog(
-                                                    //       "The Quantity must be > 0");
-                                                    //   saleController
-                                                    //       .dialogQuantityTextController
-                                                    //       .text = "1";
-                                                    // }
                                                   },
                                                   validator: (value) {
                                                     if (value?.trim().isEmpty ??
                                                         true) {
-                                                      return "This field required";
+                                                      return "هذا الحقل مطلوب";
                                                     }
                                                     if (int.tryParse(
                                                             value?.trim() ??
                                                                 '') ==
                                                         null) {
-                                                      return "Enter a valid number";
+                                                      return "أدخل عدد صحيح";
                                                     }
 
                                                     return null;
@@ -328,7 +295,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     if (currentQuantity >=
                                                         material.quantity) {
                                                       showErrorDialog(
-                                                          "The Quantity at the warehouse is exceeded");
+                                                          "الكمية المتوفرة في المستودع تم تجاوزها!");
+                                                      return;
                                                     }
                                                     saleController
                                                         .materialDialogQuantityTextController
@@ -352,142 +320,12 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 4.0, horizontal: 18),
-                                          child: Form(
-                                            autovalidateMode: AutovalidateMode
-                                                .onUserInteraction,
-                                            child: TextFormField(
-                                              controller: saleController
-                                                  .materialDialogTaxTextController,
-                                              decoration: InputDecoration(
-                                                counterText: '',
-                                                // labelText:
-                                                //     "TAX/VAT Default: ${material.tax} %"
-                                                //         .tr,
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              12.0)),
-                                                ),
-                                              ),
-                                              onChanged: (value) {
-                                                saleController.materialDialogTax
-                                                    .value = double.tryParse(
-                                                        saleController
-                                                            .materialDialogTaxTextController
-                                                            .text
-                                                            .trim()) ??
-                                                    0;
-                                              },
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              validator: (value) {
-                                                if (!(value?.trim().isEmpty ??
-                                                    true)) {
-                                                  if (double.tryParse(
-                                                          value!.trim()) ==
-                                                      null) {
-                                                    return "Enter a valid percentage";
-                                                  }
-                                                }
-                                                return null;
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        const Divider(),
-                                        // Padding(
-                                        //   padding: const EdgeInsets.symmetric(
-                                        //       vertical: 4.0, horizontal: 18),
-                                        //   child: Form(
-                                        //     // key: discountFormKey,
-                                        //     autovalidateMode: AutovalidateMode
-                                        //         .onUserInteraction,
-                                        //     child: TextFormField(
-                                        //       controller: saleController
-                                        //           .dialogDiscountTextController,
-                                        //       decoration: InputDecoration(
-                                        //         counterText: '',
-                                        //         labelText:
-                                        //             "Discount Per Unit, Max: ${material.discount} ${material.currency}"
-                                        //                 .tr,
-                                        //         filled: true,
-                                        //         fillColor: Colors.white,
-                                        //         isDense: true,
-                                        //         contentPadding:
-                                        //             const EdgeInsets.all(10),
-                                        //         focusedBorder: OutlineInputBorder(
-                                        //           borderSide: const BorderSide(
-                                        //               color: Colors.green),
-                                        //           borderRadius:
-                                        //               BorderRadius.circular(12),
-                                        //         ),
-                                        //         border: const OutlineInputBorder(
-                                        //           borderRadius: BorderRadius.all(
-                                        //               Radius.circular(12.0)),
-                                        //         ),
-                                        //       ),
-                                        //       onChanged: (value) {
-                                        //         saleController
-                                        //                 .dialogDiscount.value =
-                                        //             double.tryParse(saleController
-                                        //                     .dialogDiscountTextController
-                                        //                     .text.trim()) ??
-                                        //                 0;
-                                        //       },
-                                        //       // TODO
-                                        //       // validator: (value) {
-                                        //       //   // user does not set a discount
-                                        //       //   if (value!.isEmpty) {
-                                        //       //     return null;
-                                        //       //   }
-                                        //       //   // trying to parse the new discount
-                                        //       //   var newDiscount = double.tryParse(value);
-                                        //       //   if (newDiscount != null) {
-                                        //       //     if (newDiscount < 0 ||
-                                        //       //         newDiscount > getTotalPrice()) {
-                                        //       //       return "must_less_or_equal_value".trParams({
-                                        //       //         'value':
-                                        //       //             GlobalMethods.getMoneyWithCurrency(
-                                        //       //                 getTotalPrice()),
-                                        //       //       });
-                                        //       //     }
-                                        //       //   } else {
-                                        //       //     return "invalid".tr;
-                                        //       //   }
-                                        //       //   return null;
-                                        //       // },
-                                        //       keyboardType: const TextInputType
-                                        //           .numberWithOptions(
-                                        //           signed: false, decimal: true),
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                        // const Divider(),
-                                        // if (saleController
-                                        //     .dialogNoteCheckBoxValue.value)
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 4.0, horizontal: 18),
                                           child: TextFormField(
                                               controller: saleController
                                                   .materialDialogNoteTextController,
                                               decoration: InputDecoration(
                                                 counterText: '',
-                                                labelText: "Note".tr,
+                                                labelText: "ملاحظة",
                                                 filled: true,
                                                 fillColor: Colors.white,
                                                 isDense: true,
@@ -508,8 +346,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                               12.0)),
                                                 ),
                                               ),
-                                              minLines: 6,
-                                              maxLines: 6,
+                                              minLines: 5,
+                                              maxLines: 5,
                                               keyboardType:
                                                   TextInputType.multiline),
                                         ),
@@ -528,59 +366,6 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Table(
-                                  border: TableBorder.all(
-                                      color: Colors.black,
-                                      width: 1,
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(10))),
-                                  children: [
-                                    const TableRow(children: [
-                                      Padding(
-                                          padding: EdgeInsets.all(4),
-                                          child: Center(
-                                              child: FittedBox(
-                                                  fit: BoxFit.fitWidth,
-                                                  child: Text("Total",
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))))),
-                                    ]),
-                                    TableRow(children: [
-                                      Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Center(
-                                              child: Column(children: [
-                                            FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text(
-                                                    (saleController.materialDialogQuantity
-                                                                    .value *
-                                                                material
-                                                                    .salePrice +
-                                                            saleController
-                                                                    .materialDialogQuantity
-                                                                    .value *
-                                                                (saleController
-                                                                        .materialDialogTax
-                                                                        .value /
-                                                                    100) *
-                                                                material
-                                                                    .salePrice)
-                                                        .toStringAsFixed(2),
-                                                    textAlign:
-                                                        TextAlign.center)),
-                                            FittedBox(
-                                                fit: BoxFit.fitWidth,
-                                                child: Text(material.currency,
-                                                    textAlign:
-                                                        TextAlign.center))
-                                          ]))),
-                                    ]),
-                                  ]),
-                            ),
-                            Expanded(
-                              flex: 2,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
@@ -599,27 +384,10 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                         .materialDialogQuantity
                                                         .value;
                                                 saleData[
-                                                    'Tax'] = (saleController
-                                                        .materialDialogTaxTextController
-                                                        .text
-                                                        .isEmpty)
-                                                    ? null
-                                                    : saleController
-                                                        .materialDialogTax
-                                                        .value;
-                                                saleData[
                                                     'Total'] = saleController
-                                                            .materialDialogQuantity
-                                                            .value *
-                                                        material.salePrice +
-                                                    saleController
-                                                            .materialDialogQuantity
-                                                            .value *
-                                                        (saleController
-                                                                .materialDialogTax
-                                                                .value /
-                                                            100) *
-                                                        material.salePrice;
+                                                        .materialDialogQuantity
+                                                        .value *
+                                                    material.salePrice;
                                                 saleData['Note'] = saleController
                                                     .materialDialogNoteTextController
                                                     .text
@@ -648,7 +416,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     BorderRadius.circular(10.0),
                                               )),
                                             ),
-                                            label: Text("Done".tr),
+                                            label: const Text("تم"),
                                             icon: const Icon(Icons.done)),
                                       ),
                                     ],
@@ -677,7 +445,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     BorderRadius.circular(10.0),
                                               )),
                                             ),
-                                            label: Text("Cancel".tr),
+                                            label: Text("إلغاء".tr),
                                             icon: const Icon(Icons.cancel)),
                                       ),
                                     ],

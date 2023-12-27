@@ -28,6 +28,13 @@ class MyDatabase {
     // this is for making on delete cascade works
     await myDatabase.execute("PRAGMA foreign_keys=ON");
     // TODO walk on each one
+    await myDatabase.execute("""
+    CREATE TABLE IF NOT EXISTS activities(
+      date INTEGER PRIMARY KEY, 
+      action TEXT NOT NULL, 
+      table_name TEXT NOT NULL
+    )
+    """);
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS currencies (
       name TEXT PRIMARY KEY,
@@ -50,18 +57,11 @@ class MyDatabase {
       branch TEXT NOT NULL,
       address TEXT NOT NULL,
       phone TEXT NOT NULL,
-      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE,
       image BLOB, 
       updated_at INTEGER NOT NULL
     )
     ''');
-    await myDatabase.execute("""
-    CREATE TABLE IF NOT EXISTS activities(
-      date INTEGER PRIMARY KEY, 
-      action TEXT NOT NULL, 
-      table_name TEXT NOT NULL
-    )
-    """);
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS users (
@@ -185,7 +185,7 @@ class MyDatabase {
       quantity INTEGER NOT NULL, 
       PRIMARY KEY(offer_id, material_id),
       FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE, 
-      FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE CASCADE
+      FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE RESTRICT
     )
     """);
     await myDatabase.execute("""
@@ -199,7 +199,7 @@ class MyDatabase {
     """);
 
     await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS customers (
+    CREATE TABLE IF NOT EXISTS customers(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       address TEXT NOT NULL,
@@ -225,7 +225,6 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       customer_id INTEGER REFERENCES customers(id) ON DELETE NO ACTION,
       type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
-      total_amount REAL NOT NULL,
       discount REAL,
       note TEXT
     )
@@ -236,7 +235,6 @@ class MyDatabase {
       invoice_id INTEGER NOT NULL,
       customer_id INTEGER,
       type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
-      total_amount REAL NOT NULL,
       discount REAL,
       note TEXT,
       action_by INTEGER NOT NULL,
@@ -285,7 +283,7 @@ class MyDatabase {
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
       customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
       amount REAL NOT NULL, 
-      currency REAL NOT NULL REFERENCES currency(name) ON DELETE RESTRICT ON UPDATE CASCADE,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE,
       note TEXT
     )
     """);
@@ -296,7 +294,7 @@ class MyDatabase {
       invoice_id INTEGER,    
       customer_id INTEGER,  
       amount REAL NOT NULL, 
-      currency REAL NOT NULL,
+      currency TEXT NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
@@ -308,9 +306,9 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS debts(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
-      customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
+      customer_id INTEGER REFERENCES customers(id) ON DELETE RESTRICT,  
       amount REAL NOT NULL, 
-      currency REAL NOT NULL REFERENCES currency(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
       note TEXT
     )
     """);
@@ -321,7 +319,7 @@ class MyDatabase {
       invoice_id INTEGER,    
       customer_id INTEGER,  
       amount REAL NOT NULL, 
-      currency REAL NOT NULL,
+      currency TEXT NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
@@ -356,7 +354,6 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE NO ACTION,
       type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
-      total_amount REAL NOT NULL,
       discount REAL,
       note TEXT
     )
@@ -367,7 +364,6 @@ class MyDatabase {
       purchases_id INTEGER NOT NULL,
       supplier_id INTEGER NOT NULL,
       type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
-      total_amount REAL NOT NULL,
       discount REAL,
       note TEXT,
       action_by INTEGER NOT NULL,
@@ -381,6 +377,7 @@ class MyDatabase {
       purchase_id INTEGER NOT NULL REFERENCES purchases(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
       quantity INTEGER NOT NULL,
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE, 
       cost_price REAL NOT NULL
     )
     ''');
@@ -391,6 +388,7 @@ class MyDatabase {
       purchase_id INTEGER NOT NULL,
       material_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL,
+      currency TEXT NOT NULL,
       cost_price REAL NOT NULL
     )
     """);
@@ -400,6 +398,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
       supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE, 
       amount REAL NOT NULL, 
       note TEXT
     )
@@ -411,6 +410,7 @@ class MyDatabase {
       purchase_id INTEGER,    
       supplier_id INTEGER,  
       amount REAL NOT NULL, 
+      currency TEXT NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE
@@ -423,12 +423,9 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
       supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
+      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
       amount REAL NOT NULL, 
-      note TEXT, 
-      added_by INTEGER NOT NULL REFERENCES users(id) ON DELETE NO ACTION,
-      updated_by INTEGER NOT NULL REFERENCES users(id) ON DELETE NO ACTION,
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
+      note TEXT
     )
     """);
     await myDatabase.execute("""
@@ -438,6 +435,7 @@ class MyDatabase {
       purchase_id INTEGER,    
       supplier_id INTEGER,  
       amount REAL NOT NULL, 
+      currency TEXT NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,
       action_date INTEGER NOT NULL REFERENCES activities(date) ON DELETE CASCADE

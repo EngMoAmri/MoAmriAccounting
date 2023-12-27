@@ -9,8 +9,8 @@ import 'package:moamri_accounting/database/my_database.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../database/currencies_database.dart';
 import '../database/entities/currency.dart';
-import '../database/my_materials_database.dart';
 import '../dialogs/alerts_dialogs.dart';
 
 class StoreSetupController extends GetxController {
@@ -66,7 +66,7 @@ class StoreSetupController extends GetxController {
       );
       try {
         user.id = await MyDatabase.insertUser(user, null);
-        await MyMaterialsDatabase.insertCurrency(
+        await CurrenciesDatabase.insertCurrency(
             Currency(name: currency, exchangeRate: 1), user.id!);
         await MyDatabase.setStoreData(store);
         final mainController = Get.put(MainController());

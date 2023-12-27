@@ -4,7 +4,7 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
-import '../../database/my_materials_database.dart';
+import '../../database/currencies_database.dart';
 
 Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
   return await showDialog(
@@ -173,7 +173,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                       final name =
                                           nameTextController.text.trim();
 
-                                      if (await MyMaterialsDatabase
+                                      if (await CurrenciesDatabase
                                           .isCurrencyExists(name.trim())) {
                                         showErrorDialog(
                                             "هذه العملة موجودة مسبقاً");
@@ -189,11 +189,10 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                           name: name,
                                           exchangeRate: exchangeRate);
                                       try {
-                                        await MyMaterialsDatabase
-                                            .insertCurrency(
-                                                currency,
-                                                mainController
-                                                    .currentUser.value!.id!);
+                                        await CurrenciesDatabase.insertCurrency(
+                                            currency,
+                                            mainController
+                                                .currentUser.value!.id!);
                                         await showSuccessDialog(
                                             "تم إضافة العملة بنجاح");
                                         Get.back(result: currency);

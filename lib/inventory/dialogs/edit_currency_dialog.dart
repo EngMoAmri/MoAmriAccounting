@@ -4,7 +4,7 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
-import '../../database/my_materials_database.dart';
+import '../../database/currencies_database.dart';
 
 Future<Currency?> showEditCurrencyDialog(
     MainController mainController, Currency oldCurrency) async {
@@ -179,7 +179,7 @@ Future<Currency?> showEditCurrencyDialog(
                                           nameTextController.text.trim();
 
                                       if ((name.trim() != oldCurrency.name) &&
-                                          await MyMaterialsDatabase
+                                          await CurrenciesDatabase
                                               .isCurrencyExists(name.trim())) {
                                         showErrorDialog(
                                             "هذه العملة موجودة مسبقاً");
@@ -195,12 +195,11 @@ Future<Currency?> showEditCurrencyDialog(
                                           name: name,
                                           exchangeRate: exchangeRate);
                                       try {
-                                        await MyMaterialsDatabase
-                                            .updateCurrency(
-                                                currency,
-                                                oldCurrency,
-                                                mainController
-                                                    .currentUser.value!.id!);
+                                        await CurrenciesDatabase.updateCurrency(
+                                            currency,
+                                            oldCurrency,
+                                            mainController
+                                                .currentUser.value!.id!);
                                         await showSuccessDialog(
                                             "تم تعديل العملة بنجاح");
                                         Get.back(result: currency);

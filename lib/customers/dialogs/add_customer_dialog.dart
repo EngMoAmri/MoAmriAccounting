@@ -288,7 +288,7 @@ Future<bool?> showAddCustomerDialog(MainController mainController) async {
                                         address: address,
                                         description: description,
                                       );
-
+                                      print(customer.toMap());
                                       try {
                                         await CustomersDatabase.insertCustomer(
                                             customer,

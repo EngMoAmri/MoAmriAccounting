@@ -43,6 +43,7 @@ Future<dynamic> showSortByDialog(
                             children: [
                               ListView.builder(
                                   shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemBuilder: (context, position) {
                                     return RadioListTile(
                                       activeColor: Colors.blue,

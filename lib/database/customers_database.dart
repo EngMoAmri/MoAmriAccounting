@@ -15,6 +15,13 @@ class CustomersDatabase {
     throw Exception("TODO");
   }
 
+  static Future<bool> isCustomerDeletable(int customerId) async {
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .rawQuery('''SELECT * FROM debts WHERE customer_id = $customerId''');
+    if (maps.isNotEmpty) return false;
+    return true;
+  }
+
   static Future<int> getCustomersCount({searchedText}) async {
     List<Map<String, Object?>> totalRow;
     if (searchedText == null) {
@@ -47,7 +54,7 @@ class CustomersDatabase {
     return await MyDatabase.myDatabase.transaction((txn) async {
       var actionDate = DateTime.now().millisecondsSinceEpoch;
       customer.id = await txn.insert(
-        'customers',
+        "customers",
         customer.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -140,12 +147,10 @@ class CustomersDatabase {
       MainController mainController, int page,
       {orderBy, dir}) async {
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.rawQuery('''
-        SELECT c.*, SUM(IFNULL((d.amount * (
-            SELECT exchange_rate 
-            FROM currencies_exchange 
-            WHERE currency_1='${mainController.storeData.value!.currency}' 
-            AND currency_2='d.currency'
-            )
+        SELECT c.*, SUM(IFNULL((d.amount * 
+            (SELECT exchange_rate 
+             FROM currencies 
+             WHERE name=d.currency)
           ), 0)) as debt
         FROM customers AS c LEFT JOIN debts as d ON c.id = d.customer_id 
         GROUP BY c.id
@@ -166,6 +171,9 @@ class CustomersDatabase {
       for (var debtMap in debtsMaps) {
         debt = '$debt${debtMap['total_debt']} ${debtMap['currency']}\n';
       }
+      if (debt.isEmpty) {
+        debt = 'لا يوجد دين';
+      }
       customersWithDebts.add(CustomerDebtItem(customer: customer, debt: debt));
     }
     return customersWithDebts;
@@ -175,12 +183,10 @@ class CustomersDatabase {
       MainController mainController, int page, String searchedText) async {
     var trimText = searchedText.trim();
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.rawQuery('''
-        SELECT c.*, SUM(IFNULL((d.amount * (
-            SELECT exchange_rate 
-            FROM currencies_exchange 
-            WHERE currency_1='${mainController.storeData.value!.currency}' 
-            AND currency_2='d.currency'
-            )
+          SELECT c.*, SUM(IFNULL((d.amount * 
+            (SELECT exchange_rate 
+             FROM currencies 
+             WHERE name=d.currency)
           ), 0)) as debt
         FROM customers AS c LEFT JOIN debts as d ON c.id = d.customer_id 
         WHERE name like '%$trimText%'

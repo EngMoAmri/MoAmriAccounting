@@ -32,7 +32,7 @@ class CustomersController extends GetxController {
       Rx(['الاسم', 'إجمالي الدين', 'العنوان', 'الإضافة']);
   final Rx<List<String>> orderByDatabase =
       Rx(['name', 'debt', 'address', 'id']);
-  Rx<int> selectedOrderBy = 2.obs;
+  Rx<int> selectedOrderBy = 3.obs;
   Rx<int> selectedOrderDir = 1.obs;
 
   Rx<CustomersDataSource> dataSource = Rx(CustomersDataSource([]));

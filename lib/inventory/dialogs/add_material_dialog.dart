@@ -7,6 +7,7 @@ import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../database/currencies_database.dart';
 import '../../database/entities/currency.dart';
 import '../../database/my_materials_database.dart';
 import 'add_currency_dialog.dart';
@@ -544,7 +545,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                           suggestionsCallback:
                                                               (String
                                                                   pattern) async {
-                                                            return await MyMaterialsDatabase
+                                                            return await CurrenciesDatabase
                                                                 .searchForCurrencies(
                                                                     pattern);
                                                           },
@@ -791,7 +792,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                   largerMaterial = value;
                                                   largerMaterialTextController
                                                           .text =
-                                                      '${value.barcode}, ${value.name}';
+                                                      '${value.barcode}, ${value.unit} ${value.name}';
                                                 });
                                               },
                                               suggestionsCallback:
@@ -804,7 +805,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                   (context, suggestion) {
                                                 return ListTile(
                                                   title: Text(
-                                                      '${suggestion.barcode}, ${suggestion.name}'),
+                                                      '${suggestion.barcode}, ${suggestion.unit} ${suggestion.name}'),
                                                 );
                                               },
                                               builder: (context, controller,

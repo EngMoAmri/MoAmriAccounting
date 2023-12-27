@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
-import 'package:moamri_accounting/database/entities/currency.dart';
+import 'package:moamri_accounting/database/currencies_database.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:moamri_accounting/inventory/dialogs/edit_currency_dialog.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../../database/my_materials_database.dart';
+import '../../dialogs/print_dialogs.dart';
 import '../data_sources/currencies_data_source.dart';
+import '../print/print_currencies.dart';
 import 'add_currency_dialog.dart';
 
-//  TODO referesh the previous page if there is an update
-// TODO delete
-// TODO print
-Future<Currency?> showCurrenciesDialog(MainController mainController) async {
+Future<bool> showCurrenciesDialog(MainController mainController) async {
   return await showDialog(
       context: Get.context!,
       barrierDismissible: false,
@@ -23,6 +21,7 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
         final DataGridController dataGridController = DataGridController();
 
         var loading = true;
+        var refereshPrevoisPage = false;
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -36,7 +35,7 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                   padding: const EdgeInsets.all(8.0),
                   child: StatefulBuilder(builder: (context, setState) {
                     if (currenciesDataSource == null) {
-                      MyMaterialsDatabase.getCurrencies().then((value) {
+                      CurrenciesDatabase.getCurrencies().then((value) {
                         currenciesDataSource = CurrenciesDataSource(value);
                         setState(() {
                           loading = false;
@@ -63,7 +62,7 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                               child: IconButton(
                                 onPressed: () {
-                                  Get.back();
+                                  Get.back(result: refereshPrevoisPage);
                                 },
                                 icon: const Icon(
                                   Icons.close,
@@ -136,7 +135,7 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                                     setState(() {
                                       loading = true;
                                     });
-                                    MyMaterialsDatabase.getCurrencies()
+                                    CurrenciesDatabase.getCurrencies()
                                         .then((value) {
                                       currenciesDataSource =
                                           CurrenciesDataSource(value);
@@ -177,9 +176,10 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                                                   .selectedIndex])) !=
                                       null) {
                                     setState(() {
+                                      refereshPrevoisPage = true;
                                       loading = true;
                                     });
-                                    MyMaterialsDatabase.getCurrencies()
+                                    CurrenciesDatabase.getCurrencies()
                                         .then((value) {
                                       currenciesDataSource =
                                           CurrenciesDataSource(value);
@@ -209,21 +209,43 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                               ),
                               OutlinedButton.icon(
                                 onPressed: () async {
-                                  // if (controller.dataGridController.selectedIndex < 0) {
-                                  //   showErrorDialog("يجب عليك إختيار مادة");
-                                  //   return;
-                                  // }
-                                  // var material = controller.materials.value[
-                                  //     controller.dataGridController.selectedIndex];
-                                  // if (!(await showConfirmationDialog(
-                                  //         "هل أنت متأكد من أنك تريد الحذف؟") ??
-                                  //     false)) {
-                                  //   return;
-                                  // }
-                                  // await MyMaterialsDatabase.deleteMaterial(
-                                  //     material, mainController.currentUser.value!.id!);
-                                  // await showSuccessDialog("تم حذف المادة");
-                                  // controller.firstLoad();
+                                  if (dataGridController.selectedIndex < 0) {
+                                    showErrorDialog("يجب عليك إختيار عملة");
+                                    return;
+                                  }
+                                  if (!(await CurrenciesDatabase
+                                      .isCurrencyDeletable(currenciesDataSource!
+                                          .currenciesData[
+                                              dataGridController.selectedIndex]
+                                          .name))) {
+                                    showErrorDialog(
+                                        "لا يمكن حذف العملة لأنها مستخدمة مع بعض البيانات الأخرى");
+                                    return;
+                                  }
+                                  var currency =
+                                      currenciesDataSource!.currenciesData[
+                                          dataGridController.selectedIndex];
+                                  if (!(await showConfirmationDialog(
+                                          "هل أنت متأكد من أنك تريد الحذف؟") ??
+                                      false)) {
+                                    return;
+                                  }
+                                  await CurrenciesDatabase.deleteCurrency(
+                                      currency,
+                                      mainController.currentUser.value!.id!);
+                                  await showSuccessDialog("تم حذف العملة");
+                                  setState(() {
+                                    refereshPrevoisPage = true;
+                                    loading = true;
+                                  });
+                                  CurrenciesDatabase.getCurrencies()
+                                      .then((value) {
+                                    currenciesDataSource =
+                                        CurrenciesDataSource(value);
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                  });
                                 },
                                 style: ButtonStyle(
                                     shape: MaterialStateProperty.all(
@@ -245,14 +267,16 @@ Future<Currency?> showCurrenciesDialog(MainController mainController) async {
                               ),
                               OutlinedButton.icon(
                                 onPressed: () async {
-                                  // var printType = await showPrintDialog("المواد");
-                                  // if (printType == null) return;
-                                  // if (printType == "حراري") {
-                                  //   await printMaterialsRoll(
-                                  //       mainController, controller);
-                                  // } else {
-                                  //   await printMaterialsA4(mainController, controller);
-                                  // }
+                                  var printType =
+                                      await showPrintDialog("العملات");
+                                  if (printType == null) return;
+                                  if (printType == "حراري") {
+                                    await printCurrenciesRoll(mainController,
+                                        currenciesDataSource!.currenciesData);
+                                  } else {
+                                    await printCurrenciesA4(mainController,
+                                        currenciesDataSource!.currenciesData);
+                                  }
                                 },
                                 style: ButtonStyle(
                                     shape: MaterialStateProperty.all(

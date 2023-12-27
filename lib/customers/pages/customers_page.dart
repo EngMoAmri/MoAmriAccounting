@@ -345,7 +345,13 @@ class CustomersPage extends StatelessWidget {
                           }
                           var customer = controller.customersWithDebts.value[
                               controller.dataGridController.selectedIndex];
-                          throw Exception("Deletable or not?");
+                          if (!(await CustomersDatabase.isCustomerDeletable(
+                              customer.customer.id!))) {
+                            showErrorDialog(
+                                "لا يمكن حذف هذا العميل لأنه لايزال لديه بعض الديون");
+                            return;
+                          }
+
                           if (!(await showConfirmationDialog(
                                   "هل أنت متأكد من الحذف؟!") ??
                               false)) {

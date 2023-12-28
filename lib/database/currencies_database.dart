@@ -59,6 +59,22 @@ class CurrenciesDatabase {
     return currencies;
   }
 
+  // this is to get currencies to payment
+  static Future<List<Currency>> getCurrenciesWithout(
+      List<String> oldCurrencies) async {
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.query(
+        'currencies',
+        where:
+            'name NOT IN (${List.filled(oldCurrencies.length, '?').join(',')})',
+        whereArgs: oldCurrencies);
+
+    List<Currency> currencies = [];
+    for (var map in maps) {
+      currencies.add(Currency.fromMap(map));
+    }
+    return currencies;
+  }
+
   static Future<void> insertCurrency(Currency currency, int actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
       var actionDate = DateTime.now().millisecondsSinceEpoch;

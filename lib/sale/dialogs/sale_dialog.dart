@@ -4,12 +4,16 @@ import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/customers/dialogs/add_customer_dialog.dart';
 import 'package:moamri_accounting/database/customers_database.dart';
+import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
+import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
 
 import '../../database/entities/customer.dart';
+import '../../inventory/dialogs/edit_currency_dialog.dart';
 
+// TODO complete by calculating the still to be paid
 Future<bool?> showSaleDialog(
     MainController mainController, SaleController saleController) async {
   return await showDialog(
@@ -17,20 +21,26 @@ Future<bool?> showSaleDialog(
       builder: (BuildContext context) {
         final formKey = GlobalKey<FormState>();
         final customerTextController = TextEditingController();
+
+        // here to make the customer can pay with difference currencies
+        Map<Currency, TextEditingController> differenetCurrenciesPayments = {};
+
         CustomerDebtItem? customerDebtItem;
         final paymentTextController = TextEditingController();
         final discountTextController = TextEditingController();
         final noteTextController = TextEditingController();
         var registerTheRestAsDebtCheckBox = false;
         var printReceiptCheckBox = true;
+        double stillToBePaid = 0;
         return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0)),
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
+                constraints: const BoxConstraints(maxWidth: 900),
                 child: StatefulBuilder(builder: (context, setState) {
+                  void onPaymentChanged(String value) {}
                   return FocusTraversalGroup(
                     policy: WidgetOrderTraversalPolicy(),
                     child: Padding(
@@ -482,50 +492,7 @@ Future<bool?> showSaleDialog(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            const SizedBox(
-                                              height: 4,
-                                            ),
-                                            Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 4),
-                                                child: TextFormField(
-                                                  textCapitalization:
-                                                      TextCapitalization
-                                                          .sentences,
-                                                  controller:
-                                                      paymentTextController,
-                                                  decoration: InputDecoration(
-                                                    filled: true,
-                                                    fillColor: Colors.white,
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color:
-                                                                  Colors.green),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  8.0)),
-                                                    ),
-                                                    counterText: "",
-                                                    labelText: 'مقدار الدفع',
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-                                                )),
+                                            // TODO make sure the discount not exceed the profit
                                             Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -562,11 +529,215 @@ Future<bool?> showSaleDialog(
                                                                   8.0)),
                                                     ),
                                                     counterText: "",
-                                                    labelText: 'مقدار الخصم',
+                                                    labelText:
+                                                        'مقدار الخصم بالعملة ${mainController.storeData.value!.currency}',
                                                   ),
                                                   keyboardType:
                                                       TextInputType.text,
                                                 )),
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4),
+                                                child: TextFormField(
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .sentences,
+                                                  controller:
+                                                      paymentTextController,
+                                                  decoration: InputDecoration(
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                    ),
+                                                    counterText: "",
+                                                    labelText:
+                                                        'مقدار الدفع بالعملة ${mainController.storeData.value!.currency}',
+                                                  ),
+                                                  onChanged: onPaymentChanged,
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                )),
+                                            ListView.builder(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemCount:
+                                                    differenetCurrenciesPayments
+                                                        .keys.length,
+                                                itemBuilder: (context, index) {
+                                                  return Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4),
+                                                    child: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: TextFormField(
+                                                            textCapitalization:
+                                                                TextCapitalization
+                                                                    .sentences,
+                                                            controller:
+                                                                paymentTextController,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              filled: true,
+                                                              fillColor:
+                                                                  Colors.white,
+                                                              isDense: true,
+                                                              contentPadding:
+                                                                  const EdgeInsets
+                                                                      .all(10),
+                                                              focusedBorder:
+                                                                  OutlineInputBorder(
+                                                                borderSide: const BorderSide(
+                                                                    color: Colors
+                                                                        .green),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8),
+                                                              ),
+                                                              border:
+                                                                  const OutlineInputBorder(
+                                                                borderRadius: BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            8.0)),
+                                                              ),
+                                                              counterText: "",
+                                                              labelText:
+                                                                  'مقدار الدفع بالعملة ${differenetCurrenciesPayments.keys.toList()[index].name}',
+                                                            ),
+                                                            keyboardType:
+                                                                TextInputType
+                                                                    .text,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
+                                                        OutlinedButton.icon(
+                                                          onPressed: () async {
+                                                            var newCurrency =
+                                                                (await showEditCurrencyDialog(
+                                                                    mainController,
+                                                                    differenetCurrenciesPayments
+                                                                            .keys
+                                                                            .toList()[
+                                                                        index]));
+                                                            if (newCurrency !=
+                                                                null) {
+                                                              setState(() {
+                                                                differenetCurrenciesPayments[
+                                                                        newCurrency] =
+                                                                    differenetCurrenciesPayments
+                                                                        .remove([
+                                                                  differenetCurrenciesPayments
+                                                                          .keys
+                                                                          .toList()[
+                                                                      index]
+                                                                ])!;
+                                                              });
+                                                            }
+                                                          },
+                                                          style: ButtonStyle(
+                                                              shape: MaterialStateProperty
+                                                                  .all(
+                                                                      RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            8.0),
+                                                              )),
+                                                              backgroundColor:
+                                                                  MaterialStateProperty
+                                                                      .all(Colors
+                                                                          .white),
+                                                              foregroundColor:
+                                                                  MaterialStateProperty
+                                                                      .all(Colors
+                                                                          .green)),
+                                                          icon: const Icon(
+                                                              Icons.edit),
+                                                          label: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child:
+                                                                Text('الصرف'),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                              child: OutlinedButton.icon(
+                                                  style: ButtonStyle(
+                                                      shape: MaterialStateProperty
+                                                          .all(
+                                                              RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12.0),
+                                                      )),
+                                                      foregroundColor:
+                                                          MaterialStateProperty
+                                                              .all(
+                                                                  Colors.blue)),
+                                                  onPressed: () async {
+                                                    List<String> currencies = [
+                                                      mainController.storeData
+                                                          .value!.currency
+                                                    ];
+                                                    currencies.addAll(
+                                                        differenetCurrenciesPayments
+                                                            .keys
+                                                            .map((e) => e.name)
+                                                            .toList());
+                                                    var newCurrency =
+                                                        await showAddPaymentCurrencuDialog(
+                                                            mainController,
+                                                            currencies);
+                                                    if (newCurrency == null) {
+                                                      return;
+                                                    }
+                                                    setState(() {
+                                                      differenetCurrenciesPayments[
+                                                              newCurrency] =
+                                                          TextEditingController();
+                                                    });
+                                                  },
+                                                  icon: const Icon(Icons.add),
+                                                  label: const Text(
+                                                      'إضافة دفع بعملة أخرى')),
+                                            ),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -592,7 +763,7 @@ Future<bool?> showSaleDialog(
                                                                   Colors.green),
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              12),
+                                                              8),
                                                     ),
                                                     border:
                                                         const OutlineInputBorder(
@@ -602,8 +773,6 @@ Future<bool?> showSaleDialog(
                                                                   12.0)),
                                                     ),
                                                   ),
-                                                  minLines: 3,
-                                                  maxLines: 3,
                                                   keyboardType:
                                                       TextInputType.text),
                                             ),
@@ -618,49 +787,6 @@ Future<bool?> showSaleDialog(
                                   children: [
                                     Expanded(
                                       flex: 2,
-                                      child: Table(
-                                          border: TableBorder.all(
-                                              color: Colors.black,
-                                              width: 1,
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(10))),
-                                          children: const [
-                                            TableRow(
-                                                decoration: BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft: Radius
-                                                                .circular(10),
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    10))),
-                                                children: [
-                                                  Padding(
-                                                      padding:
-                                                          EdgeInsets.all(4),
-                                                      child: Center(
-                                                          child: Text("الباقي",
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold)))),
-                                                ]),
-                                            TableRow(children: [
-                                              Padding(
-                                                  padding: EdgeInsets.all(4),
-                                                  child: Center(
-                                                      child: Text('',
-                                                          textAlign: TextAlign
-                                                              .center))),
-                                            ]),
-                                          ]),
-                                    ),
-                                    Expanded(
-                                      flex: 3,
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.stretch,

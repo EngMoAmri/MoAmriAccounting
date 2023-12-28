@@ -69,7 +69,239 @@ Future<bool?> showSaleDialog(
                                     ),
                                   ],
                                 ),
-                                const Divider(height: 1),
+                                const Divider(),
+                                if (customerDebtItem == null)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TypeAheadField(
+                                            controller: customerTextController,
+                                            emptyBuilder: (context) {
+                                              return const SizedBox(
+                                                height: 60,
+                                                child: Center(
+                                                  child: Text(
+                                                      "لم يتم إيجاد العميل"),
+                                                ),
+                                              );
+                                            },
+                                            onSelected: (value) {
+                                              setState(() {
+                                                customerTextController.text =
+                                                    '${value.customer.name} / جوال: ${value.customer.phone}';
+                                                customerDebtItem = value;
+                                              });
+                                            },
+                                            suggestionsCallback:
+                                                (String pattern) async {
+                                              return await CustomersDatabase
+                                                  .getSearchedCustomers(
+                                                      mainController,
+                                                      0,
+                                                      pattern);
+                                            },
+                                            itemBuilder: (context, suggestion) {
+                                              return ListTile(
+                                                title: Text(
+                                                    '${suggestion.customer.name} / جوال: ${suggestion.customer.phone}'),
+                                              );
+                                            },
+                                            builder: (context, controller,
+                                                focusNode) {
+                                              return TextFormField(
+                                                textCapitalization:
+                                                    TextCapitalization
+                                                        .sentences,
+                                                controller:
+                                                    customerTextController,
+                                                focusNode: focusNode,
+                                                decoration: InputDecoration(
+                                                  filled: true,
+                                                  fillColor: Colors.white,
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Colors.green),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                  border:
+                                                      const OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                8.0)),
+                                                  ),
+                                                  counterText: "",
+                                                  labelText: 'العميل',
+                                                ),
+                                                keyboardType:
+                                                    TextInputType.text,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        OutlinedButton.icon(
+                                            style: ButtonStyle(
+                                                shape:
+                                                    MaterialStateProperty.all(
+                                                        RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          12.0),
+                                                )),
+                                                foregroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.blue)),
+                                            onPressed: () async {
+                                              Customer? customer =
+                                                  await showAddCustomerDialog(
+                                                      mainController);
+                                              if (customer != null) {
+                                                setState(() {
+                                                  customerDebtItem =
+                                                      CustomerDebtItem(
+                                                          customer: customer,
+                                                          debt: 'لا يوجد دين');
+                                                });
+                                              }
+                                            },
+                                            icon: const Icon(Icons.add),
+                                            label: const Text('إضافة جديد')),
+                                      ],
+                                    ),
+                                  )
+                                else
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10),
+                                            child: Table(
+                                                border: TableBorder.all(
+                                                    color: Colors.black,
+                                                    width: 1,
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
+                                                columnWidths: const {
+                                                  0: FlexColumnWidth(2),
+                                                  1: FlexColumnWidth(),
+                                                },
+                                                children: [
+                                                  const TableRow(
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      children: [
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "العميل",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)))),
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "مقدار الدين",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)))),
+                                                      ]),
+                                                  TableRow(
+                                                      decoration: const BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  bottomRight: Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      children: [
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    '${customerDebtItem!.customer.name} / جوال ${customerDebtItem!.customer.phone}',
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center))),
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    customerDebtItem!
+                                                                        .debt,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center))),
+                                                      ]),
+                                                ]),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              // cos there no customer
+                                              registerTheRestAsDebtCheckBox =
+                                                  false;
+                                              customerTextController.text = "";
+
+                                              customerDebtItem = null;
+                                            });
+                                          },
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                const Divider(),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -80,8 +312,100 @@ Future<bool?> showSaleDialog(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          const SizedBox(
-                                            height: 4,
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 4),
+                                            child: Table(
+                                                border: TableBorder.all(
+                                                    color: Colors.black,
+                                                    width: 1,
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
+                                                children: [
+                                                  const TableRow(
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      children: [
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "الإجمالي",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)))),
+                                                      ]),
+                                                  TableRow(children: [
+                                                    Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(4),
+                                                        child: Center(
+                                                            child: Text(
+                                                                saleController
+                                                                    .totalString
+                                                                    .value,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center))),
+                                                  ]),
+                                                  const TableRow(
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.black,
+                                                      ),
+                                                      children: [
+                                                        Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    "الإجمالي بالعملة الرئيسية",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)))),
+                                                      ]),
+                                                  TableRow(
+                                                      decoration: const BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  bottomRight: Radius
+                                                                      .circular(
+                                                                          10))),
+                                                      children: [
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    saleController
+                                                                        .totalString
+                                                                        .value,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center))),
+                                                      ]),
+                                                ]),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.symmetric(
@@ -112,277 +436,40 @@ Future<bool?> showSaleDialog(
                                                                 EdgeInsets.all(
                                                                     4),
                                                             child: Center(
-                                                                child: FittedBox(
-                                                                    fit: BoxFit
-                                                                        .fitWidth,
-                                                                    child: Text(
-                                                                        "الإجمالي",
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                Colors.white,
-                                                                            fontWeight: FontWeight.bold))))),
+                                                                child: Text(
+                                                                    "الباقي",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold)))),
                                                       ]),
-                                                  TableRow(children: [
-                                                    Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(4),
-                                                        child: Center(
-                                                            child: Text(
-                                                                saleController
-                                                                    .totalString
-                                                                    .value,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center))),
-                                                  ]),
-                                                ]),
-                                          ),
-                                          if (customerDebtItem == null)
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.stretch,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4),
-                                                  child: TypeAheadField(
-                                                    controller:
-                                                        customerTextController,
-                                                    emptyBuilder: (context) {
-                                                      return const SizedBox(
-                                                        height: 60,
-                                                        child: Center(
-                                                          child: Text(
-                                                              "لم يتم إيجاد العميل"),
-                                                        ),
-                                                      );
-                                                    },
-                                                    onSelected: (value) {
-                                                      setState(() {
-                                                        customerTextController
-                                                                .text =
-                                                            '${value.customer.name} / جوال: ${value.customer.phone}';
-                                                        customerDebtItem =
-                                                            value;
-                                                      });
-                                                    },
-                                                    suggestionsCallback:
-                                                        (String pattern) async {
-                                                      return await CustomersDatabase
-                                                          .getSearchedCustomers(
-                                                              mainController,
-                                                              0,
-                                                              pattern);
-                                                    },
-                                                    itemBuilder:
-                                                        (context, suggestion) {
-                                                      return ListTile(
-                                                        title: Text(
-                                                            '${suggestion.customer.name} / جوال: ${suggestion.customer.phone}'),
-                                                      );
-                                                    },
-                                                    builder: (context,
-                                                        controller, focusNode) {
-                                                      return TextFormField(
-                                                        textCapitalization:
-                                                            TextCapitalization
-                                                                .sentences,
-                                                        controller:
-                                                            customerTextController,
-                                                        focusNode: focusNode,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          filled: true,
-                                                          fillColor:
-                                                              Colors.white,
-                                                          isDense: true,
-                                                          contentPadding:
-                                                              const EdgeInsets
-                                                                  .all(10),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                const BorderSide(
-                                                                    color: Colors
-                                                                        .green),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          border:
-                                                              const OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            8.0)),
-                                                          ),
-                                                          counterText: "",
-                                                          labelText: 'العميل',
-                                                        ),
-                                                        keyboardType:
-                                                            TextInputType.text,
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4),
-                                                  child: OutlinedButton.icon(
-                                                      style: ButtonStyle(
-                                                          shape: MaterialStateProperty
-                                                              .all(
-                                                                  RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        12.0),
-                                                          )),
-                                                          foregroundColor:
-                                                              MaterialStateProperty
-                                                                  .all(Colors
-                                                                      .blue)),
-                                                      onPressed: () async {
-                                                        Customer? customer =
-                                                            await showAddCustomerDialog(
-                                                                mainController);
-                                                        if (customer != null) {
-                                                          setState(() {
-                                                            customerDebtItem =
-                                                                CustomerDebtItem(
-                                                                    customer:
-                                                                        customer,
-                                                                    debt:
-                                                                        'لا يوجد دين');
-                                                          });
-                                                        }
-                                                      },
-                                                      icon:
-                                                          const Icon(Icons.add),
-                                                      label: const Text(
-                                                          'إضافة جديد')),
-                                                ),
-                                              ],
-                                            )
-                                          else
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.stretch,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4),
-                                                  child: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        10),
-                                                            child: Text(
-                                                                'العميل ${customerDebtItem!.customer.name}')),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .fromLTRB(
-                                                                20, 0, 20, 0),
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              // cos there no customer
-                                                              registerTheRestAsDebtCheckBox =
-                                                                  false;
-                                                              customerTextController
-                                                                  .text = "";
-
-                                                              customerDebtItem =
-                                                                  null;
-                                                            });
-                                                          },
-                                                          icon: const Icon(
-                                                            Icons.close,
-                                                            color: Colors.red,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 4),
-                                                  child: Table(
-                                                      border: TableBorder.all(
-                                                          color: Colors.black,
-                                                          width: 1,
+                                                  TableRow(
+                                                      decoration: const BoxDecoration(
                                                           borderRadius:
-                                                              const BorderRadius
-                                                                  .all(Radius
+                                                              BorderRadius.only(
+                                                                  bottomLeft: Radius
+                                                                      .circular(
+                                                                          10),
+                                                                  bottomRight: Radius
                                                                       .circular(
                                                                           10))),
                                                       children: [
-                                                        const TableRow(
-                                                            decoration: BoxDecoration(
-                                                                color: Colors
-                                                                    .black,
-                                                                borderRadius: BorderRadius.only(
-                                                                    topLeft: Radius
-                                                                        .circular(
-                                                                            10),
-                                                                    topRight: Radius
-                                                                        .circular(
-                                                                            10))),
-                                                            children: [
-                                                              Padding(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .all(
-                                                                              4),
-                                                                  child: Center(
-                                                                      child: FittedBox(
-                                                                          fit: BoxFit
-                                                                              .fitWidth,
-                                                                          child: Text(
-                                                                              "مقدار الدين",
-                                                                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))))),
-                                                            ]),
-                                                        TableRow(children: [
-                                                          Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(4),
-                                                              child: Center(
-                                                                  child: Column(
-                                                                      children: [
-                                                                    Text(
-                                                                        (customerDebtItem?.debt ??
-                                                                            ''),
-                                                                        textAlign:
-                                                                            TextAlign.center),
-                                                                  ]))),
-                                                        ]),
+                                                        Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(4),
+                                                            child: Center(
+                                                                child: Text(
+                                                                    saleController
+                                                                        .totalString
+                                                                        .value,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center))),
                                                       ]),
-                                                ),
-                                              ],
-                                            ),
+                                                ]),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -390,110 +477,138 @@ Future<bool?> showSaleDialog(
                                       width: 10,
                                     ),
                                     Expanded(
+                                        flex: 2,
                                         child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(
-                                          height: 4,
-                                        ),
-                                        Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 4),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller: paymentTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'مقدار الدفع',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                            )),
-                                        Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 4),
-                                            child: TextFormField(
-                                              textCapitalization:
-                                                  TextCapitalization.sentences,
-                                              controller:
-                                                  discountTextController,
-                                              decoration: InputDecoration(
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(8.0)),
-                                                ),
-                                                counterText: "",
-                                                labelText: 'مقدار الخصم',
-                                              ),
-                                              keyboardType: TextInputType.text,
-                                            )),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 4),
-                                          child: TextFormField(
-                                              controller: noteTextController,
-                                              decoration: InputDecoration(
-                                                counterText: '',
-                                                labelText: "ملاحظة",
-                                                filled: true,
-                                                fillColor: Colors.white,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.green),
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                border:
-                                                    const OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              12.0)),
-                                                ),
-                                              ),
-                                              minLines: 3,
-                                              maxLines: 3,
-                                              keyboardType: TextInputType.text),
-                                        ),
-                                      ],
-                                    ))
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 4,
+                                            ),
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4),
+                                                child: TextFormField(
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .sentences,
+                                                  controller:
+                                                      paymentTextController,
+                                                  decoration: InputDecoration(
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                    ),
+                                                    counterText: "",
+                                                    labelText: 'مقدار الدفع',
+                                                  ),
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                )),
+                                            Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4),
+                                                child: TextFormField(
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .sentences,
+                                                  controller:
+                                                      discountTextController,
+                                                  decoration: InputDecoration(
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                    ),
+                                                    counterText: "",
+                                                    labelText: 'مقدار الخصم',
+                                                  ),
+                                                  keyboardType:
+                                                      TextInputType.text,
+                                                )),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                              child: TextFormField(
+                                                  controller:
+                                                      noteTextController,
+                                                  decoration: InputDecoration(
+                                                    counterText: '',
+                                                    labelText: "ملاحظة",
+                                                    filled: true,
+                                                    fillColor: Colors.white,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide:
+                                                          const BorderSide(
+                                                              color:
+                                                                  Colors.green),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                    ),
+                                                    border:
+                                                        const OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  12.0)),
+                                                    ),
+                                                  ),
+                                                  minLines: 3,
+                                                  maxLines: 3,
+                                                  keyboardType:
+                                                      TextInputType.text),
+                                            ),
+                                          ],
+                                        ))
                                   ],
                                 ),
                                 const Divider(),
@@ -510,8 +625,8 @@ Future<bool?> showSaleDialog(
                                               borderRadius:
                                                   const BorderRadius.all(
                                                       Radius.circular(10))),
-                                          children: [
-                                            const TableRow(
+                                          children: const [
+                                            TableRow(
                                                 decoration: BoxDecoration(
                                                     color: Colors.black,
                                                     borderRadius:
@@ -526,25 +641,19 @@ Future<bool?> showSaleDialog(
                                                       padding:
                                                           EdgeInsets.all(4),
                                                       child: Center(
-                                                          child: FittedBox(
-                                                              fit: BoxFit
-                                                                  .fitWidth,
-                                                              child: Text(
-                                                                  "الباقي",
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .white,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold))))),
+                                                          child: Text("الباقي",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold)))),
                                                 ]),
                                             TableRow(children: [
                                               Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(4),
+                                                  padding: EdgeInsets.all(4),
                                                   child: Center(
-                                                      child: Text(
-                                                          '${}',
+                                                      child: Text('',
                                                           textAlign: TextAlign
                                                               .center))),
                                             ]),

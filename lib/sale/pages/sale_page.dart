@@ -12,8 +12,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../controllers/sale_controller.dart';
-import '../../dialogs/print_dialogs.dart';
-import '../../utils/print_order.dart';
+import '../dialogs/sale_dialog.dart';
 
 class SalePage extends StatelessWidget {
   SalePage({super.key});
@@ -513,12 +512,13 @@ class SalePage extends StatelessWidget {
                     const Divider(),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        var printType = await showPrintDialog("الطلب");
-                        if (printType == "حراري") {
-                          await printOrderRoll(mainController, controller);
-                        } else {
-                          await printOrderA4(mainController, controller);
-                        }
+                        showSaleDialog(mainController, controller);
+                        // var printType = await showPrintDialog("الطلب");
+                        // if (printType == "حراري") {
+                        //   await printOrderRoll(mainController, controller);
+                        // } else {
+                        //   await printOrderA4(mainController, controller);
+                        // }
                       },
                       style: ButtonStyle(
                           shape:

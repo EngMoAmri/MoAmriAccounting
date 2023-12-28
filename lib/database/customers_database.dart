@@ -211,6 +211,10 @@ class CustomersDatabase {
         debt =
             '$debt${GlobalMethods.getMoney(debtMap['total_debt'])} ${debtMap['currency']}\n';
       }
+      if (debt.isEmpty) {
+        debt = 'لا يوجد دين';
+      }
+
       customersWithDebts.add(CustomerDebtItem(customer: customer, debt: debt));
     }
     return customersWithDebts;

@@ -223,8 +223,9 @@ class MyDatabase {
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS invoices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      customer_id INTEGER REFERENCES customers(id) ON DELETE NO ACTION,
       type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
+      customer_id INTEGER REFERENCES customers(id) ON DELETE NO ACTION,
+      date INTEGER NOT NULL, 
       discount REAL,
       note TEXT
     )
@@ -234,6 +235,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL,
       customer_id INTEGER,
+      date INTEGER NOT NULL, 
       type TEXT CHECK( type IN ('sale','return') ) NOT NULL,
       discount REAL,
       note TEXT,
@@ -282,6 +284,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
       customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,  
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE,
       note TEXT
@@ -293,6 +296,7 @@ class MyDatabase {
       payment_id INTEGER NOT NULL,
       invoice_id INTEGER,    
       customer_id INTEGER,  
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL,
       note TEXT,
@@ -307,6 +311,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER REFERENCES invoices(id) ON DELETE CASCADE,    
       customer_id INTEGER REFERENCES customers(id) ON DELETE RESTRICT,  
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
       note TEXT
@@ -318,6 +323,7 @@ class MyDatabase {
       debt_id INTEGER NOT NULL,
       invoice_id INTEGER,    
       customer_id INTEGER,  
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL,
       note TEXT,
@@ -353,6 +359,7 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS purchases (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE NO ACTION,
+      date INTEGER NOT NULL, 
       type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
       discount REAL,
       note TEXT
@@ -363,6 +370,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchases_id INTEGER NOT NULL,
       supplier_id INTEGER NOT NULL,
+      date INTEGER NOT NULL, 
       type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
       discount REAL,
       note TEXT,
@@ -398,6 +406,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
       supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
+      date INTEGER NOT NULL, 
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE, 
       amount REAL NOT NULL, 
       note TEXT
@@ -409,6 +418,7 @@ class MyDatabase {
       purchase_payment_id INTEGER NOT NULL,
       purchase_id INTEGER,    
       supplier_id INTEGER,  
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL,
       note TEXT,
@@ -424,6 +434,7 @@ class MyDatabase {
       purchase_id INTEGER REFERENCES purchases(id) ON DELETE CASCADE,    
       supplier_id INTEGER REFERENCES suppliers(id) ON DELETE CASCADE,  
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
+      date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       note TEXT
     )
@@ -435,6 +446,7 @@ class MyDatabase {
       purchase_id INTEGER,    
       supplier_id INTEGER,  
       amount REAL NOT NULL, 
+      date INTEGER NOT NULL, 
       currency TEXT NOT NULL,
       note TEXT,
       action_by INTEGER NOT NULL,

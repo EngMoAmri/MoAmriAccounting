@@ -429,67 +429,132 @@ Future<bool?> showSaleDialog(
                                                       ]),
                                                 ]),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 4),
-                                            child: Table(
-                                                border: TableBorder.all(
-                                                    color: Colors.black,
-                                                    width: 1,
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(
-                                                                10))),
-                                                children: [
-                                                  const TableRow(
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.black,
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                          10),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                          10))),
-                                                      children: [
-                                                        Padding(
-                                                            padding:
-                                                                EdgeInsets.all(
-                                                                    4),
-                                                            child: Center(
-                                                                child: Text(
-                                                                    "الباقي",
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontWeight:
-                                                                            FontWeight.bold)))),
-                                                      ]),
-                                                  TableRow(
-                                                      decoration: const BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius.only(
-                                                                  bottomLeft: Radius
-                                                                      .circular(
-                                                                          10),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                          10))),
-                                                      children: [
-                                                        Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(4),
-                                                            child: Center(
-                                                                child: Text(
-                                                                    '${GlobalMethods.getMoney(stillToBePaid)} ${mainController.storeData.value!.currency}',
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .center))),
-                                                      ]),
-                                                ]),
-                                          ),
+                                          if (stillToBePaid >= 0)
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                              child: Table(
+                                                  border: TableBorder.all(
+                                                      color: Colors.black,
+                                                      width: 1,
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .all(
+                                                              Radius.circular(
+                                                                  10))),
+                                                  children: [
+                                                    const TableRow(
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.red,
+                                                            borderRadius: BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        10),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        10))),
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(4),
+                                                              child: Center(
+                                                                  child: Text(
+                                                                      "الباقي",
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)))),
+                                                        ]),
+                                                    TableRow(
+                                                        decoration: const BoxDecoration(
+                                                            borderRadius: BorderRadius.only(
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10),
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        10))),
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(4),
+                                                              child: Center(
+                                                                  child: Text(
+                                                                      '${GlobalMethods.getMoney(stillToBePaid)} ${mainController.storeData.value!.currency}',
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center))),
+                                                        ]),
+                                                  ]),
+                                            )
+                                          else
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 4),
+                                              child: Table(
+                                                  border: TableBorder.all(
+                                                      color: Colors.black,
+                                                      width: 1,
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                              .all(
+                                                              Radius.circular(
+                                                                  10))),
+                                                  children: [
+                                                    const TableRow(
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.green,
+                                                            borderRadius: BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        10),
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        10))),
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(4),
+                                                              child: Center(
+                                                                  child: Text(
+                                                                      "الباقي للعميل",
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontWeight:
+                                                                              FontWeight.bold)))),
+                                                        ]),
+                                                    TableRow(
+                                                        decoration: const BoxDecoration(
+                                                            borderRadius: BorderRadius.only(
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10),
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        10))),
+                                                        children: [
+                                                          Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(4),
+                                                              child: Center(
+                                                                  child: Text(
+                                                                      '${GlobalMethods.getMoney(stillToBePaid * -1)} ${mainController.storeData.value!.currency}',
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center))),
+                                                        ]),
+                                                  ]),
+                                            ),
                                         ],
                                       ),
                                     ),
@@ -556,6 +621,18 @@ Future<bool?> showSaleDialog(
                                                               paymentTotalWithMainCurrency;
                                                     });
                                                   },
+                                                  validator: (value) {
+                                                    if (value?.trim().isEmpty ??
+                                                        true) {
+                                                      return null;
+                                                    }
+                                                    if (double.tryParse(
+                                                            value!.trim()) ==
+                                                        null) {
+                                                      return "إدخل المبلغ بشكل صحيح";
+                                                    }
+                                                    return null;
+                                                  },
                                                   keyboardType:
                                                       TextInputType.text,
                                                 )),
@@ -620,6 +697,18 @@ Future<bool?> showSaleDialog(
                                                           totalWithDiscount -
                                                               paymentTotalWithMainCurrency;
                                                     });
+                                                  },
+                                                  validator: (value) {
+                                                    if (value?.trim().isEmpty ??
+                                                        true) {
+                                                      return null;
+                                                    }
+                                                    if (double.tryParse(
+                                                            value!.trim()) ==
+                                                        null) {
+                                                      return "إدخل المبلغ بشكل صحيح";
+                                                    }
+                                                    return null;
                                                   },
                                                   keyboardType:
                                                       TextInputType.text,
@@ -699,6 +788,21 @@ Future<bool?> showSaleDialog(
                                                                     totalWithDiscount -
                                                                         paymentTotalWithMainCurrency;
                                                               });
+                                                            },
+                                                            validator: (value) {
+                                                              if (value
+                                                                      ?.trim()
+                                                                      .isEmpty ??
+                                                                  true) {
+                                                                return null;
+                                                              }
+                                                              if (double.tryParse(
+                                                                      value!
+                                                                          .trim()) ==
+                                                                  null) {
+                                                                return "إدخل المبلغ بشكل صحيح";
+                                                              }
+                                                              return null;
                                                             },
                                                             keyboardType:
                                                                 TextInputType
@@ -915,55 +1019,39 @@ Future<bool?> showSaleDialog(
                                         children: [
                                           OutlinedButton.icon(
                                               onPressed: () async {
-                                                // if (saleController
-                                                //     .materialDialogFormKey
-                                                //     .currentState!
-                                                //     .validate()) {
-                                                //   saleData['Quantity'] =
-                                                //       saleController
-                                                //           .materialDialogQuantity
-                                                //           .value;
-                                                //   saleData[
-                                                //       'Tax'] = (saleController
-                                                //           .materialDialogTaxTextController
-                                                //           .text
-                                                //           .isEmpty)
-                                                //       ? null
-                                                //       : saleController
-                                                //           .materialDialogTax
-                                                //           .value;
-                                                //   saleData['Total'] = saleController
-                                                //               .materialDialogQuantity
-                                                //               .value *
-                                                //           material
-                                                //               .salePrice +
-                                                //       saleController
-                                                //               .materialDialogQuantity
-                                                //               .value *
-                                                //           (saleController
-                                                //                   .materialDialogTax
-                                                //                   .value /
-                                                //               100) *
-                                                //           material
-                                                //               .salePrice;
-                                                //   saleData['Note'] =
-                                                //       saleController
-                                                //           .materialDialogNoteTextController
-                                                //           .text
-                                                //           .trim();
-                                                //   saleController
-                                                //       .dataSource.value
-                                                //       .notifyListeners();
-                                                //   saleController
-                                                //       .dataSource.value
-                                                //       .calculateTotals(
-                                                //           saleController);
-                                                //   saleController
-                                                //       .dataSource
-                                                //       .refresh();
+                                                if (formKey.currentState!
+                                                    .validate()) {
+                                                  // first check if there is customer
+                                                  if (customerDebtItem ==
+                                                      null) {
+                                                    // there is no customer
+                                                    // so the total must be all paid
+                                                    if (stillToBePaid > 0) {
+                                                      showErrorDialog(
+                                                          'يجب دفع المبلغ كاملاً');
+                                                      return;
+                                                    }
+                                                    here
+                                                  } else {
+                                                    // there is customer
+                                                    // check if the register the rest as debt is enabled
+                                                    if (stillToBePaid > 0 &&
+                                                        !registerTheRestAsDebtCheckBox) {
+                                                      showErrorDialog(
+                                                          'يجب دفع المبلغ كاملاً');
+                                                      return;
+                                                    }
+                                                  }
 
-                                                //   Get.back();
-                                                // }
+                                                  saleController
+                                                      .dataSource.value
+                                                      .clearDataGridRows(
+                                                          saleController);
+                                                  saleController.dataSource
+                                                      .refresh();
+
+                                                  Get.back();
+                                                }
                                               },
                                               style: ButtonStyle(
                                                 backgroundColor:

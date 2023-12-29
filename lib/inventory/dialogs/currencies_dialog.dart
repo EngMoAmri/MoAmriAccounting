@@ -17,7 +17,8 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
       context: Get.context!,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        CurrenciesDataSource? currenciesDataSource;
+        CurrenciesDataSource currenciesDataSource =
+            CurrenciesDataSource(mainController.currencies.value);
         final DataGridController dataGridController = DataGridController();
 
         var loading = true;
@@ -34,14 +35,6 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: StatefulBuilder(builder: (context, setState) {
-                    if (currenciesDataSource == null) {
-                      CurrenciesDatabase.getCurrencies().then((value) {
-                        currenciesDataSource = CurrenciesDataSource(value);
-                        setState(() {
-                          loading = false;
-                        });
-                      });
-                    }
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -88,7 +81,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                   gridLinesVisibility: GridLinesVisibility.both,
                                   headerGridLinesVisibility:
                                       GridLinesVisibility.both,
-                                  source: currenciesDataSource!,
+                                  source: currenciesDataSource,
                                   isScrollbarAlwaysShown: true,
                                   selectionMode: SelectionMode.single,
                                   columns: [
@@ -171,7 +164,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                   }
                                   if ((await showEditCurrencyDialog(
                                           mainController,
-                                          currenciesDataSource!.currenciesData[
+                                          currenciesDataSource.currenciesData[
                                               dataGridController
                                                   .selectedIndex])) !=
                                       null) {
@@ -214,7 +207,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                     return;
                                   }
                                   if (!(await CurrenciesDatabase
-                                      .isCurrencyDeletable(currenciesDataSource!
+                                      .isCurrencyDeletable(currenciesDataSource
                                           .currenciesData[
                                               dataGridController.selectedIndex]
                                           .name))) {
@@ -223,7 +216,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                     return;
                                   }
                                   var currency =
-                                      currenciesDataSource!.currenciesData[
+                                      currenciesDataSource.currenciesData[
                                           dataGridController.selectedIndex];
                                   if (!(await showConfirmationDialog(
                                           "هل أنت متأكد من أنك تريد الحذف؟") ??
@@ -272,10 +265,10 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                   if (printType == null) return;
                                   if (printType == "حراري") {
                                     await printCurrenciesRoll(mainController,
-                                        currenciesDataSource!.currenciesData);
+                                        currenciesDataSource.currenciesData);
                                   } else {
                                     await printCurrenciesA4(mainController,
-                                        currenciesDataSource!.currenciesData);
+                                        currenciesDataSource.currenciesData);
                                   }
                                 },
                                 style: ButtonStyle(

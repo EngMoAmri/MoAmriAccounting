@@ -193,6 +193,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                             currency,
                                             mainController
                                                 .currentUser.value!.id!);
+                                        await mainController.getCurrenies();
                                         await showSuccessDialog(
                                             "تم إضافة العملة بنجاح");
                                         Get.back(result: currency);

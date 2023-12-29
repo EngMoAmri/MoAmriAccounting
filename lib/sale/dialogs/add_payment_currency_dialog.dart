@@ -10,7 +10,7 @@ import '../../database/entities/currency.dart';
 import '../../inventory/data_sources/currencies_data_source.dart';
 
 // TODO double click to select
-Future<Currency?> showAddPaymentCurrencuDialog(
+Future<Currency?> showAddPaymentCurrencyDialog(
     MainController mainController, List<String> currencies) async {
   return await showDialog(
       context: Get.context!,
@@ -20,7 +20,6 @@ Future<Currency?> showAddPaymentCurrencuDialog(
         final DataGridController dataGridController = DataGridController();
 
         var loading = true;
-        var refereshPrevoisPage = false;
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -62,7 +61,7 @@ Future<Currency?> showAddPaymentCurrencuDialog(
                               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                               child: IconButton(
                                 onPressed: () {
-                                  Get.back(result: refereshPrevoisPage);
+                                  Get.back();
                                 },
                                 icon: const Icon(
                                   Icons.close,

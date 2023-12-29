@@ -5,15 +5,16 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/customers/dialogs/add_customer_dialog.dart';
 import 'package:moamri_accounting/database/customers_database.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
+import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
+import 'package:moamri_accounting/utils/global_methods.dart';
 
 import '../../database/entities/customer.dart';
 import '../../inventory/dialogs/edit_currency_dialog.dart';
 
-// TODO complete by calculating the still to be paid
 Future<bool?> showSaleDialog(
     MainController mainController, SaleController saleController) async {
   return await showDialog(
@@ -31,7 +32,21 @@ Future<bool?> showSaleDialog(
         final noteTextController = TextEditingController();
         var registerTheRestAsDebtCheckBox = false;
         var printReceiptCheckBox = true;
-        double stillToBePaid = 0;
+        double totalInMainCurrency = 0;
+        for (var saleData in saleController.dataSource.value.salesData) {
+          MyMaterial material = saleData['Material'];
+          double rateExchange = 0.0;
+          for (var currency in mainController.currencies.value) {
+            if (currency.name == material.currency) {
+              rateExchange = currency.exchangeRate;
+              break;
+            }
+          }
+          totalInMainCurrency += rateExchange * saleData['Total'];
+        }
+        double totalWithDiscount = totalInMainCurrency;
+        double paymentTotalWithMainCurrency = 0;
+        double stillToBePaid = totalWithDiscount;
         return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12.0)),
@@ -40,7 +55,6 @@ Future<bool?> showSaleDialog(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 900),
                 child: StatefulBuilder(builder: (context, setState) {
-                  void onPaymentChanged(String value) {}
                   return FocusTraversalGroup(
                     policy: WidgetOrderTraversalPolicy(),
                     child: Padding(
@@ -408,9 +422,7 @@ Future<bool?> showSaleDialog(
                                                                     .all(4),
                                                             child: Center(
                                                                 child: Text(
-                                                                    saleController
-                                                                        .totalString
-                                                                        .value,
+                                                                    '${GlobalMethods.getMoney(totalInMainCurrency)} ${mainController.storeData.value!.currency}',
                                                                     textAlign:
                                                                         TextAlign
                                                                             .center))),
@@ -471,9 +483,7 @@ Future<bool?> showSaleDialog(
                                                                     .all(4),
                                                             child: Center(
                                                                 child: Text(
-                                                                    saleController
-                                                                        .totalString
-                                                                        .value,
+                                                                    '${GlobalMethods.getMoney(stillToBePaid)} ${mainController.storeData.value!.currency}',
                                                                     textAlign:
                                                                         TextAlign
                                                                             .center))),
@@ -532,6 +542,20 @@ Future<bool?> showSaleDialog(
                                                     labelText:
                                                         'مقدار الخصم بالعملة ${mainController.storeData.value!.currency}',
                                                   ),
+                                                  onChanged: (value) {
+                                                    // TODO if the discount exceeded the profit
+                                                    totalWithDiscount =
+                                                        totalInMainCurrency -
+                                                            (double.tryParse(
+                                                                    discountTextController
+                                                                        .text) ??
+                                                                0);
+                                                    setState(() {
+                                                      stillToBePaid =
+                                                          totalWithDiscount -
+                                                              paymentTotalWithMainCurrency;
+                                                    });
+                                                  },
                                                   keyboardType:
                                                       TextInputType.text,
                                                 )),
@@ -574,7 +598,29 @@ Future<bool?> showSaleDialog(
                                                     labelText:
                                                         'مقدار الدفع بالعملة ${mainController.storeData.value!.currency}',
                                                   ),
-                                                  onChanged: onPaymentChanged,
+                                                  onChanged: (value) {
+                                                    paymentTotalWithMainCurrency =
+                                                        (double.tryParse(
+                                                                paymentTextController
+                                                                    .text) ??
+                                                            0.0);
+                                                    for (var currency
+                                                        in differenetCurrenciesPayments
+                                                            .keys) {
+                                                      paymentTotalWithMainCurrency +=
+                                                          (double.tryParse(differenetCurrenciesPayments[
+                                                                          currency]!
+                                                                      .text) ??
+                                                                  0.0) *
+                                                              currency
+                                                                  .exchangeRate;
+                                                    }
+                                                    setState(() {
+                                                      stillToBePaid =
+                                                          totalWithDiscount -
+                                                              paymentTotalWithMainCurrency;
+                                                    });
+                                                  },
                                                   keyboardType:
                                                       TextInputType.text,
                                                 )),
@@ -595,11 +641,14 @@ Future<bool?> showSaleDialog(
                                                       children: [
                                                         Expanded(
                                                           child: TextFormField(
+                                                            controller: differenetCurrenciesPayments[
+                                                                differenetCurrenciesPayments
+                                                                        .keys
+                                                                        .toList()[
+                                                                    index]],
                                                             textCapitalization:
                                                                 TextCapitalization
                                                                     .sentences,
-                                                            controller:
-                                                                paymentTextController,
                                                             decoration:
                                                                 InputDecoration(
                                                               filled: true,
@@ -630,6 +679,27 @@ Future<bool?> showSaleDialog(
                                                               labelText:
                                                                   'مقدار الدفع بالعملة ${differenetCurrenciesPayments.keys.toList()[index].name}',
                                                             ),
+                                                            onChanged: (value) {
+                                                              paymentTotalWithMainCurrency =
+                                                                  (double.tryParse(
+                                                                          paymentTextController
+                                                                              .text) ??
+                                                                      0.0);
+                                                              for (var currency
+                                                                  in differenetCurrenciesPayments
+                                                                      .keys) {
+                                                                paymentTotalWithMainCurrency +=
+                                                                    (double.tryParse(differenetCurrenciesPayments[currency]!.text) ??
+                                                                            0.0) *
+                                                                        currency
+                                                                            .exchangeRate;
+                                                              }
+                                                              setState(() {
+                                                                stillToBePaid =
+                                                                    totalWithDiscount -
+                                                                        paymentTotalWithMainCurrency;
+                                                              });
+                                                            },
                                                             keyboardType:
                                                                 TextInputType
                                                                     .text,
@@ -712,6 +782,13 @@ Future<bool?> showSaleDialog(
                                                               .all(
                                                                   Colors.blue)),
                                                   onPressed: () async {
+                                                    if (differenetCurrenciesPayments
+                                                            .keys.length ==
+                                                        3) {
+                                                      showErrorDialog(
+                                                          'عفواً لايمكن إضافة أكثر من 3 عملات');
+                                                      return;
+                                                    }
                                                     List<String> currencies = [
                                                       mainController.storeData
                                                           .value!.currency
@@ -722,7 +799,7 @@ Future<bool?> showSaleDialog(
                                                             .map((e) => e.name)
                                                             .toList());
                                                     var newCurrency =
-                                                        await showAddPaymentCurrencuDialog(
+                                                        await showAddPaymentCurrencyDialog(
                                                             mainController,
                                                             currencies);
                                                     if (newCurrency == null) {

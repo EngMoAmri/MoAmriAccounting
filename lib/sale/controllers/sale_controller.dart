@@ -12,6 +12,7 @@ class SaleController extends GetxController {
   Rx<bool?> visible = Rx(null);
   Rx<Map<String, double>> totals = Rx({});
   Rx<String> totalString = ''.obs;
+
   Rx<bool> loadingCategories = true.obs;
   Rx<List<String>> categories = Rx([]);
   Rx<int> selectedCategory = 0.obs;
@@ -30,6 +31,7 @@ class SaleController extends GetxController {
   });
 
   Rx<SaleMaterialsDataSource> dataSource = Rx(SaleMaterialsDataSource());
+
   Future<void> getCategories() async {
     loadingCategories.value = true;
     categories.value.clear();

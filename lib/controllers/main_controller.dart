@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 
+import '../database/currencies_database.dart';
+import '../database/entities/currency.dart';
 import '../database/entities/store.dart';
 import '../database/entities/user.dart';
 import '../pages/login_page.dart';
@@ -16,10 +18,21 @@ class MainController extends GetxController {
   /// this will contain the store information
   Rx<User?> currentUser = Rx(null);
 
+  Rx<bool> loadingCurrenies = true.obs;
+  Rx<List<Currency>> currencies = Rx([]);
+  Future<void> getCurrenies() async {
+    loadingCurrenies.value = true;
+    currencies.value.clear();
+    currencies.value.addAll(await CurrenciesDatabase.getCurrencies());
+    currencies.refresh();
+    loadingCurrenies.value = false;
+  }
+
   @override
   void onInit() async {
     await MyDatabase.open();
     storeData.value = await MyDatabase.getStoreData();
+    await getCurrenies();
     if (storeData.value == null) {
       Get.off(() => const StoreSetupPage());
     } else {

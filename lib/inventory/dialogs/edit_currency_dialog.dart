@@ -200,6 +200,8 @@ Future<Currency?> showEditCurrencyDialog(
                                             oldCurrency,
                                             mainController
                                                 .currentUser.value!.id!);
+
+                                        await mainController.getCurrenies();
                                         await showSuccessDialog(
                                             "تم تعديل العملة بنجاح");
                                         Get.back(result: currency);

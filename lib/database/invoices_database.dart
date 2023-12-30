@@ -1,224 +1,191 @@
+import 'package:moamri_accounting/database/items/invoice_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'entities/activity.dart';
+import 'entities/audit.dart';
 import 'entities/my_material.dart';
+import 'entities/user.dart';
 import 'my_database.dart';
 
-class MyMaterialsDatabase {
-  static Future<MyMaterial?> getMaterialByBarcode(String barcode) async {
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
-        .query('materials', where: "barcode = ?", whereArgs: [barcode]);
-    if (maps.isEmpty) return null;
-    return MyMaterial.fromMap(maps.first);
-  }
-
-  static Future<bool> isMaterialDeletable(int materialId) async {
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.rawQuery(
-        '''SELECT * FROM materials WHERE larger_material_id = $materialId''');
-    if (maps.isNotEmpty) return false;
-    List<Map<String, dynamic>> maps2 = await MyDatabase.myDatabase.rawQuery(
-        '''SELECT * FROM offers_materials WHERE material_id = $materialId''');
-    if (maps2.isNotEmpty) return false;
-    return true;
-  }
-
-  static Future<String> generateMaterialBarcode() async {
-    List<Map<String, Object?>> totalRow;
-    totalRow =
-        await MyDatabase.myDatabase.rawQuery("SELECT MAX(id) FROM materials");
-    if (totalRow.isEmpty) return '1000';
-    return '${(int.tryParse(totalRow[0]["MAX(id)"].toString()) ?? 0) + 10000}';
-  }
-
-  static Future<List<String>> searchForCategories(String text) async {
-    var trimText = text.trim();
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.query(
-        'materials',
-        distinct: true,
-        columns: ['category'],
-        where: "category like ?",
-        whereArgs: ["%$trimText%"],
-        limit: 10);
-
-    List<String> categories = [];
-    for (var map in maps) {
-      categories.add(map['category']);
-    }
-    return categories;
-  }
-
-  static Future<List<String>> searchForUnits(String text) async {
-    var trimText = text.trim();
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.query('units',
-        distinct: true,
-        where: "name like ?",
-        whereArgs: ["%$trimText%"],
-        limit: 10);
-
-    List<String> categories = [];
-    for (var map in maps) {
-      categories.add(map['name']);
-    }
-    return categories;
-  }
-
-  static Future<List<String>> getMaterialsCategories() async {
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
-        .query('materials', columns: ['category'], distinct: true);
-    List<String> categories = [];
-    for (var map in maps) {
-      if (map['category'] != null) {
-        categories.add(map['category']);
-      }
-    }
-    return categories;
-  }
-
-  static Future<int> getMaterialsCount({category, searchedText}) async {
-    List<Map<String, Object?>> totalRow;
-    if (searchedText == null) {
-      if (category == 'الكل' || category == null) {
-        totalRow = await MyDatabase.myDatabase
-            .rawQuery('SELECT COUNT(id) FROM materials');
-      } else {
-        totalRow = await MyDatabase.myDatabase.rawQuery(
-            "SELECT COUNT(id) FROM materials WHERE category = '$category'");
-      }
-    } else {
-      var trimText = searchedText.trim();
-
-      totalRow = await MyDatabase.myDatabase.rawQuery(
-          "SELECT COUNT(id) FROM materials WHERE name like '%$trimText%' or barcode like '%$trimText%'");
-    }
-    return int.tryParse(totalRow[0]["COUNT(id)"].toString()) ?? 0;
-  }
-
-  static Future<List<MyMaterial>> getMaterialsSuggestions(
-      String text, int? currentMaterialID) async {
-    String trimText = text.trim();
-    List<Map<String, dynamic>> maps;
-    maps = await MyDatabase.myDatabase.query('materials',
-        distinct: true,
-        where: "barcode like ? or name like ?",
-        whereArgs: ["%$trimText%", "%$trimText%"],
-        limit: 10);
-    List<MyMaterial> materials = [];
-    for (var map in maps) {
-      if (map['id'] != currentMaterialID) {
-        materials.add(MyMaterial.fromMap(map));
-      }
-    }
-    return materials;
-  }
-
-  static Future<int> insertMaterial(MyMaterial material, int actionBy) async {
+class InvoicesDatabase {
+  static Future<int> insertInvoiceItem(
+      InvoiceItem invoiceItem, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
-      await txn.insert(
-        'units',
-        {'name': material.unit},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
+      invoiceItem.invoice.id = await txn.insert(
+        'invoices',
+        invoiceItem.invoice.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.fail,
       );
-      // await txn.insert(
-      //   'currencies',
-      //   {'name': material.currency},
-      //   conflictAlgorithm: ConflictAlgorithm.ignore,
-      // );
-      material.id = await txn.insert(
-        'materials',
-        material.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      // set invoice id
+      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+        invoiceMaterial.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var invoiceOffer in invoiceItem.inoviceMaterials) {
+        invoiceOffer.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var payment in invoiceItem.payments) {
+        payment.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var debt in invoiceItem.debts) {
+        debt.invoiceId = invoiceItem.invoice.id;
+      }
+      // insert invoice data
+      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+        await txn.insert(
+          'invoices_materials',
+          invoiceMaterial.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var invoiceOffer in invoiceItem.invoiceOffers) {
+        await txn.insert(
+          'invoices_offers',
+          invoiceOffer.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var payment in invoiceItem.payments) {
+        await txn.insert(
+          'payments',
+          payment.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var debt in invoiceItem.debts) {
+        await txn.insert(
+          'debts',
+          debt.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
 
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate, action: 'add', tableName: 'materials_history')
-            .toMap(),
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'add',
+          table: 'invoices',
+          oldData: null,
+          newData: Audit.mapToString(invoiceItem.toAuditMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'materials_history',
-        historyMap,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-
-      return material.id!;
+      return invoiceItem.invoice.id!;
     });
   }
 
-  static Future<void> updateMaterial(MyMaterial material, int actionBy) async {
+  static Future<void> updateInvoice(InvoiceItem invoiceItem,
+      InvoiceItem oldInvoiceItem, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
-      await txn.insert(
-        'units',
-        {'name': material.unit},
-        conflictAlgorithm: ConflictAlgorithm.ignore,
-      );
-      // await txn.insert(
-      //   'currencies',
-      //   {'name': material.currency},
-      //   conflictAlgorithm: ConflictAlgorithm.ignore,
-      // );
-      await txn.update(
-        'materials',
-        material.toMap(),
-        where: 'id = ?',
-        whereArgs: [material.id],
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'update',
-                tableName: 'materials_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'materials_history',
-        historyMap,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    });
-  }
-
-  static Future<void> deleteMaterial(MyMaterial material, int actionBy) async {
-    return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
+      // delete prevous invoice item data
       await txn.delete(
-        'materials',
-        where: 'id = ?',
-        whereArgs: [material.id],
+        'invoices_materials',
+        where: 'invoice_id = ?',
+        whereArgs: [oldInvoiceItem.invoice.id],
       );
+      await txn.delete(
+        'invoices_offers',
+        where: 'invoice_id = ?',
+        whereArgs: [oldInvoiceItem.invoice.id],
+      );
+      await txn.delete(
+        'payments',
+        where: 'invoice_id = ?',
+        whereArgs: [oldInvoiceItem.invoice.id],
+      );
+      await txn.delete(
+        'debts',
+        where: 'invoice_id = ?',
+        whereArgs: [oldInvoiceItem.invoice.id],
+      );
+      // update invoice data
+      await txn.update(
+        'invoices',
+        invoiceItem.invoice.toMap(),
+        where: 'id = ?',
+        whereArgs: [invoiceItem.invoice.id],
+        conflictAlgorithm: ConflictAlgorithm.fail,
+      );
+      // set invoice id
+      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+        invoiceMaterial.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var invoiceOffer in invoiceItem.inoviceMaterials) {
+        invoiceOffer.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var payment in invoiceItem.payments) {
+        payment.invoiceId = invoiceItem.invoice.id;
+      }
+      for (var debt in invoiceItem.debts) {
+        debt.invoiceId = invoiceItem.invoice.id;
+      }
+      // insert invoice data
+      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+        await txn.insert(
+          'invoices_materials',
+          invoiceMaterial.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var invoiceOffer in invoiceItem.invoiceOffers) {
+        await txn.insert(
+          'invoices_offers',
+          invoiceOffer.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var payment in invoiceItem.payments) {
+        await txn.insert(
+          'payments',
+          payment.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+      for (var debt in invoiceItem.debts) {
+        await txn.insert(
+          'debts',
+          debt.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+      }
+
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'delete',
-                tableName: 'materials_history')
-            .toMap(),
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'update',
+          table: 'invoices',
+          oldData: Audit.mapToString(oldInvoiceItem.toAuditMap()),
+          newData: Audit.mapToString(invoiceItem.toAuditMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
+    });
+  }
+
+  static Future<void> deleteMaterial(
+      InvoiceItem invoiceItem, User actionBy) async {
+    return await MyDatabase.myDatabase.transaction((txn) async {
+      await txn.delete(
+        'invoices',
+        where: 'id = ?',
+        whereArgs: [invoiceItem.invoice.id],
+      );
+      // all related invoice items will be deleted by foreign key constraint
       await txn.insert(
-        'materials_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'delete',
+          table: 'invoices',
+          oldData: Audit.mapToString(invoiceItem.toAuditMap()),
+          newData: null,
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });

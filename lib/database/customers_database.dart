@@ -4,7 +4,8 @@ import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../utils/global_methods.dart';
-import 'entities/activity.dart';
+import 'entities/audit.dart';
+import 'entities/user.dart';
 import 'my_database.dart';
 
 class CustomersDatabase {
@@ -51,40 +52,33 @@ class CustomersDatabase {
     return customers;
   }
 
-  static Future<int> insertCustomer(Customer customer, int actionBy) async {
+  static Future<int> insertCustomer(Customer customer, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       customer.id = await txn.insert(
         "customers",
         customer.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate, action: 'add', tableName: 'customers_history')
-            .toMap(),
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'add',
+          table: 'customers',
+          oldData: null,
+          newData: Audit.mapToString(customer.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      var historyMap = customer.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('customer_id', () => customer.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'customers_history',
-        historyMap,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-
       return customer.id!;
     });
   }
 
-  static Future<void> updateCustomer(Customer customer, int actionBy) async {
+  static Future<void> updateCustomer(
+      Customer customer, Customer oldCustomer, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.update(
         'customers',
         customer.toMap(),
@@ -93,52 +87,39 @@ class CustomersDatabase {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'update',
-                tableName: 'customers_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = customer.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('customer_id', () => customer.id!);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'customers_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'update',
+          table: 'customers',
+          oldData: Audit.mapToString(oldCustomer.toMap()),
+          newData: Audit.mapToString(customer.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
   }
 
-  static Future<void> deleteCustomer(Customer customer, int actionBy) async {
+  static Future<void> deleteCustomer(Customer customer, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.delete(
         'customers',
         where: 'id = ?',
         whereArgs: [customer.id],
       );
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'delete',
-                tableName: 'customers_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = customer.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('customer_id', () => customer.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'customers_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'delete',
+          table: 'customers',
+          oldData: Audit.mapToString(customer.toMap()),
+          newData: null,
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });

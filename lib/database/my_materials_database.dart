@@ -1,7 +1,8 @@
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'entities/activity.dart';
+import 'entities/audit.dart';
 import 'entities/my_material.dart';
+import 'entities/user.dart';
 import 'my_database.dart';
 
 class MyMaterialsDatabase {
@@ -111,60 +112,43 @@ class MyMaterialsDatabase {
     return materials;
   }
 
-  static Future<int> insertMaterial(MyMaterial material, int actionBy) async {
+  static Future<int> insertMaterial(MyMaterial material, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.insert(
         'units',
         {'name': material.unit},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
-      // await txn.insert(
-      //   'currencies',
-      //   {'name': material.currency},
-      //   conflictAlgorithm: ConflictAlgorithm.ignore,
-      // );
       material.id = await txn.insert(
         'materials',
         material.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate, action: 'add', tableName: 'materials_history')
-            .toMap(),
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'add',
+          table: 'materials',
+          oldData: null,
+          newData: Audit.mapToString(material.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'materials_history',
-        historyMap,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-
       return material.id!;
     });
   }
 
-  static Future<void> updateMaterial(MyMaterial material, int actionBy) async {
+  static Future<void> updateMaterial(
+      MyMaterial material, MyMaterial oldMaterial, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.insert(
         'units',
         {'name': material.unit},
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
-      // await txn.insert(
-      //   'currencies',
-      //   {'name': material.currency},
-      //   conflictAlgorithm: ConflictAlgorithm.ignore,
-      // );
       await txn.update(
         'materials',
         material.toMap(),
@@ -173,52 +157,39 @@ class MyMaterialsDatabase {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'update',
-                tableName: 'materials_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'materials_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'update',
+          table: 'materials',
+          oldData: Audit.mapToString(oldMaterial.toMap()),
+          newData: Audit.mapToString(material.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
   }
 
-  static Future<void> deleteMaterial(MyMaterial material, int actionBy) async {
+  static Future<void> deleteMaterial(MyMaterial material, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.delete(
         'materials',
         where: 'id = ?',
         whereArgs: [material.id],
       );
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'delete',
-                tableName: 'materials_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = material.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('material_id', () => material.id);
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'materials_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'delete',
+          table: 'materials',
+          oldData: Audit.mapToString(material.toMap()),
+          newData: null,
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });

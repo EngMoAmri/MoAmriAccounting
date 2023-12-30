@@ -191,8 +191,7 @@ Future<Currency?> showAddCurrencyDialog(MainController mainController) async {
                                       try {
                                         await CurrenciesDatabase.insertCurrency(
                                             currency,
-                                            mainController
-                                                .currentUser.value!.id!);
+                                            mainController.currentUser.value!);
                                         await mainController.getCurrenies();
                                         await showSuccessDialog(
                                             "تم إضافة العملة بنجاح");

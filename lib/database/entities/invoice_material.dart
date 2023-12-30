@@ -1,12 +1,12 @@
 class InvoiceMaterial {
   int? id;
-  final int invoiceId;
+  int? invoiceId;
   final int materialId;
   final int quantity;
 
   InvoiceMaterial({
     this.id,
-    required this.invoiceId,
+    this.invoiceId,
     required this.materialId,
     required this.quantity,
   });

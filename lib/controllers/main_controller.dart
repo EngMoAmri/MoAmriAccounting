@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 
 import '../database/currencies_database.dart';
@@ -17,7 +18,7 @@ class MainController extends GetxController {
 
   /// this will contain the store information
   Rx<User?> currentUser = Rx(null);
-
+  final getStorage = GetStorage();
   Rx<bool> loadingCurrenies = true.obs;
   Rx<List<Currency>> currencies = Rx([]);
   Future<void> getCurrenies() async {

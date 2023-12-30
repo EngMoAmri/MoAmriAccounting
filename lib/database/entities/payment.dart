@@ -5,6 +5,7 @@ class Payment {
   final int? customerId;
   final int date;
   final double amount;
+  // the same invoice can have multiple payments with differenet currencies
   final String currency;
   final String? note;
 
@@ -15,8 +16,7 @@ class Payment {
     required this.date,
     required this.amount,
     required this.currency,
-    // TODO multiple currencies
-    this.note,
+    required this.note,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +26,7 @@ class Payment {
       'customer_id': customerId,
       'date': date,
       'amount': amount,
+      'currency': currency,
       'note': note,
     };
   }
@@ -38,6 +39,7 @@ class Payment {
       customerId: map['customer_id'] as int?,
       date: map['date'] as int,
       amount: map['amount'] as double,
+      currency: map['currency'] as String,
       note: map['note'] as String?,
     );
   }

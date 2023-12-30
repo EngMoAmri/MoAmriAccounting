@@ -5,15 +5,22 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/customers/dialogs/add_customer_dialog.dart';
 import 'package:moamri_accounting/database/customers_database.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
+import 'package:moamri_accounting/database/entities/invoice.dart';
+import 'package:moamri_accounting/database/entities/invoice_material.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
+import 'package:moamri_accounting/database/entities/payment.dart';
+import 'package:moamri_accounting/database/invoices_database.dart';
 import 'package:moamri_accounting/database/items/customer_debt_item.dart';
+import 'package:moamri_accounting/database/items/invoice_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
+import 'package:moamri_accounting/dialogs/print_dialogs.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
 import 'package:moamri_accounting/utils/global_methods.dart';
 
 import '../../database/entities/customer.dart';
 import '../../inventory/dialogs/edit_currency_dialog.dart';
+import 'print_order_dialog.dart';
 
 Future<bool?> showSaleDialog(
     MainController mainController, SaleController saleController) async {
@@ -27,7 +34,7 @@ Future<bool?> showSaleDialog(
         Map<Currency, TextEditingController> differenetCurrenciesPayments = {};
 
         CustomerDebtItem? customerDebtItem;
-        final paymentTextController = TextEditingController();
+        final paymentWithMainCurrencyTextController = TextEditingController();
         final discountTextController = TextEditingController();
         final noteTextController = TextEditingController();
         var registerTheRestAsDebtCheckBox = false;
@@ -646,7 +653,7 @@ Future<bool?> showSaleDialog(
                                                       TextCapitalization
                                                           .sentences,
                                                   controller:
-                                                      paymentTextController,
+                                                      paymentWithMainCurrencyTextController,
                                                   decoration: InputDecoration(
                                                     filled: true,
                                                     fillColor: Colors.white,
@@ -678,7 +685,7 @@ Future<bool?> showSaleDialog(
                                                   onChanged: (value) {
                                                     paymentTotalWithMainCurrency =
                                                         (double.tryParse(
-                                                                paymentTextController
+                                                                paymentWithMainCurrencyTextController
                                                                     .text) ??
                                                             0.0);
                                                     for (var currency
@@ -771,7 +778,7 @@ Future<bool?> showSaleDialog(
                                                             onChanged: (value) {
                                                               paymentTotalWithMainCurrency =
                                                                   (double.tryParse(
-                                                                          paymentTextController
+                                                                          paymentWithMainCurrencyTextController
                                                                               .text) ??
                                                                       0.0);
                                                               for (var currency
@@ -1031,7 +1038,116 @@ Future<bool?> showSaleDialog(
                                                           'يجب دفع المبلغ كاملاً');
                                                       return;
                                                     }
-                                                    here
+                                                    var date = DateTime.now()
+                                                        .millisecondsSinceEpoch;
+                                                    List<Payment> payments = [];
+                                                    if (paymentWithMainCurrencyTextController
+                                                        .text.isNotEmpty) {
+                                                      payments.add(Payment(
+                                                          date: date,
+                                                          amount: double.parse(
+                                                              paymentWithMainCurrencyTextController
+                                                                  .text),
+                                                          currency:
+                                                              mainController
+                                                                  .storeData
+                                                                  .value!
+                                                                  .currency,
+                                                          note: noteTextController
+                                                                  .text.isEmpty
+                                                              ? null
+                                                              : noteTextController
+                                                                  .text));
+                                                    }
+                                                    for (var currencyPayment
+                                                        in differenetCurrenciesPayments
+                                                            .keys) {
+                                                      if (differenetCurrenciesPayments[
+                                                              currencyPayment]!
+                                                          .text
+                                                          .isNotEmpty) {
+                                                        payments.add(Payment(
+                                                            date: date,
+                                                            amount: double.parse(
+                                                                differenetCurrenciesPayments[
+                                                                        currencyPayment]!
+                                                                    .text),
+                                                            currency:
+                                                                currencyPayment
+                                                                    .name,
+                                                            note: noteTextController
+                                                                    .text
+                                                                    .isEmpty
+                                                                ? null
+                                                                : noteTextController
+                                                                    .text));
+                                                      }
+                                                    }
+                                                    Invoice invoice = Invoice(
+                                                        type: 'sale',
+                                                        discount: double.tryParse(
+                                                            discountTextController
+                                                                .text),
+                                                        note: noteTextController
+                                                                .text.isEmpty
+                                                            ? null
+                                                            : noteTextController
+                                                                .text);
+                                                    List<InvoiceMaterial>
+                                                        inoviceMaterials = [];
+
+                                                    for (var saleData
+                                                        in saleController
+                                                            .dataSource
+                                                            .value
+                                                            .salesData) {
+                                                      inoviceMaterials.add(
+                                                          InvoiceMaterial(
+                                                              materialId: saleData[
+                                                                      'Material']
+                                                                  .id,
+                                                              quantity: saleData[
+                                                                  'Quantity']));
+                                                    }
+                                                    InvoiceItem invoiceItem =
+                                                        InvoiceItem(
+                                                            invoice: invoice,
+                                                            payments: payments,
+                                                            debts: [],
+                                                            customer: null,
+                                                            inoviceMaterials:
+                                                                inoviceMaterials,
+                                                            invoiceOffers: [
+                                                              //TODO
+                                                            ]);
+                                                    await InvoicesDatabase
+                                                        .insertInvoiceItem(
+                                                            invoiceItem,
+                                                            mainController
+                                                                .currentUser
+                                                                .value!);
+                                                    if (printReceiptCheckBox) {
+                                                      var printChoice =
+                                                          mainController
+                                                              .getStorage
+                                                              .read(
+                                                                  'order-print-choice');
+                                                      printChoice ??=
+                                                          await showPrintOrderDialog(
+                                                              mainController);
+                                                      if (printChoice != null) {
+                                                        if (printChoice ==
+                                                            "حراري") {
+                                                          await printMaterialsRoll(
+                                                              mainController,
+                                                              controller);
+                                                        } else {
+                                                          await printMaterialsA4(
+                                                              mainController,
+                                                              controller);
+                                                        }
+                                                      }
+                                                    }
                                                   } else {
                                                     // there is customer
                                                     // check if the register the rest as debt is enabled

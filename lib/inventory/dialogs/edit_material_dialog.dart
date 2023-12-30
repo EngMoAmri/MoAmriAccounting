@@ -1102,8 +1102,9 @@ Future<bool?> showEditMaterialDialog(
                                         await MyMaterialsDatabase
                                             .updateMaterial(
                                                 material,
+                                                oldMaterial,
                                                 mainController
-                                                    .currentUser.value!.id!);
+                                                    .currentUser.value!);
                                         await showSuccessDialog(
                                             "تم تعديل المادة بنجاح");
                                         Get.back(result: true);

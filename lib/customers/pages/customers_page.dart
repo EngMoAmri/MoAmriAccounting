@@ -359,7 +359,7 @@ class CustomersPage extends StatelessWidget {
                           }
                           await CustomersDatabase.deleteCustomer(
                               customer.customer,
-                              mainController.currentUser.value!.id!);
+                              mainController.currentUser.value!);
                           await showSuccessDialog("تم حذف العميل");
                           controller.firstLoad();
                         },

@@ -225,7 +225,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
                                   }
                                   await CurrenciesDatabase.deleteCurrency(
                                       currency,
-                                      mainController.currentUser.value!.id!);
+                                      mainController.currentUser.value!);
                                   await showSuccessDialog("تم حذف العملة");
                                   setState(() {
                                     refereshPrevoisPage = true;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
 import 'controllers/main_controller.dart';
 import 'package:window_manager/window_manager.dart';
@@ -8,6 +9,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Must add this line.
   await windowManager.ensureInitialized();
+  await GetStorage.init();
   WindowOptions windowOptions = const WindowOptions(
     size: Size(800, 600),
     minimumSize: Size(800, 600),

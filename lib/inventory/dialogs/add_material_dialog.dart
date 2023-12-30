@@ -1048,7 +1048,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             .insertMaterial(
                                                 material,
                                                 mainController
-                                                    .currentUser.value!.id!);
+                                                    .currentUser.value!);
                                         await showSuccessDialog(
                                             "تم إضافة المادة بنجاح");
                                         Get.back(result: true);

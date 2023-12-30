@@ -198,8 +198,7 @@ Future<Currency?> showEditCurrencyDialog(
                                         await CurrenciesDatabase.updateCurrency(
                                             currency,
                                             oldCurrency,
-                                            mainController
-                                                .currentUser.value!.id!);
+                                            mainController.currentUser.value!);
 
                                         await mainController.getCurrenies();
                                         await showSuccessDialog(

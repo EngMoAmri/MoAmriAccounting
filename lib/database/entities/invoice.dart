@@ -2,7 +2,7 @@ class Invoice {
   int? id;
   final String type;
   final int? customerId;
-  final double? discount;
+  final double? discount; // this will be with the main currency
   final String? note;
   Invoice(
       {this.id, this.customerId, required this.type, this.discount, this.note});

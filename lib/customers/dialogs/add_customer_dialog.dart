@@ -291,8 +291,7 @@ Future<Customer?> showAddCustomerDialog(MainController mainController) async {
                                       try {
                                         await CustomersDatabase.insertCustomer(
                                             customer,
-                                            mainController
-                                                .currentUser.value!.id!);
+                                            mainController.currentUser.value!);
                                         await showSuccessDialog(
                                             "تم إضافة العميل");
                                         Get.back(result: customer);

@@ -302,8 +302,8 @@ Future<bool?> showEditCustomerDialog(
                                       try {
                                         await CustomersDatabase.updateCustomer(
                                             customer,
-                                            mainController
-                                                .currentUser.value!.id!);
+                                            oldCustomer,
+                                            mainController.currentUser.value!);
                                         await showSuccessDialog(
                                             "تم تعديل العميل");
                                         Get.back(result: true);

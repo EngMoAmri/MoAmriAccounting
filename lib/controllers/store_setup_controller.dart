@@ -67,7 +67,7 @@ class StoreSetupController extends GetxController {
       try {
         user.id = await MyDatabase.insertUser(user, null);
         await CurrenciesDatabase.insertCurrency(
-            Currency(name: currency, exchangeRate: 1), user.id!);
+            Currency(name: currency, exchangeRate: 1), user);
         await MyDatabase.setStoreData(store);
         final mainController = Get.put(MainController());
         mainController.storeData.value = store;

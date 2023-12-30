@@ -1,7 +1,8 @@
 import 'package:moamri_accounting/database/entities/currency.dart';
+import 'package:moamri_accounting/database/entities/user.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'entities/activity.dart';
+import 'entities/audit.dart';
 import 'my_database.dart';
 
 class CurrenciesDatabase {
@@ -75,39 +76,32 @@ class CurrenciesDatabase {
     return currencies;
   }
 
-  static Future<void> insertCurrency(Currency currency, int actionBy) async {
+  static Future<void> insertCurrency(Currency currency, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.insert(
         'currencies',
         currency.toMap(),
         conflictAlgorithm: ConflictAlgorithm.ignore,
       );
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'add',
-                tableName: 'currencies_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = currency.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'currencies_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'add',
+          table: 'currencies',
+          oldData: null,
+          newData: Audit.mapToString(currency.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
   }
 
   static Future<void> updateCurrency(
-      Currency currency, Currency oldCurrency, int actionBy) async {
+      Currency currency, Currency oldCurrency, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn.update(
         'currencies',
         currency.toMap(),
@@ -115,49 +109,37 @@ class CurrenciesDatabase {
         whereArgs: [oldCurrency.name],
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'update',
-                tableName: 'currencies_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = currency.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'currencies_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'update',
+          table: 'currencies',
+          oldData: Audit.mapToString(oldCurrency.toMap()),
+          newData: Audit.mapToString(currency.toMap()),
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });
   }
 
-  static Future<void> deleteCurrency(Currency currency, int actionBy) async {
+  static Future<void> deleteCurrency(Currency currency, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
-      var actionDate = DateTime.now().millisecondsSinceEpoch;
       await txn
           .delete('currencies', where: 'name = ?', whereArgs: [currency.name]);
       await txn.insert(
-        'activities',
-        Activity(
-                date: actionDate,
-                action: 'delete',
-                tableName: 'currencies_history')
-            .toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      var historyMap = currency.toMap();
-      historyMap['id'] = null;
-      historyMap.putIfAbsent('action_by', () => actionBy);
-      historyMap.putIfAbsent('action_date', () => actionDate);
-      await txn.insert(
-        'currencies_history',
-        historyMap,
+        'audits',
+        Audit(
+          date: DateTime.now().millisecondsSinceEpoch,
+          action: 'delete',
+          table: 'currencies',
+          oldData: Audit.mapToString(currency.toMap()),
+          newData: null,
+          userId: actionBy.id!,
+          userData: Audit.mapToString(actionBy.toMap()),
+        ).toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     });

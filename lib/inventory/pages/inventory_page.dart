@@ -447,7 +447,7 @@ class InventoryPage extends StatelessWidget {
                             return;
                           }
                           await MyMaterialsDatabase.deleteMaterial(
-                              material, mainController.currentUser.value!.id!);
+                              material, mainController.currentUser.value!);
                           await showSuccessDialog("تم حذف المادة");
                           controller.firstLoad();
                         },

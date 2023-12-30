@@ -50,8 +50,8 @@ class SaleMaterialsDataSource extends DataGridSource {
   }
 
   void addDataGridRow(MyMaterial m, SaleController controller) {
-    salesData
-        .add({"Material": m, "Quantity": 1, "Total": m.salePrice, "Note": ''});
+    salesData.add(
+        {"Material": m, "Quantity": 1.0, "Total": m.salePrice, "Note": ''});
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();

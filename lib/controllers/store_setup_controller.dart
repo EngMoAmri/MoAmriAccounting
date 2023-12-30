@@ -7,7 +7,6 @@ import 'package:moamri_accounting/database/entities/store.dart';
 import 'package:moamri_accounting/database/entities/user.dart';
 import 'package:moamri_accounting/database/my_database.dart';
 import 'package:moamri_accounting/pages/home_page.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../database/currencies_database.dart';
 import '../database/entities/currency.dart';
@@ -74,19 +73,6 @@ class StoreSetupController extends GetxController {
         mainController.currentUser.value = user;
         // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
         await showSuccessDialog("تم إنشاء متجرك بنجاح");
-        WindowOptions windowOptions = const WindowOptions(
-          // size: Size(800, 600),
-          minimumSize: Size(800, 600),
-          center: true,
-          backgroundColor: Colors.white,
-          skipTaskbar: false,
-          titleBarStyle: TitleBarStyle.hidden,
-        );
-        windowManager.waitUntilReadyToShow(windowOptions, () async {
-          await windowManager.show();
-          await windowManager.focus();
-          windowManager.maximize();
-        });
 
         Get.off(() => const HomePage());
       } catch (e) {

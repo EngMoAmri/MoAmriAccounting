@@ -55,7 +55,7 @@ class SaleController extends GetxController {
   // sale material dialog variables
   final materialDialogFormKey = GlobalKey<FormState>();
   final materialDialogQuantityTextController = TextEditingController();
-  Rx<int> materialDialogQuantity = 1.obs;
+  Rx<double> materialDialogQuantity = 1.0.obs;
   final materialDialogNoteTextController = TextEditingController();
 
   @override

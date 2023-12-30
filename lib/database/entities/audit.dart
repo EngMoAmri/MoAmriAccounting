@@ -22,7 +22,7 @@ class Audit {
   Map<String, dynamic> toMap() {
     return {
       'date': date,
-      'table': table,
+      'table_name': table,
       'action': action,
       'old_data': oldData,
       'new_data': newData,
@@ -53,7 +53,7 @@ class Audit {
   static Audit fromMap(Map<String, dynamic> map) {
     return Audit(
       date: map['date'] as int,
-      table: map['table'] as String,
+      table: map['table_name'] as String,
       action: map['action'] as String,
       oldData: map['old_data'] as String?,
       newData: map['new_data'] as String?,

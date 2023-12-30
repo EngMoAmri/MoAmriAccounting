@@ -16,11 +16,11 @@ class InvoicesDatabase {
         conflictAlgorithm: ConflictAlgorithm.fail,
       );
       // set invoice id
-      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
-        invoiceMaterial.invoiceId = invoiceItem.invoice.id;
+      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
+        invoiceMaterialItem.invoiceMaterial.invoiceId = invoiceItem.invoice.id;
       }
-      for (var invoiceOffer in invoiceItem.inoviceMaterials) {
-        invoiceOffer.invoiceId = invoiceItem.invoice.id;
+      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+        invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
       }
       for (var payment in invoiceItem.payments) {
         payment.invoiceId = invoiceItem.invoice.id;
@@ -29,17 +29,17 @@ class InvoicesDatabase {
         debt.invoiceId = invoiceItem.invoice.id;
       }
       // insert invoice data
-      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
         await txn.insert(
           'invoices_materials',
-          invoiceMaterial.toMap(),
+          invoiceMaterialItem.invoiceMaterial.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
-      for (var invoiceOffer in invoiceItem.invoiceOffers) {
+      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
         await txn.insert(
           'invoices_offers',
-          invoiceOffer.toMap(),
+          invoiceOfferItem.invoiceOffer.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
@@ -108,11 +108,11 @@ class InvoicesDatabase {
         conflictAlgorithm: ConflictAlgorithm.fail,
       );
       // set invoice id
-      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
-        invoiceMaterial.invoiceId = invoiceItem.invoice.id;
+      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
+        invoiceMaterialItem.invoiceMaterial.invoiceId = invoiceItem.invoice.id;
       }
-      for (var invoiceOffer in invoiceItem.inoviceMaterials) {
-        invoiceOffer.invoiceId = invoiceItem.invoice.id;
+      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+        invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
       }
       for (var payment in invoiceItem.payments) {
         payment.invoiceId = invoiceItem.invoice.id;
@@ -121,17 +121,17 @@ class InvoicesDatabase {
         debt.invoiceId = invoiceItem.invoice.id;
       }
       // insert invoice data
-      for (var invoiceMaterial in invoiceItem.inoviceMaterials) {
+      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
         await txn.insert(
           'invoices_materials',
-          invoiceMaterial.toMap(),
+          invoiceMaterialItem.invoiceMaterial.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
-      for (var invoiceOffer in invoiceItem.invoiceOffers) {
+      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
         await txn.insert(
           'invoices_offers',
-          invoiceOffer.toMap(),
+          invoiceOfferItem.invoiceOffer.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }

@@ -21,6 +21,17 @@ class _HomePageState extends State<HomePage> {
   PageController pageController = PageController();
   int selectedPage = 0;
 
+  setFullScreen() async {
+    // TODO
+  }
+  @override
+  void initState() {
+    windowManager.setMaximumSize(const Size(800, 600)).then((value) {
+      windowManager.maximize();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final MainController mainController = Get.find();
@@ -58,7 +69,10 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   if (await windowManager.isMaximized()) {
                     await windowManager.setMaximumSize(const Size(800, 600));
+                    print('AA');
                   } else {
+                    print('BB');
+
                     await windowManager.setMaximumSize(Size.infinite);
                   }
                   await windowManager.maximize();

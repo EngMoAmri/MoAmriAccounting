@@ -9,10 +9,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Must add this line.
   await windowManager.ensureInitialized();
-  await GetStorage.init();
   WindowOptions windowOptions = const WindowOptions(
     size: Size(800, 600),
-    minimumSize: Size(800, 600),
     center: true,
     backgroundColor: Colors.white,
     skipTaskbar: false,
@@ -22,6 +20,8 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
+
+  await GetStorage.init();
   runApp(GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

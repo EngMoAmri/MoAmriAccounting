@@ -5,12 +5,12 @@ class MyMaterial {
   final String category;
   final String unit;
   final String currency;
-  final int quantity;
+  final double quantity;
   final double costPrice;
   final double salePrice;
   final String? note;
   final int? largerMaterialID;
-  final int? quantitySupplied;
+  final double? quantitySupplied;
 
   MyMaterial({
     this.id,
@@ -53,12 +53,12 @@ class MyMaterial {
       category: map['category'] as String,
       unit: map['unit'] as String,
       currency: map['currency'] as String,
-      quantity: map['quantity'] as int,
+      quantity: map['quantity'] as double,
       costPrice: map['cost_price'] as double,
       salePrice: map['sale_price'] as double,
       note: map['note'] as String?,
       largerMaterialID: map['larger_material_id'] as int?,
-      quantitySupplied: map['quantity_supplied'] as int?,
+      quantitySupplied: map['quantity_supplied'] as double?,
     );
   }
 }

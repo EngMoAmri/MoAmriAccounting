@@ -389,9 +389,10 @@ Future<bool?> showEditMaterialDialog(
                                                   true) {
                                                 return "هذا الحقل مطلوب";
                                               }
-                                              if (int.tryParse(value!.trim()) ==
+                                              if (double.tryParse(
+                                                      value!.trim()) ==
                                                   null) {
-                                                return "إدخل الرقم بشكل صحيح";
+                                                return "إدخل الكمية بشكل صحيح";
                                               }
                                               return null;
                                             },
@@ -941,10 +942,10 @@ Future<bool?> showEditMaterialDialog(
                                                                 ?.trim()
                                                                 .isNotEmpty ??
                                                             false) &&
-                                                        (int.tryParse(value!
+                                                        (double.tryParse(value!
                                                                 .trim()) ==
                                                             null)) {
-                                                      return "إدخل الرقم بشكل صحيح";
+                                                      return "إدخل الكمية بشكل صحيح";
                                                     }
 
                                                     return null;
@@ -1055,7 +1056,7 @@ Future<bool?> showEditMaterialDialog(
                                         return;
                                       }
                                       if (largerMaterial != null &&
-                                          (int.parse(
+                                          (double.parse(
                                                   suppliedQuantityTextController
                                                       .text
                                                       .trim()) <=
@@ -1072,11 +1073,11 @@ Future<bool?> showEditMaterialDialog(
                                           categoryTextController.text.trim();
                                       final name =
                                           nameTextController.text.trim();
-                                      final quantity = int.parse(
+                                      final quantity = double.parse(
                                           quantityTextController.text.trim());
                                       final unit =
                                           unitTextController.text.trim();
-                                      final suppliedQuantity = int.tryParse(
+                                      final suppliedQuantity = double.tryParse(
                                           suppliedQuantityTextController.text
                                               .trim());
                                       final costPrice = double.parse(

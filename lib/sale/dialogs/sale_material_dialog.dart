@@ -234,7 +234,8 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     TextInputType.number,
                                                 onChanged: (value) {
                                                   var currentQuantity =
-                                                      int.tryParse(value) ?? 0;
+                                                      double.tryParse(value) ??
+                                                          0;
                                                   // if (currentQuantity >=
                                                   //     material.quantity) {
                                                   //   showErrorDialog(
@@ -245,7 +246,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   //       material.quantity;
                                                   //   return;
                                                   // }
-                                                  if (currentQuantity < 1) {
+                                                  if (currentQuantity <= 0) {
                                                     showErrorDialog(
                                                         "لا يمكن أن تكون الكمية أقل من أو تساوي الصفر!");
                                                     saleController

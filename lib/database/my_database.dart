@@ -30,17 +30,17 @@ class MyDatabase {
     // data should be store a map data of change
     // user_data should be user map data
     // user_id just in case we want to query all user action
-    await myDatabase.execute("""
+    await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS audits(
       date INTEGER PRIMARY KEY, 
-      table TEXT NOT NULL,
+      table_name TEXT NOT NULL,
       action TEXT NOT NULL, 
       old_data TEXT, 
       new_data TEXT, 
       user_id INTEGER NOT NULL, 
       user_data TEXT NOT NULL
     )
-    """);
+    ''');
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS currencies (
       name TEXT PRIMARY KEY,
@@ -98,12 +98,12 @@ class MyDatabase {
       category TEXT NOT NULL,
       unit TEXT NOT NULL REFERENCES units(name) ON DELETE RESTRICT,
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
-      quantity INTEGER NOT NULL,
+      quantity REAL NOT NULL,
       cost_price REAL NOT NULL,
       sale_price REAL NOT NULL,
       note TEXT,
       larger_material_id INTEGER REFERENCES materials(id) ON DELETE RESTRICT,
-      larger_quantity_supplied INTEGER
+      larger_quantity_supplied REAL
     )
     ''');
 
@@ -129,7 +129,7 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS offers_materials(
       offer_id INTEGER, 
       material_id INTEGER,
-      quantity INTEGER NOT NULL, 
+      quantity REAL NOT NULL, 
       PRIMARY KEY(offer_id, material_id),
       FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE, 
       FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE RESTRICT
@@ -162,7 +162,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
-      quantity INTEGER NOT NULL
+      quantity REAL NOT NULL
     )
     ''');
     await myDatabase.execute('''
@@ -170,7 +170,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
-      quantity INTEGER NOT NULL
+      quantity REAL NOT NULL
     )
     ''');
 
@@ -226,7 +226,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER NOT NULL REFERENCES purchases(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
-      quantity INTEGER NOT NULL,
+      quantity REAL NOT NULL,
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE, 
       cost_price REAL NOT NULL
     )

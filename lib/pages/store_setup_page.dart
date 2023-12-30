@@ -26,7 +26,7 @@ class StoreSetupPage extends StatelessWidget {
       await windowManager.show();
       await windowManager.focus();
     });
-    windowManager.startDragging();
+    // windowManager.startDragging();
     return Directionality(
       textDirection: TextDirection.rtl,
       child: DefaultTabController(

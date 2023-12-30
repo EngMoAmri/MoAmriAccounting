@@ -12,14 +12,15 @@ import 'package:moamri_accounting/database/entities/payment.dart';
 import 'package:moamri_accounting/database/invoices_database.dart';
 import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:moamri_accounting/database/items/invoice_item.dart';
+import 'package:moamri_accounting/database/items/invoice_material_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
-import 'package:moamri_accounting/dialogs/print_dialogs.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
 import 'package:moamri_accounting/utils/global_methods.dart';
 
 import '../../database/entities/customer.dart';
 import '../../inventory/dialogs/edit_currency_dialog.dart';
+import '../print/print_invoice.dart';
 import 'print_order_dialog.dart';
 
 Future<bool?> showSaleDialog(
@@ -1085,6 +1086,7 @@ Future<bool?> showSaleDialog(
                                                     }
                                                     Invoice invoice = Invoice(
                                                         type: 'sale',
+                                                        date: date,
                                                         discount: double.tryParse(
                                                             discountTextController
                                                                 .text),
@@ -1093,19 +1095,25 @@ Future<bool?> showSaleDialog(
                                                             ? null
                                                             : noteTextController
                                                                 .text);
-                                                    List<InvoiceMaterial>
-                                                        inoviceMaterials = [];
+                                                    List<InvoiceMaterialItem>
+                                                        inoviceMaterialsItem =
+                                                        [];
 
                                                     for (var saleData
                                                         in saleController
                                                             .dataSource
                                                             .value
                                                             .salesData) {
-                                                      inoviceMaterials.add(
-                                                          InvoiceMaterial(
-                                                              materialId: saleData[
-                                                                      'Material']
-                                                                  .id,
+                                                      inoviceMaterialsItem.add(
+                                                          InvoiceMaterialItem(
+                                                              material: saleData[
+                                                                  'Material'],
+                                                              invoiceMaterial: InvoiceMaterial(
+                                                                  materialId:
+                                                                      saleData['Material']
+                                                                          .id,
+                                                                  quantity: saleData[
+                                                                      'Quantity']),
                                                               quantity: saleData[
                                                                   'Quantity']));
                                                     }
@@ -1115,9 +1123,9 @@ Future<bool?> showSaleDialog(
                                                             payments: payments,
                                                             debts: [],
                                                             customer: null,
-                                                            inoviceMaterials:
-                                                                inoviceMaterials,
-                                                            invoiceOffers: [
+                                                            inoviceMaterialsItems:
+                                                                inoviceMaterialsItem,
+                                                            invoiceOffersItems: [
                                                               //TODO
                                                             ]);
                                                     await InvoicesDatabase
@@ -1138,13 +1146,13 @@ Future<bool?> showSaleDialog(
                                                       if (printChoice != null) {
                                                         if (printChoice ==
                                                             "حراري") {
-                                                          await printMaterialsRoll(
+                                                          await printInvoiceRoll(
                                                               mainController,
-                                                              controller);
+                                                              invoiceItem);
                                                         } else {
-                                                          await printMaterialsA4(
+                                                          await printInvoiceA4(
                                                               mainController,
-                                                              controller);
+                                                              invoiceItem);
                                                         }
                                                       }
                                                     }

@@ -1,8 +1,8 @@
 class InvoiceOffer {
   int? id;
-  final int invoiceId;
+  int? invoiceId;
   final int offerId;
-  final int quantity;
+  final double quantity;
 
   InvoiceOffer({
     this.id,
@@ -23,9 +23,9 @@ class InvoiceOffer {
   // get class object from map
   static InvoiceOffer fromMap(Map<String, dynamic> map) {
     return InvoiceOffer(
-        id: map['purchase_id'] as int?,
-        invoiceId: map['product_id'] as int,
+        id: map['id'] as int?,
+        invoiceId: map['invoice_id'] as int,
         offerId: map['offer_id'] as int,
-        quantity: map['count'] as int);
+        quantity: map['quantity'] as double);
   }
 }

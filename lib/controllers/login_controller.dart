@@ -31,6 +31,7 @@ class LoginController extends GetxController {
           // TODO limit the number of trys
         } else {
           // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
+
           Get.off(() => const HomePage());
         }
       } catch (e) {

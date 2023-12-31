@@ -21,13 +21,19 @@ class _HomePageState extends State<HomePage> {
   PageController pageController = PageController();
   int selectedPage = 0;
 
-  setFullScreen() async {
-    // TODO
-  }
   @override
   void initState() {
-    windowManager.setMaximumSize(const Size(800, 600)).then((value) {
-      windowManager.maximize();
+    WindowOptions windowOptions = const WindowOptions(
+      size: Size(800, 600),
+      // minimumSize: Size(800, 600), TODO
+      center: true,
+      backgroundColor: Colors.white,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
     });
     super.initState();
   }
@@ -68,14 +74,11 @@ class _HomePageState extends State<HomePage> {
               child: IconButton(
                 onPressed: () async {
                   if (await windowManager.isMaximized()) {
-                    await windowManager.setMaximumSize(const Size(800, 600));
-                    print('AA');
+                    await windowManager.unmaximize();
                   } else {
-                    print('BB');
-
                     await windowManager.setMaximumSize(Size.infinite);
+                    windowManager.maximize();
                   }
-                  await windowManager.maximize();
                 },
                 icon: const Icon(
                   Icons.crop_square,

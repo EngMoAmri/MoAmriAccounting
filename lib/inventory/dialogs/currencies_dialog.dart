@@ -21,7 +21,7 @@ Future<bool> showCurrenciesDialog(MainController mainController) async {
             CurrenciesDataSource(mainController.currencies.value);
         final DataGridController dataGridController = DataGridController();
 
-        var loading = true;
+        var loading = false;
         var refereshPrevoisPage = false;
         return Dialog(
           shape:

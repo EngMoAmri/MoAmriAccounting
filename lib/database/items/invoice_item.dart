@@ -24,7 +24,11 @@ class InvoiceItem {
   });
   Map<String, dynamic> toAuditMap() {
     Map<String, dynamic> auditMap = {
-      'invoices': Audit.mapToString(invoice.toMap())
+      'invoices': Audit.mapToString(invoice.toMap()),
+      'invoices_materials': {},
+      'invoices_offers': {},
+      'payments': {},
+      'debts': {},
     };
     for (var invoiceMaterialItem in inoviceMaterialsItems) {
       auditMap['invoices_materials']

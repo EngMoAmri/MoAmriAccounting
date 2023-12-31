@@ -4,6 +4,7 @@ class Invoice {
   final int? customerId;
   final int date;
   final double? discount; // this will be with the main currency
+  final double total; // this will be with the main currency
   final String? note;
   Invoice(
       {this.id,
@@ -11,6 +12,7 @@ class Invoice {
       required this.date,
       required this.type,
       this.discount,
+      required this.total,
       this.note});
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class Invoice {
       'customer_id': customerId,
       'type': type,
       'discount': discount,
+      'total': total,
       'date': date,
       'note': note
     };
@@ -32,6 +35,7 @@ class Invoice {
         date: map['date'] as int,
         type: map['type'] as String,
         discount: map['discount'] as double?,
+        total: map['total'] as double,
         note: map['note'] as String?);
   }
 }

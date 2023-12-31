@@ -16,26 +16,6 @@ Future<String?> showPrintOrderDialog(MainController mainController) async {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Container(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-              child: IconButton(
-                onPressed: () {
-                  Get.back();
-                },
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.red,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const Divider(),
         const Text(
           "أختر نوع ورق الطباعة",
           textAlign: TextAlign.center,
@@ -62,9 +42,10 @@ Future<String?> showPrintOrderDialog(MainController mainController) async {
         ),
         OutlinedButton.icon(
             onPressed: () async {
-              await mainController.getStorage
-                  .write('order-print-choice', "حراري");
-
+              if (rememberMyChoice) {
+                await mainController.getStorage
+                    .write('order-print-choice', "حراري");
+              }
               Get.back(result: "حراري");
             },
             icon: Image.asset('assets/images/roll-of-paper.png', width: 36),
@@ -76,11 +57,14 @@ Future<String?> showPrintOrderDialog(MainController mainController) async {
                 foregroundColor: MaterialStateProperty.all(Colors.black)),
             label: const Text("80mm ورق حراري")),
         const SizedBox(
-          height: 10,
+          height: 8,
         ),
         OutlinedButton.icon(
             onPressed: () async {
-              await mainController.getStorage.write('order-print-choice', "A4");
+              if (rememberMyChoice) {
+                await mainController.getStorage
+                    .write('order-print-choice', "A4");
+              }
               Get.back(result: "A4");
             },
             icon: Image.asset(
@@ -93,7 +77,22 @@ Future<String?> showPrintOrderDialog(MainController mainController) async {
                 )),
                 backgroundColor: MaterialStateProperty.all(Colors.white),
                 foregroundColor: MaterialStateProperty.all(Colors.black)),
-            label: const Text("A4 ورق"))
+            label: const Text("A4 ورق")),
+        const SizedBox(
+          height: 8,
+        ),
+        OutlinedButton.icon(
+            onPressed: () async {
+              Get.back();
+            },
+            icon: const Icon(Icons.close),
+            style: ButtonStyle(
+                shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                )),
+                backgroundColor: MaterialStateProperty.all(Colors.red),
+                foregroundColor: MaterialStateProperty.all(Colors.white)),
+            label: const Text("عدم الطباعة"))
       ],
     ),
   );

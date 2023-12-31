@@ -7,6 +7,8 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
+import '../../utils/global_methods.dart';
+
 Future<dynamic> printInvoiceRoll(
     MainController mainController, InvoiceItem invoiceItem) async {
   final Document pdf = Document(
@@ -112,7 +114,8 @@ Future<dynamic> printInvoiceRoll(
             FittedBox(
                 fit: BoxFit.fitWidth,
                 child: Text(
-                    "${invoiceMaterialItem.quantity * invoiceMaterialItem.material.salePrice}",
+                    GlobalMethods.getMoney(invoiceMaterialItem.quantity *
+                        invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -138,7 +141,9 @@ Future<dynamic> printInvoiceRoll(
               child: Column(children: [
             FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Text("${invoiceMaterialItem.material.salePrice}",
+                child: Text(
+                    GlobalMethods.getMoney(
+                        invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -149,17 +154,47 @@ Future<dynamic> printInvoiceRoll(
           padding: const EdgeInsets.all(4),
           child: Center(child: Text(invoiceMaterialItem.material.name))),
     ]));
-    widgets.add(Table(
-        border: TableBorder.all(color: PdfColors.black, width: 1),
-        columnWidths: {
-          0: const FlexColumnWidth(),
-          1: const FlexColumnWidth(),
-          2: const FlexColumnWidth(),
-          3: const FlexColumnWidth(1.5),
-        },
-        children: rows));
-    widgets.add(SizedBox(height: 10));
   }
+  widgets.add(Table(
+      border: TableBorder.all(color: PdfColors.black, width: 1),
+      columnWidths: {
+        0: const FlexColumnWidth(),
+        1: const FlexColumnWidth(),
+        2: const FlexColumnWidth(),
+        3: const FlexColumnWidth(1.5),
+      },
+      children: rows));
+  if ((invoiceItem.invoice.discount ?? 0.0) > 0) {
+    widgets.add(SizedBox(height: 10));
+    widgets.add(Divider());
+    widgets.add(Row(children: [
+      Expanded(child: Text("نسبة الخصم")),
+      Text(
+          "${((invoiceItem.invoice.discount! / invoiceItem.invoice.total) * 100).toStringAsFixed(2)} %"),
+      SizedBox(width: 10)
+    ]));
+    widgets.add(Row(children: [
+      Expanded(child: Text("مبلغ الخصم")),
+      Text(GlobalMethods.getMoney(invoiceItem.invoice.discount)),
+      SizedBox(width: 10)
+    ]));
+  }
+  widgets.add(SizedBox(height: 10));
+  widgets.add(Divider());
+  widgets.add(Row(children: [
+    Expanded(
+        flex: 2,
+        child: Text(
+            "الأجمالي")), //TODO complete here by adding invoice total in different currencies and
+    // TODO make sure to get the price from audit table if the invoice is old
+    Expanded(
+        child: Center(
+      child: Text(
+          "${((invoiceItem.invoice.discount! / invoiceItem.invoice.total) * 100).toStringAsFixed(2)} %"),
+    ))
+  ]));
+
+  widgets.add(SizedBox(height: 10));
   widgets.add(Divider());
   widgets.add(Text("بواسطة: ${mainController.currentUser.value!.name}"));
   widgets.add(SizedBox(height: 10));
@@ -295,7 +330,8 @@ Future<dynamic> printInvoiceA4(
             FittedBox(
                 fit: BoxFit.fitWidth,
                 child: Text(
-                    "${invoiceMaterialItem.quantity * invoiceMaterialItem.material.salePrice}",
+                    GlobalMethods.getMoney(invoiceMaterialItem.quantity *
+                        invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -321,7 +357,9 @@ Future<dynamic> printInvoiceA4(
               child: Column(children: [
             FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Text("${invoiceMaterialItem.material.salePrice}",
+                child: Text(
+                    GlobalMethods.getMoney(
+                        invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -332,17 +370,19 @@ Future<dynamic> printInvoiceA4(
           padding: const EdgeInsets.all(4),
           child: Center(child: Text(invoiceMaterialItem.material.name))),
     ]));
-    widgets.add(Table(
-        border: TableBorder.all(color: PdfColors.black, width: 1),
-        columnWidths: {
-          0: const FlexColumnWidth(),
-          1: const FlexColumnWidth(),
-          2: const FlexColumnWidth(),
-          3: const FlexColumnWidth(1.5),
-        },
-        children: rows));
-    widgets.add(SizedBox(height: 10));
   }
+  widgets.add(Directionality(
+      textDirection: TextDirection.rtl,
+      child: Table(
+          border: TableBorder.all(color: PdfColors.black, width: 1),
+          columnWidths: {
+            0: const FlexColumnWidth(),
+            1: const FlexColumnWidth(),
+            2: const FlexColumnWidth(),
+            3: const FlexColumnWidth(1.5),
+          },
+          children: rows)));
+  widgets.add(SizedBox(height: 10));
 
   widgets.add(Divider());
   widgets.add(Directionality(

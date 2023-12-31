@@ -16,7 +16,7 @@ class InvoiceOffer {
       'id': id,
       'invoice_id': invoiceId,
       'offer_id': offerId,
-      'count': quantity,
+      'quantity': quantity,
     };
   }
 

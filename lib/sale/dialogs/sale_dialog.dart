@@ -407,6 +407,9 @@ Future<bool?> showSaleDialog(
                                                             child: Center(
                                                                 child: Text(
                                                                     "الإجمالي بالعملة الرئيسية",
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
                                                                     style: TextStyle(
                                                                         color: Colors
                                                                             .white,
@@ -453,17 +456,24 @@ Future<bool?> showSaleDialog(
                                                               Radius.circular(
                                                                   10))),
                                                   children: [
-                                                    const TableRow(
+                                                    TableRow(
                                                         decoration: BoxDecoration(
-                                                            color: Colors.red,
-                                                            borderRadius: BorderRadius.only(
+                                                            color:
+                                                                (stillToBePaid ==
+                                                                        0)
+                                                                    ? Colors
+                                                                        .green
+                                                                    : Colors
+                                                                        .red,
+                                                            borderRadius: const BorderRadius
+                                                                .only(
                                                                 topLeft: Radius
                                                                     .circular(
                                                                         10),
                                                                 topRight: Radius
                                                                     .circular(
                                                                         10))),
-                                                        children: [
+                                                        children: const [
                                                           Padding(
                                                               padding:
                                                                   EdgeInsets
@@ -1090,6 +1100,8 @@ Future<bool?> showSaleDialog(
                                                         discount: double.tryParse(
                                                             discountTextController
                                                                 .text),
+                                                        total:
+                                                            totalInMainCurrency,
                                                         note: noteTextController
                                                                 .text.isEmpty
                                                             ? null
@@ -1135,6 +1147,12 @@ Future<bool?> showSaleDialog(
                                                                 .currentUser
                                                                 .value!);
                                                     if (printReceiptCheckBox) {
+                                                      // await mainController
+                                                      //     .getStorage
+                                                      //     .write(
+                                                      //         'order-print-choice',
+                                                      //         null); // TODO delete this
+
                                                       var printChoice =
                                                           mainController
                                                               .getStorage
@@ -1167,14 +1185,13 @@ Future<bool?> showSaleDialog(
                                                     }
                                                   }
 
-                                                  saleController
-                                                      .dataSource.value
-                                                      .clearDataGridRows(
-                                                          saleController);
-                                                  saleController.dataSource
-                                                      .refresh();
-
-                                                  Get.back();
+                                                  // saleController
+                                                  //     .dataSource.value
+                                                  //     .clearDataGridRows(
+                                                  //         saleController);
+                                                  // saleController.dataSource
+                                                  //     .refresh();
+                                                  // Get.back();
                                                 }
                                               },
                                               style: ButtonStyle(

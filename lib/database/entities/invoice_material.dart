@@ -16,7 +16,7 @@ class InvoiceMaterial {
       'id': id,
       'invoice_id': invoiceId,
       'material_id': materialId,
-      'count': quantity,
+      'quantity': quantity,
     };
   }
 

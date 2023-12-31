@@ -146,7 +146,7 @@ Future<Currency?> showAddPaymentCurrencyDialog(
                                         MaterialStateProperty.all(Colors.white),
                                     foregroundColor:
                                         MaterialStateProperty.all(Colors.blue)),
-                                icon: const Icon(Icons.add),
+                                icon: const Icon(Icons.done),
                                 label: const Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child: Text('إختيار'),

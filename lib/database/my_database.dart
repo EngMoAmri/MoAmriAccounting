@@ -153,6 +153,7 @@ class MyDatabase {
       customer_id INTEGER REFERENCES customers(id) ON DELETE NO ACTION,
       date INTEGER NOT NULL, 
       discount REAL,
+      total REAL NOT NULL,
       note TEXT
     )
     ''');

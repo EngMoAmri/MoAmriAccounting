@@ -78,6 +78,11 @@ class CurrenciesDatabase {
 
   static Future<void> insertCurrency(Currency currency, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
+      currency.id =
+          (((await txn.rawQuery('''SELECT last_insert_rowid() AS id'''))
+                  .first['id']) as int) +
+              1;
+
       await txn.insert(
         'currencies',
         currency.toMap(),
@@ -89,6 +94,7 @@ class CurrenciesDatabase {
           date: DateTime.now().millisecondsSinceEpoch,
           action: 'add',
           table: 'currencies',
+          entityId: currency.id!,
           oldData: null,
           newData: Audit.mapToString(currency.toMap()),
           userId: actionBy.id!,
@@ -115,6 +121,7 @@ class CurrenciesDatabase {
           date: DateTime.now().millisecondsSinceEpoch,
           action: 'update',
           table: 'currencies',
+          entityId: oldCurrency.id!,
           oldData: Audit.mapToString(oldCurrency.toMap()),
           newData: Audit.mapToString(currency.toMap()),
           userId: actionBy.id!,
@@ -135,6 +142,7 @@ class CurrenciesDatabase {
           date: DateTime.now().millisecondsSinceEpoch,
           action: 'delete',
           table: 'currencies',
+          entityId: currency.id!,
           oldData: Audit.mapToString(currency.toMap()),
           newData: null,
           userId: actionBy.id!,

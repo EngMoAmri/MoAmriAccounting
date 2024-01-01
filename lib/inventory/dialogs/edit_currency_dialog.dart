@@ -193,6 +193,7 @@ Future<Currency?> showEditCurrencyDialog(
                                               .trim());
                                       var currency = Currency(
                                           name: name,
+                                          id: oldCurrency.id,
                                           exchangeRate: exchangeRate);
                                       try {
                                         await CurrenciesDatabase.updateCurrency(

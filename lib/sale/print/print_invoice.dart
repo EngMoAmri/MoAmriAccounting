@@ -9,6 +9,21 @@ import 'package:pdf/widgets.dart';
 
 import '../../utils/global_methods.dart';
 
+String getTotalAllCurrencies(InvoiceItem invoiceItem) {
+  String totalString = '';
+  Map<String, double> totals = {};
+
+  for (var materialItem in invoiceItem.inoviceMaterialsItems) {
+    var material = materialItem.material;
+    totals[material.currency] = (totals[material.currency] ?? 0.0) +
+        (material.salePrice * materialItem.quantity);
+  }
+  for (var currency in totals.keys.toList()) {
+    totalString += '${GlobalMethods.getMoney(totals[currency])} $currency \n';
+  }
+  return totalString.trim();
+}
+
 Future<dynamic> printInvoiceRoll(
     MainController mainController, InvoiceItem invoiceItem) async {
   final Document pdf = Document(
@@ -182,15 +197,11 @@ Future<dynamic> printInvoiceRoll(
   widgets.add(SizedBox(height: 10));
   widgets.add(Divider());
   widgets.add(Row(children: [
-    Expanded(
-        flex: 2,
-        child: Text(
-            "الأجمالي")), //TODO complete here by adding invoice total in different currencies and
+    Expanded(flex: 2, child: Text("الأجمالي")),
     // TODO make sure to get the price from audit table if the invoice is old
     Expanded(
         child: Center(
-      child: Text(
-          "${((invoiceItem.invoice.discount! / invoiceItem.invoice.total) * 100).toStringAsFixed(2)} %"),
+      child: Text(getTotalAllCurrencies(invoiceItem)),
     ))
   ]));
 

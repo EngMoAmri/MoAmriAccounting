@@ -3,6 +3,7 @@ import 'dart:convert';
 class Audit {
   final int date;
   final String table;
+  final int entityId;
   final String action;
   final String? oldData;
   final String? newData;
@@ -12,6 +13,7 @@ class Audit {
   Audit({
     required this.date,
     required this.table,
+    required this.entityId,
     required this.action,
     required this.oldData,
     required this.newData,
@@ -23,6 +25,7 @@ class Audit {
     return {
       'date': date,
       'table_name': table,
+      'entity_id': entityId,
       'action': action,
       'old_data': oldData,
       'new_data': newData,
@@ -54,6 +57,7 @@ class Audit {
     return Audit(
       date: map['date'] as int,
       table: map['table_name'] as String,
+      entityId: map['entity_id'] as int,
       action: map['action'] as String,
       oldData: map['old_data'] as String?,
       newData: map['new_data'] as String?,

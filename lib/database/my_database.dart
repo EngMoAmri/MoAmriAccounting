@@ -34,6 +34,7 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS audits(
       date INTEGER PRIMARY KEY, 
       table_name TEXT NOT NULL,
+      entity_id INTEGER NOT NULL,
       action TEXT NOT NULL, 
       old_data TEXT, 
       new_data TEXT, 
@@ -44,6 +45,7 @@ class MyDatabase {
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS currencies (
       name TEXT PRIMARY KEY,
+      id INTEGER NOT NULL,
       exchange_rate REAL NOT NULL
     )
     ''');
@@ -163,7 +165,8 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL
+      quantity REAL NOT NULL,
+      price REAL NOT NULL
     )
     ''');
     await myDatabase.execute('''
@@ -171,7 +174,8 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL
+      quantity REAL NOT NULL,
+      price REAL NOT NULL
     )
     ''');
 
@@ -290,6 +294,7 @@ class MyDatabase {
           date: DateTime.now().millisecondsSinceEpoch,
           action: 'add',
           table: 'users',
+          entityId: user.id!,
           oldData: null,
           newData: Audit.mapToString(user.toMap()),
           userId: actionBy?.id! ?? user.id!,

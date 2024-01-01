@@ -3,12 +3,14 @@ class InvoiceOffer {
   int? invoiceId;
   final int offerId;
   final double quantity;
+  final double price;
 
   InvoiceOffer({
     this.id,
     required this.invoiceId,
     required this.offerId,
     required this.quantity,
+    required this.price,
   });
 
   Map<String, dynamic> toMap() {
@@ -17,6 +19,7 @@ class InvoiceOffer {
       'invoice_id': invoiceId,
       'offer_id': offerId,
       'quantity': quantity,
+      'price': price,
     };
   }
 
@@ -26,6 +29,7 @@ class InvoiceOffer {
         id: map['id'] as int?,
         invoiceId: map['invoice_id'] as int,
         offerId: map['offer_id'] as int,
-        quantity: map['quantity'] as double);
+        quantity: map['quantity'] as double,
+        price: map['price'] as double);
   }
 }

@@ -9,6 +9,7 @@ import 'package:pdf/widgets.dart';
 
 import '../../utils/global_methods.dart';
 
+// TODO write exchange if there is different currencies
 Future<dynamic> printInvoiceRoll(
     MainController mainController, InvoiceItem invoiceItem) async {
   final Document pdf = Document(
@@ -255,16 +256,14 @@ Future<dynamic> printInvoiceRoll(
       SizedBox(width: 10)
     ]));
   }
-  if (invoiceItem.debts.isNotEmpty) {
+  if (invoiceItem.debt != null) {
     widgets.add(Center(child: Text("الدين المتبقي")));
 
-    for (var debt in invoiceItem.debts) {
-      widgets.add(Row(children: [
-        Expanded(child: Text(GlobalMethods.getMoney(debt.amount))),
-        Text(debt.currency),
-        SizedBox(width: 10)
-      ]));
-    }
+    widgets.add(Row(children: [
+      Expanded(child: Text(GlobalMethods.getMoney(invoiceItem.debt!.amount))),
+      Text(invoiceItem.debt!.currency),
+      SizedBox(width: 10)
+    ]));
   }
   if (invoiceItem.invoice.note != null) {
     widgets.add(Divider());
@@ -563,19 +562,18 @@ Future<dynamic> printInvoiceA4(
               totalPaymentInMainCurrency - totalInMainCurrency))),
     ]));
   }
-  if (invoiceItem.debts.isNotEmpty) {
+  if (invoiceItem.debt != null) {
     widgets.add(Directionality(
         textDirection: TextDirection.rtl,
         child: Center(child: Text("الدين المتبقي"))));
 
-    for (var debt in invoiceItem.debts) {
-      widgets.add(Row(children: [
-        SizedBox(width: 10),
-        Directionality(
-            textDirection: TextDirection.rtl, child: Text(debt.currency)),
-        Expanded(child: Text(GlobalMethods.getMoney(debt.amount))),
-      ]));
-    }
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text(invoiceItem.debt!.currency)),
+      Expanded(child: Text(GlobalMethods.getMoney(invoiceItem.debt!.amount))),
+    ]));
   }
   if (invoiceItem.invoice.note != null) {
     widgets.add(Divider());

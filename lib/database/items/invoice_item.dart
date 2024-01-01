@@ -10,14 +10,14 @@ import 'invoice_offer_item.dart';
 class InvoiceItem {
   final Invoice invoice;
   final List<Payment> payments;
-  final List<Debt> debts;
+  final Debt? debt;
   final Customer? customer;
   final List<InvoiceMaterialItem> inoviceMaterialsItems;
   final List<InvoiceOfferItem> invoiceOffersItems;
   InvoiceItem({
     required this.invoice,
     required this.payments,
-    required this.debts,
+    required this.debt,
     required this.customer,
     required this.inoviceMaterialsItems,
     required this.invoiceOffersItems,
@@ -28,7 +28,7 @@ class InvoiceItem {
       'invoices_materials': {},
       'invoices_offers': {},
       'payments': {},
-      'debts': {},
+      'debt': null,
     };
     for (var invoiceMaterialItem in inoviceMaterialsItems) {
       auditMap['invoices_materials']
@@ -44,9 +44,8 @@ class InvoiceItem {
       auditMap['payments']['${payments.indexOf(payment)}'] =
           Audit.mapToString(payment.toMap());
     }
-    for (var debt in debts) {
-      auditMap['debts']['${debts.indexOf(debt)}'] =
-          Audit.mapToString(debt.toMap());
+    if (debt != null) {
+      auditMap['debt'] = Audit.mapToString(debt!.toMap());
     }
     return auditMap;
   }

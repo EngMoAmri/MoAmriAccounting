@@ -205,6 +205,30 @@ class MyMaterialsDatabase {
         .first); // the maps can not be empty or this method can not be called with empty material
   }
 
+  static Future<double> getMaterialTotalQuantity(int? id) async {
+    if (id == null) return 0.0;
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .rawQuery('''SELECT * FROM materials WHERE id = $id''');
+    if (maps.isEmpty) return 0.0;
+    MyMaterial material = MyMaterial.fromMap(maps.first);
+    return material.quantity +
+        await getMaterialTotalQuantity(material.largerMaterialID);
+  }
+
+  static Future<bool> isMaterialLargerToMaterialId(
+      MyMaterial material1, int? material2Id) async {
+    // there is no larger material
+    if (material2Id == null) return false;
+    // this is the larger material
+    if (material1.largerMaterialID == material2Id) return true;
+    // search again
+    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+        .rawQuery('''SELECT * FROM materials WHERE id = $material2Id''');
+    if (maps.isEmpty) return false;
+    MyMaterial material2 = MyMaterial.fromMap(maps.first);
+    return await isMaterialLargerToMaterialId(material2, material2Id);
+  }
+
   static Future<List<MyMaterial>> getMaterials(int page,
       {category, orderBy, dir}) async {
     List<Map<String, dynamic>> maps;

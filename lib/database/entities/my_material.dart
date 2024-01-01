@@ -5,7 +5,7 @@ class MyMaterial {
   final String category;
   final String unit;
   final String currency;
-  final double quantity;
+  double quantity;
   final double costPrice;
   final double salePrice;
   final String? note;

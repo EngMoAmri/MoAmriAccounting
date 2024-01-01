@@ -25,14 +25,22 @@ class InvoicesDatabase {
       for (var payment in invoiceItem.payments) {
         payment.invoiceId = invoiceItem.invoice.id;
       }
-      for (var debt in invoiceItem.debts) {
-        debt.invoiceId = invoiceItem.invoice.id;
-      }
+      invoiceItem.debt?.invoiceId = invoiceItem.invoice.id;
       // insert invoice data
       for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
         await txn.insert(
           'invoices_materials',
           invoiceMaterialItem.invoiceMaterial.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
+        // reduce the quantity
+        MyMaterial newMaterial = invoiceMaterialItem.material;
+        newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
+        await txn.update(
+          'materials',
+          newMaterial.toMap(),
+          where: 'id = ?',
+          whereArgs: [newMaterial.id],
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
@@ -42,6 +50,19 @@ class InvoicesDatabase {
           invoiceOfferItem.invoiceOffer.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
+        if (invoiceOfferItem.invoiceOffer.quantity > 0) {
+          throw Exception('TODO reduce the quantity with in update function');
+        }
+        // reduce the quantity
+        // MyMaterial newMaterial = invoiceOfferItem.offer;
+        // newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
+        // await txn.update(
+        //   'materials',
+        //   newMaterial.toMap(),
+        //   where: 'id = ?',
+        //   whereArgs: [newMaterial.id],
+        //   conflictAlgorithm: ConflictAlgorithm.fail,
+        // );
       }
       for (var payment in invoiceItem.payments) {
         await txn.insert(
@@ -50,14 +71,13 @@ class InvoicesDatabase {
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
-      for (var debt in invoiceItem.debts) {
+      if (invoiceItem.debt != null) {
         await txn.insert(
           'debts',
-          debt.toMap(),
+          invoiceItem.debt!.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
-
       await txn.insert(
         'audits',
         Audit(
@@ -76,123 +96,138 @@ class InvoicesDatabase {
     });
   }
 
-  static Future<void> updateInvoice(InvoiceItem invoiceItem,
-      InvoiceItem oldInvoiceItem, User actionBy) async {
-    return await MyDatabase.myDatabase.transaction((txn) async {
-      // delete prevous invoice item data
-      await txn.delete(
-        'invoices_materials',
-        where: 'invoice_id = ?',
-        whereArgs: [oldInvoiceItem.invoice.id],
-      );
-      await txn.delete(
-        'invoices_offers',
-        where: 'invoice_id = ?',
-        whereArgs: [oldInvoiceItem.invoice.id],
-      );
-      await txn.delete(
-        'payments',
-        where: 'invoice_id = ?',
-        whereArgs: [oldInvoiceItem.invoice.id],
-      );
-      await txn.delete(
-        'debts',
-        where: 'invoice_id = ?',
-        whereArgs: [oldInvoiceItem.invoice.id],
-      );
-      // update invoice data
-      await txn.update(
-        'invoices',
-        invoiceItem.invoice.toMap(),
-        where: 'id = ?',
-        whereArgs: [invoiceItem.invoice.id],
-        conflictAlgorithm: ConflictAlgorithm.fail,
-      );
-      // set invoice id
-      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
-        invoiceMaterialItem.invoiceMaterial.invoiceId = invoiceItem.invoice.id;
-      }
-      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
-        invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
-      }
-      for (var payment in invoiceItem.payments) {
-        payment.invoiceId = invoiceItem.invoice.id;
-      }
-      for (var debt in invoiceItem.debts) {
-        debt.invoiceId = invoiceItem.invoice.id;
-      }
-      // insert invoice data
-      for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
-        await txn.insert(
-          'invoices_materials',
-          invoiceMaterialItem.invoiceMaterial.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
-      }
-      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
-        await txn.insert(
-          'invoices_offers',
-          invoiceOfferItem.invoiceOffer.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
-      }
-      for (var payment in invoiceItem.payments) {
-        await txn.insert(
-          'payments',
-          payment.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
-      }
-      for (var debt in invoiceItem.debts) {
-        await txn.insert(
-          'debts',
-          debt.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
-      }
+  // static Future<void> updateInvoice(InvoiceItem invoiceItem,
+  //     InvoiceItem oldInvoiceItem, User actionBy) async {
+  //   return await MyDatabase.myDatabase.transaction((txn) async {
+  //     // delete prevous invoice item data
+  //     await txn.delete(
+  //       'invoices_materials',
+  //       where: 'invoice_id = ?',
+  //       whereArgs: [oldInvoiceItem.invoice.id],
+  //     );
+  //     await txn.delete(
+  //       'invoices_offers',
+  //       where: 'invoice_id = ?',
+  //       whereArgs: [oldInvoiceItem.invoice.id],
+  //     );
+  //     await txn.delete(
+  //       'payments',
+  //       where: 'invoice_id = ?',
+  //       whereArgs: [oldInvoiceItem.invoice.id],
+  //     );
+  //     await txn.delete(
+  //       'debts',
+  //       where: 'invoice_id = ?',
+  //       whereArgs: [oldInvoiceItem.invoice.id],
+  //     );
+  //     // update invoice data
+  //     await txn.update(
+  //       'invoices',
+  //       invoiceItem.invoice.toMap(),
+  //       where: 'id = ?',
+  //       whereArgs: [invoiceItem.invoice.id],
+  //       conflictAlgorithm: ConflictAlgorithm.fail,
+  //     );
+  //     // set invoice id
+  //     for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
+  //       invoiceMaterialItem.invoiceMaterial.invoiceId = invoiceItem.invoice.id;
+  //     }
+  //     for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+  //       invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
+  //     }
+  //     for (var payment in invoiceItem.payments) {
+  //       payment.invoiceId = invoiceItem.invoice.id;
+  //     }
+  //     invoiceItem.debt?.invoiceId = invoiceItem.invoice.id;
+  //     // insert invoice data
+  //     for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
+  //       await txn.insert(
+  //         'invoices_materials',
+  //         invoiceMaterialItem.invoiceMaterial.toMap(),
+  //         conflictAlgorithm: ConflictAlgorithm.fail,
+  //       );
+  //       // reduce the quantity
+  //       // TODO test this
+  //       MyMaterial newMaterial = invoiceMaterialItem.material;
+  //       for (var oldMaterialItem in oldInvoiceItem.inoviceMaterialsItems) {
+  //         if (newMaterial.id == oldMaterialItem.material.id) {
+  //           newMaterial.quantity += oldMaterialItem.invoiceMaterial.quantity;
+  //           break;
+  //         }
+  //       }
+  //       newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
+  //       await txn.update(
+  //         'materials',
+  //         newMaterial.toMap(),
+  //         where: 'id = ?',
+  //         whereArgs: [newMaterial.id],
+  //         conflictAlgorithm: ConflictAlgorithm.fail,
+  //       );
+  //     }
+  //     for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+  //       await txn.insert(
+  //         'invoices_offers',
+  //         invoiceOfferItem.invoiceOffer.toMap(),
+  //         conflictAlgorithm: ConflictAlgorithm.fail,
+  //       );
+  //     }
+  //     for (var payment in invoiceItem.payments) {
+  //       await txn.insert(
+  //         'payments',
+  //         payment.toMap(),
+  //         conflictAlgorithm: ConflictAlgorithm.fail,
+  //       );
+  //     }
+  //     if (invoiceItem.debt != null) {
+  //       await txn.insert(
+  //         'debts',
+  //         invoiceItem.debt!.toMap(),
+  //         conflictAlgorithm: ConflictAlgorithm.fail,
+  //       );
+  //     }
 
-      await txn.insert(
-        'audits',
-        Audit(
-          date: DateTime.now().millisecondsSinceEpoch,
-          action: 'update',
-          table: 'invoices',
-          entityId: invoiceItem.invoice.id!,
-          oldData: Audit.mapToString(oldInvoiceItem.toAuditMap()),
-          newData: Audit.mapToString(invoiceItem.toAuditMap()),
-          userId: actionBy.id!,
-          userData: Audit.mapToString(actionBy.toMap()),
-        ).toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    });
-  }
+  //     await txn.insert(
+  //       'audits',
+  //       Audit(
+  //         date: DateTime.now().millisecondsSinceEpoch,
+  //         action: 'update',
+  //         table: 'invoices',
+  //         entityId: invoiceItem.invoice.id!,
+  //         oldData: Audit.mapToString(oldInvoiceItem.toAuditMap()),
+  //         newData: Audit.mapToString(invoiceItem.toAuditMap()),
+  //         userId: actionBy.id!,
+  //         userData: Audit.mapToString(actionBy.toMap()),
+  //       ).toMap(),
+  //       conflictAlgorithm: ConflictAlgorithm.replace,
+  //     );
+  //   });
+  // }
 
-  static Future<void> deleteMaterial(
-      InvoiceItem invoiceItem, User actionBy) async {
-    return await MyDatabase.myDatabase.transaction((txn) async {
-      await txn.delete(
-        'invoices',
-        where: 'id = ?',
-        whereArgs: [invoiceItem.invoice.id],
-      );
-      // all related invoice items will be deleted by foreign key constraint
-      await txn.insert(
-        'audits',
-        Audit(
-          date: DateTime.now().millisecondsSinceEpoch,
-          action: 'delete',
-          table: 'invoices',
-          entityId: invoiceItem.invoice.id!,
-          oldData: Audit.mapToString(invoiceItem.toAuditMap()),
-          newData: null,
-          userId: actionBy.id!,
-          userData: Audit.mapToString(actionBy.toMap()),
-        ).toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    });
-  }
+  // static Future<void> deleteMaterial(
+  //     InvoiceItem invoiceItem, User actionBy) async {
+  //   return await MyDatabase.myDatabase.transaction((txn) async {
+  //     await txn.delete(
+  //       'invoices',
+  //       where: 'id = ?',
+  //       whereArgs: [invoiceItem.invoice.id],
+  //     );
+  //     // all related invoice items will be deleted by foreign key constraint
+  //     await txn.insert(
+  //       'audits',
+  //       Audit(
+  //         date: DateTime.now().millisecondsSinceEpoch,
+  //         action: 'delete',
+  //         table: 'invoices',
+  //         entityId: invoiceItem.invoice.id!,
+  //         oldData: Audit.mapToString(invoiceItem.toAuditMap()),
+  //         newData: null,
+  //         userId: actionBy.id!,
+  //         userData: Audit.mapToString(actionBy.toMap()),
+  //       ).toMap(),
+  //       conflictAlgorithm: ConflictAlgorithm.replace,
+  //     );
+  //   });
+  // }
 
   static Future<MyMaterial> getMaterialByID(int id) async {
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase

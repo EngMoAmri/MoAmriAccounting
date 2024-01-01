@@ -5,6 +5,7 @@ import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/customers/dialogs/add_customer_dialog.dart';
 import 'package:moamri_accounting/database/customers_database.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
+import 'package:moamri_accounting/database/entities/debt.dart';
 import 'package:moamri_accounting/database/entities/invoice.dart';
 import 'package:moamri_accounting/database/entities/invoice_material.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
@@ -1133,13 +1134,13 @@ Future<bool?> showSaleDialog(
                                                         InvoiceItem(
                                                             invoice: invoice,
                                                             payments: payments,
-                                                            debts: [],
+                                                            debt: null,
                                                             customer: null,
                                                             inoviceMaterialsItems:
                                                                 inoviceMaterialsItem,
                                                             invoiceOffersItems: [
-                                                              //TODO
-                                                            ]);
+                                                          //TODO
+                                                        ]);
                                                     await InvoicesDatabase
                                                         .insertInvoiceItem(
                                                             invoiceItem,
@@ -1147,12 +1148,6 @@ Future<bool?> showSaleDialog(
                                                                 .currentUser
                                                                 .value!);
                                                     if (printReceiptCheckBox) {
-                                                      // await mainController
-                                                      //     .getStorage
-                                                      //     .write(
-                                                      //         'order-print-choice',
-                                                      //         null); // TODO delete this
-
                                                       var printChoice =
                                                           mainController
                                                               .getStorage
@@ -1183,15 +1178,160 @@ Future<bool?> showSaleDialog(
                                                           'يجب دفع المبلغ كاملاً');
                                                       return;
                                                     }
+                                                    var date = DateTime.now()
+                                                        .millisecondsSinceEpoch;
+                                                    List<Payment> payments = [];
+                                                    if (paymentWithMainCurrencyTextController
+                                                        .text.isNotEmpty) {
+                                                      payments.add(Payment(
+                                                          date: date,
+                                                          amount: double.parse(
+                                                              paymentWithMainCurrencyTextController
+                                                                  .text),
+                                                          currency:
+                                                              mainController
+                                                                  .storeData
+                                                                  .value!
+                                                                  .currency,
+                                                          customerId:
+                                                              customerDebtItem!
+                                                                  .customer.id,
+                                                          note: noteTextController
+                                                                  .text.isEmpty
+                                                              ? null
+                                                              : noteTextController
+                                                                  .text));
+                                                    }
+                                                    for (var currencyPayment
+                                                        in differenetCurrenciesPayments
+                                                            .keys) {
+                                                      if (differenetCurrenciesPayments[
+                                                              currencyPayment]!
+                                                          .text
+                                                          .isNotEmpty) {
+                                                        payments.add(Payment(
+                                                            date: date,
+                                                            amount: double.parse(
+                                                                differenetCurrenciesPayments[
+                                                                        currencyPayment]!
+                                                                    .text),
+                                                            currency:
+                                                                currencyPayment
+                                                                    .name,
+                                                            customerId:
+                                                                customerDebtItem!
+                                                                    .customer
+                                                                    .id,
+                                                            note: noteTextController
+                                                                    .text
+                                                                    .isEmpty
+                                                                ? null
+                                                                : noteTextController
+                                                                    .text));
+                                                      }
+                                                    }
+                                                    Debt? debt;
+                                                    if (stillToBePaid > 0) {
+                                                      debt = Debt(
+                                                          date: date,
+                                                          customerId:
+                                                              customerDebtItem!
+                                                                  .customer.id!,
+                                                          amount: stillToBePaid,
+                                                          currency:
+                                                              mainController
+                                                                  .storeData
+                                                                  .value!
+                                                                  .currency,
+                                                          note: noteTextController
+                                                                  .text.isEmpty
+                                                              ? null
+                                                              : noteTextController
+                                                                  .text);
+                                                    }
+                                                    Invoice invoice = Invoice(
+                                                        type: 'sale',
+                                                        date: date,
+                                                        discount: double.tryParse(
+                                                            discountTextController
+                                                                .text),
+                                                        total:
+                                                            totalInMainCurrency,
+                                                        note: noteTextController
+                                                                .text.isEmpty
+                                                            ? null
+                                                            : noteTextController
+                                                                .text);
+                                                    List<InvoiceMaterialItem>
+                                                        inoviceMaterialsItem =
+                                                        [];
+
+                                                    for (var saleData
+                                                        in saleController
+                                                            .dataSource
+                                                            .value
+                                                            .salesData) {
+                                                      inoviceMaterialsItem.add(
+                                                          InvoiceMaterialItem(
+                                                              material: saleData[
+                                                                  'Material'],
+                                                              invoiceMaterial: InvoiceMaterial(
+                                                                  materialId:
+                                                                      saleData[
+                                                                              'Material']
+                                                                          .id,
+                                                                  quantity:
+                                                                      saleData[
+                                                                          'Quantity'])));
+                                                    }
+                                                    InvoiceItem invoiceItem =
+                                                        InvoiceItem(
+                                                            invoice: invoice,
+                                                            payments: payments,
+                                                            debt: debt,
+                                                            customer: null,
+                                                            inoviceMaterialsItems:
+                                                                inoviceMaterialsItem,
+                                                            invoiceOffersItems: [
+                                                          //TODO
+                                                        ]);
+                                                    await InvoicesDatabase
+                                                        .insertInvoiceItem(
+                                                            invoiceItem,
+                                                            mainController
+                                                                .currentUser
+                                                                .value!);
+                                                    if (printReceiptCheckBox) {
+                                                      var printChoice =
+                                                          mainController
+                                                              .getStorage
+                                                              .read(
+                                                                  'order-print-choice');
+                                                      printChoice ??=
+                                                          await showPrintOrderDialog(
+                                                              mainController);
+                                                      if (printChoice != null) {
+                                                        if (printChoice ==
+                                                            "حراري") {
+                                                          await printInvoiceRoll(
+                                                              mainController,
+                                                              invoiceItem);
+                                                        } else {
+                                                          await printInvoiceA4(
+                                                              mainController,
+                                                              invoiceItem);
+                                                        }
+                                                      }
+                                                    }
                                                   }
 
-                                                  // saleController
-                                                  //     .dataSource.value
-                                                  //     .clearDataGridRows(
-                                                  //         saleController);
-                                                  // saleController.dataSource
-                                                  //     .refresh();
-                                                  // Get.back();
+                                                  saleController
+                                                      .dataSource.value
+                                                      .clearDataGridRows(
+                                                          saleController);
+                                                  saleController.dataSource
+                                                      .refresh();
+                                                  Get.back();
                                                 }
                                               },
                                               style: ButtonStyle(

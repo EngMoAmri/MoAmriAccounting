@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
+import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
@@ -297,7 +298,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   // if (currentQuantity >=
                                                   //         material
                                                   //             .quantity &&
-                                                  //     (largerMaterial
+                                                  //     (largerMaterial1
                                                   //                 ?.quantity ??
                                                   //             0) <
                                                   //         1) {
@@ -385,6 +386,41 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
+                                                  var availableQuantity =
+                                                      await MyMaterialsDatabase
+                                                          .getMaterialTotalQuantity(
+                                                              material.id);
+                                                  // get the larger materials quantities which were selected
+                                                  var requiredQuantity =
+                                                      saleController
+                                                          .materialDialogQuantity
+                                                          .value;
+                                                  for (var saleData
+                                                      in saleController
+                                                          .dataSource
+                                                          .value
+                                                          .salesData) {
+                                                    if (await MyMaterialsDatabase
+                                                        .isMaterialLargerToMaterialId(
+                                                            material,
+                                                            saleData['Material']
+                                                                .id)) {
+                                                                  availableQuantity -= saleData
+                                                                  // TODO
+                                                                }
+                                                  }
+                                                  if (availableQuantity <
+                                                      saleController
+                                                          .materialDialogQuantity
+                                                          .value) {
+                                                    var yes =
+                                                        await showConfirmationDialog(
+                                                            'تم تجاوز الكمية الموجودة في المستودع! هل تريد الاستمرار؟');
+                                                    if (yes != true) {
+                                                      return;
+                                                    }
+                                                  }
+
                                                   saleData['Quantity'] =
                                                       saleController
                                                           .materialDialogQuantity

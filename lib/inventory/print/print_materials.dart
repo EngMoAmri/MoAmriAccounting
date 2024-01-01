@@ -111,7 +111,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                 child: Column(children: [
               FittedBox(
                   fit: BoxFit.fitWidth,
-                  child: Text("${material.quantity}",
+                  child: Text("${material.quantity} ",
                       textAlign: TextAlign.center)),
               FittedBox(
                   fit: BoxFit.fitWidth,

@@ -9,21 +9,6 @@ import 'package:pdf/widgets.dart';
 
 import '../../utils/global_methods.dart';
 
-String getTotalAllCurrencies(InvoiceItem invoiceItem) {
-  String totalString = '';
-  Map<String, double> totals = {};
-
-  for (var materialItem in invoiceItem.inoviceMaterialsItems) {
-    var material = materialItem.material;
-    totals[material.currency] = (totals[material.currency] ?? 0.0) +
-        (material.salePrice * materialItem.quantity);
-  }
-  for (var currency in totals.keys.toList()) {
-    totalString += '${GlobalMethods.getMoney(totals[currency])} $currency \n';
-  }
-  return totalString.trim();
-}
-
 Future<dynamic> printInvoiceRoll(
     MainController mainController, InvoiceItem invoiceItem) async {
   final Document pdf = Document(
@@ -35,14 +20,11 @@ Future<dynamic> printInvoiceRoll(
               await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
   final dateFormat = intl.DateFormat('yyyy-MM-dd');
   final timeFormat = intl.DateFormat('hh:mm a');
-  // final img = await rootBundle.load('assets/images/customers.png');TODO
-  // final imageBytes = img.buffer.asUint8List();
-  // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
   List<Widget> widgets = [];
   widgets.add(Center(
       child: Text("فاتورة مبيعات",
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
-  widgets.add(SizedBox(height: 10));
+  widgets.add(SizedBox(height: 4));
   widgets.add(Center(
       child: Text(mainController.storeData.value!.name,
           style: TextStyle(fontWeight: FontWeight.bold))));
@@ -51,9 +33,16 @@ Future<dynamic> printInvoiceRoll(
   widgets.add(Center(child: Text(mainController.storeData.value!.phone)));
   widgets.add(SizedBox(height: 4));
   widgets.add(Center(child: Text(mainController.storeData.value!.address)));
-  widgets.add(SizedBox(height: 10));
   widgets.add(Center(child: Divider()));
-  widgets.add(SizedBox(height: 10));
+
+  if (invoiceItem.customer != null) {
+    widgets.add(Center(child: Text("العميل")));
+    widgets.add(SizedBox(height: 4));
+    widgets.add(Center(child: Text(invoiceItem.customer!.name)));
+    widgets.add(SizedBox(height: 4));
+    widgets.add(Center(child: Text(invoiceItem.customer!.phone)));
+    widgets.add(Center(child: Divider()));
+  }
   widgets.add(Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Table(
@@ -85,7 +74,6 @@ Future<dynamic> printInvoiceRoll(
               Text("عدد المواد"),
             ]),
           ])));
-  widgets.add(Center(child: Divider()));
   List<TableRow> rows = [
     TableRow(children: [
       Padding(
@@ -120,7 +108,6 @@ Future<dynamic> printInvoiceRoll(
   ];
 
   for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
-    widgets.add(SizedBox(height: 10));
     rows.add(TableRow(children: [
       Padding(
           padding: const EdgeInsets.all(4),
@@ -129,8 +116,9 @@ Future<dynamic> printInvoiceRoll(
             FittedBox(
                 fit: BoxFit.fitWidth,
                 child: Text(
-                    GlobalMethods.getMoney(invoiceMaterialItem.quantity *
-                        invoiceMaterialItem.material.salePrice),
+                    GlobalMethods.getMoney(
+                        invoiceMaterialItem.invoiceMaterial.quantity *
+                            invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -143,7 +131,7 @@ Future<dynamic> printInvoiceRoll(
               child: Column(children: [
             FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Text("${invoiceMaterialItem.quantity}",
+                child: Text("${invoiceMaterialItem.invoiceMaterial.quantity} ",
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -170,6 +158,7 @@ Future<dynamic> printInvoiceRoll(
           child: Center(child: Text(invoiceMaterialItem.material.name))),
     ]));
   }
+  // TODO offers
   widgets.add(Table(
       border: TableBorder.all(color: PdfColors.black, width: 1),
       columnWidths: {
@@ -179,33 +168,109 @@ Future<dynamic> printInvoiceRoll(
         3: const FlexColumnWidth(1.5),
       },
       children: rows));
-  if ((invoiceItem.invoice.discount ?? 0.0) > 0) {
-    widgets.add(SizedBox(height: 10));
-    widgets.add(Divider());
+  // TODO make sure to get the price from audit table if the invoice is old
+  widgets.add(Center(child: Text("الأجمالي")));
+  Map<String, double> currenciesTotals = {};
+  for (var materialItem in invoiceItem.inoviceMaterialsItems) {
+    var material = materialItem.material;
+    currenciesTotals[material.currency] =
+        (currenciesTotals[material.currency] ?? 0.0) +
+            (materialItem.material.salePrice *
+                materialItem.invoiceMaterial.quantity);
+  }
+  double totalInMainCurrency = 0;
+  for (var currency in currenciesTotals.keys) {
+    double rateExchange = 0.0;
+    for (var currency2 in mainController.currencies.value) {
+      if (currency2.name == currency) {
+        rateExchange = currency2.exchangeRate;
+        break;
+      }
+    }
+    totalInMainCurrency += rateExchange * currenciesTotals[currency]!;
+  }
+
+  for (var currency in currenciesTotals.keys) {
     widgets.add(Row(children: [
-      Expanded(child: Text("نسبة الخصم")),
-      Text(
-          "${((invoiceItem.invoice.discount! / invoiceItem.invoice.total) * 100).toStringAsFixed(2)} %"),
-      SizedBox(width: 10)
-    ]));
-    widgets.add(Row(children: [
-      Expanded(child: Text("مبلغ الخصم")),
-      Text(GlobalMethods.getMoney(invoiceItem.invoice.discount)),
+      Expanded(child: Text(GlobalMethods.getMoney(currenciesTotals[currency]))),
+      Text(currency),
       SizedBox(width: 10)
     ]));
   }
-  widgets.add(SizedBox(height: 10));
-  widgets.add(Divider());
-  widgets.add(Row(children: [
-    Expanded(flex: 2, child: Text("الأجمالي")),
-    // TODO make sure to get the price from audit table if the invoice is old
-    Expanded(
-        child: Center(
-      child: Text(getTotalAllCurrencies(invoiceItem)),
-    ))
-  ]));
+  if (currenciesTotals.length > 1) {
+    widgets.add(Center(
+        child: Text(
+            "الأجمالي بالعملة ${mainController.storeData.value!.currency}")));
+    widgets.add(Row(children: [
+      Expanded(child: Text(GlobalMethods.getMoney(totalInMainCurrency))),
+      Text(mainController.storeData.value!.currency),
+      SizedBox(width: 10)
+    ]));
+  }
+  if ((invoiceItem.invoice.discount ?? 0.0) > 0) {
+    widgets.add(Center(child: Text("الخصم")));
+    widgets.add(Row(children: [
+      Expanded(
+          child: Text(GlobalMethods.getMoney(invoiceItem.invoice.discount!))),
+      Text(mainController.storeData.value!.currency),
+      SizedBox(width: 10)
+    ]));
+    widgets.add(Center(child: Text("الأجمالي بعد الخصم")));
+    widgets.add(Row(children: [
+      Expanded(
+          child: Text(GlobalMethods.getMoney(
+              totalInMainCurrency - invoiceItem.invoice.discount!))),
+      Text(mainController.storeData.value!.currency),
+      SizedBox(width: 10)
+    ]));
+  }
+  double totalPaymentInMainCurrency = 0.0;
+  if (invoiceItem.payments.isNotEmpty) {
+    widgets.add(Center(child: Text("المبلغ المدفوع")));
 
-  widgets.add(SizedBox(height: 10));
+    for (var payment in invoiceItem.payments) {
+      widgets.add(Row(children: [
+        Expanded(child: Text(GlobalMethods.getMoney(payment.amount))),
+        Text(payment.currency),
+        SizedBox(width: 10)
+      ]));
+      double rateExchange = 0.0;
+      for (var currency2 in mainController.currencies.value) {
+        if (currency2.name == payment.currency) {
+          rateExchange = currency2.exchangeRate;
+          break;
+        }
+      }
+      totalPaymentInMainCurrency += (payment.amount * rateExchange);
+    }
+  }
+  if ((totalPaymentInMainCurrency - totalInMainCurrency) > 0) {
+    widgets.add(Center(child: Text("المبلغ المرتجع للعميل")));
+
+    widgets.add(Row(children: [
+      Expanded(
+          child: Text(GlobalMethods.getMoney(
+              totalPaymentInMainCurrency - totalInMainCurrency))),
+      Text(mainController.storeData.value!.currency),
+      SizedBox(width: 10)
+    ]));
+  }
+  if (invoiceItem.debts.isNotEmpty) {
+    widgets.add(Center(child: Text("الدين المتبقي")));
+
+    for (var debt in invoiceItem.debts) {
+      widgets.add(Row(children: [
+        Expanded(child: Text(GlobalMethods.getMoney(debt.amount))),
+        Text(debt.currency),
+        SizedBox(width: 10)
+      ]));
+    }
+  }
+  if (invoiceItem.invoice.note != null) {
+    widgets.add(Divider());
+    widgets.add(Center(child: Text("ملاحظة")));
+    widgets.add(Center(child: Text(invoiceItem.invoice.note!)));
+  }
   widgets.add(Divider());
   widgets.add(Text("بواسطة: ${mainController.currentUser.value!.name}"));
   widgets.add(SizedBox(height: 10));
@@ -240,23 +305,17 @@ Future<dynamic> printInvoiceA4(
   // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
   List<Widget> widgets = [];
   widgets.add(Center(
-      child: Text("فاتورة مبيعات",
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
-  widgets.add(SizedBox(height: 10));
-  widgets.add(Directionality(
-      textDirection: TextDirection.rtl,
-      child: Center(
-          child: Text("المواد",
+      child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text("فاتورة مبيعات",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)))));
-  widgets.add(SizedBox(height: 10));
+  widgets.add(SizedBox(height: 4));
   widgets.add(Directionality(
       textDirection: TextDirection.rtl,
       child: Center(
           child: Text(mainController.storeData.value!.name,
               style: TextStyle(fontWeight: FontWeight.bold)))));
-  widgets.add(SizedBox(height: 10));
   widgets.add(Center(child: Divider()));
-  widgets.add(SizedBox(height: 10));
   widgets.add(Directionality(
       textDirection: TextDirection.rtl,
       child: Table(
@@ -332,7 +391,6 @@ Future<dynamic> printInvoiceA4(
   ];
 
   for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
-    widgets.add(SizedBox(height: 10));
     rows.add(TableRow(children: [
       Padding(
           padding: const EdgeInsets.all(4),
@@ -341,8 +399,9 @@ Future<dynamic> printInvoiceA4(
             FittedBox(
                 fit: BoxFit.fitWidth,
                 child: Text(
-                    GlobalMethods.getMoney(invoiceMaterialItem.quantity *
-                        invoiceMaterialItem.material.salePrice),
+                    GlobalMethods.getMoney(
+                        invoiceMaterialItem.invoiceMaterial.quantity *
+                            invoiceMaterialItem.material.salePrice),
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -355,7 +414,7 @@ Future<dynamic> printInvoiceA4(
               child: Column(children: [
             FittedBox(
                 fit: BoxFit.fitWidth,
-                child: Text("${invoiceMaterialItem.quantity}",
+                child: Text("${invoiceMaterialItem.invoiceMaterial.quantity} ",
                     textAlign: TextAlign.center)),
             FittedBox(
                 fit: BoxFit.fitWidth,
@@ -382,6 +441,7 @@ Future<dynamic> printInvoiceA4(
           child: Center(child: Text(invoiceMaterialItem.material.name))),
     ]));
   }
+  // TODO offers
   widgets.add(Directionality(
       textDirection: TextDirection.rtl,
       child: Table(
@@ -393,7 +453,139 @@ Future<dynamic> printInvoiceA4(
             3: const FlexColumnWidth(1.5),
           },
           children: rows)));
-  widgets.add(SizedBox(height: 10));
+  // TODO make sure to get the price from audit table if the invoice is old
+  widgets.add(Center(
+      child: Directionality(
+          textDirection: TextDirection.rtl, child: Text("الأجمالي"))));
+  Map<String, double> currenciesTotals = {};
+  for (var materialItem in invoiceItem.inoviceMaterialsItems) {
+    var material = materialItem.material;
+    currenciesTotals[material.currency] =
+        (currenciesTotals[material.currency] ?? 0.0) +
+            (materialItem.material.salePrice *
+                materialItem.invoiceMaterial.quantity);
+  }
+  double totalInMainCurrency = 0;
+  for (var currency in currenciesTotals.keys) {
+    double rateExchange = 0.0;
+    for (var currency2 in mainController.currencies.value) {
+      if (currency2.name == currency) {
+        rateExchange = currency2.exchangeRate;
+        break;
+      }
+    }
+    totalInMainCurrency += rateExchange * currenciesTotals[currency]!;
+  }
+
+  for (var currency in currenciesTotals.keys) {
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(textDirection: TextDirection.rtl, child: Text(currency)),
+      Expanded(child: Text(GlobalMethods.getMoney(currenciesTotals[currency]))),
+    ]));
+  }
+  if (currenciesTotals.length > 1) {
+    widgets.add(Center(
+        child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text(
+                "الأجمالي بالعملة ${mainController.storeData.value!.currency}"))));
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text(mainController.storeData.value!.currency)),
+      Expanded(child: Text(GlobalMethods.getMoney(totalInMainCurrency))),
+    ]));
+  }
+  if ((invoiceItem.invoice.discount ?? 0.0) > 0) {
+    widgets.add(Center(
+        child: Directionality(
+            textDirection: TextDirection.rtl, child: Text("الخصم"))));
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text(mainController.storeData.value!.currency)),
+      Expanded(
+          child: Text(GlobalMethods.getMoney(invoiceItem.invoice.discount!))),
+    ]));
+    widgets.add(Center(
+        child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text("الأجمالي بعد الخصم"))));
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text(mainController.storeData.value!.currency)),
+      Expanded(
+          child: Text(GlobalMethods.getMoney(
+              totalInMainCurrency - invoiceItem.invoice.discount!))),
+    ]));
+  }
+  double totalPaymentInMainCurrency = 0.0;
+  if (invoiceItem.payments.isNotEmpty) {
+    widgets.add(Center(
+        child: Directionality(
+            textDirection: TextDirection.rtl, child: Text("المبلغ المدفوع"))));
+
+    for (var payment in invoiceItem.payments) {
+      widgets.add(Row(children: [
+        SizedBox(width: 10),
+        Directionality(
+            textDirection: TextDirection.rtl, child: Text(payment.currency)),
+        Expanded(child: Text(GlobalMethods.getMoney(payment.amount))),
+      ]));
+      double rateExchange = 0.0;
+      for (var currency2 in mainController.currencies.value) {
+        if (currency2.name == payment.currency) {
+          rateExchange = currency2.exchangeRate;
+          break;
+        }
+      }
+      totalPaymentInMainCurrency += (payment.amount * rateExchange);
+    }
+  }
+  if ((totalPaymentInMainCurrency - totalInMainCurrency) > 0) {
+    widgets.add(Center(
+        child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text("المبلغ المرتجع للعميل"))));
+
+    widgets.add(Row(children: [
+      SizedBox(width: 10),
+      Directionality(
+          textDirection: TextDirection.rtl,
+          child: Text(mainController.storeData.value!.currency)),
+      Expanded(
+          child: Text(GlobalMethods.getMoney(
+              totalPaymentInMainCurrency - totalInMainCurrency))),
+    ]));
+  }
+  if (invoiceItem.debts.isNotEmpty) {
+    widgets.add(Directionality(
+        textDirection: TextDirection.rtl,
+        child: Center(child: Text("الدين المتبقي"))));
+
+    for (var debt in invoiceItem.debts) {
+      widgets.add(Row(children: [
+        SizedBox(width: 10),
+        Directionality(
+            textDirection: TextDirection.rtl, child: Text(debt.currency)),
+        Expanded(child: Text(GlobalMethods.getMoney(debt.amount))),
+      ]));
+    }
+  }
+  if (invoiceItem.invoice.note != null) {
+    widgets.add(Divider());
+    widgets.add(Directionality(
+        textDirection: TextDirection.rtl,
+        child: Center(child: Text("ملاحظة"))));
+    widgets.add(Directionality(
+        textDirection: TextDirection.rtl,
+        child: Center(child: Text(invoiceItem.invoice.note!))));
+  }
 
   widgets.add(Divider());
   widgets.add(Directionality(

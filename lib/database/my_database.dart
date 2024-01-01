@@ -45,7 +45,7 @@ class MyDatabase {
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS currencies (
       name TEXT PRIMARY KEY,
-      id INTEGER NOT NULL,
+      id INTEGER NOT NULL UNIQUE,
       exchange_rate REAL NOT NULL
     )
     ''');
@@ -165,8 +165,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL,
-      price REAL NOT NULL
+      quantity REAL NOT NULL
     )
     ''');
     await myDatabase.execute('''
@@ -174,8 +173,7 @@ class MyDatabase {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL,
-      price REAL NOT NULL
+      quantity REAL NOT NULL
     )
     ''');
 

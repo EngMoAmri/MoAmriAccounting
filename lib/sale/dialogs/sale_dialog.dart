@@ -1116,20 +1116,18 @@ Future<bool?> showSaleDialog(
                                                             .dataSource
                                                             .value
                                                             .salesData) {
-                                                      inoviceMaterialsItem.add(InvoiceMaterialItem(
-                                                          material: saleData[
-                                                              'Material'],
-                                                          invoiceMaterial: InvoiceMaterial(
-                                                              materialId: saleData[
-                                                                      'Material']
-                                                                  .id,
-                                                              quantity: saleData[
-                                                                  'Quantity'],
-                                                              price: saleData[
-                                                                      'Material']
-                                                                  .salePrice),
-                                                          quantity: saleData[
-                                                              'Quantity']));
+                                                      inoviceMaterialsItem.add(
+                                                          InvoiceMaterialItem(
+                                                              material: saleData[
+                                                                  'Material'],
+                                                              invoiceMaterial: InvoiceMaterial(
+                                                                  materialId:
+                                                                      saleData[
+                                                                              'Material']
+                                                                          .id,
+                                                                  quantity:
+                                                                      saleData[
+                                                                          'Quantity'])));
                                                     }
                                                     InvoiceItem invoiceItem =
                                                         InvoiceItem(

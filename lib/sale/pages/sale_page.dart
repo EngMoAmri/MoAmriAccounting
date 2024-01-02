@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -43,7 +44,7 @@ class SalePage extends StatelessWidget {
                           ),
                         );
                       },
-                      onSelected: (value) {
+                      onSelected: (value) async {
                         var index =
                             controller.dataSource.value.getMaterialIndex(value);
                         if (index == -1) {
@@ -54,6 +55,9 @@ class SalePage extends StatelessWidget {
                           }
                           controller.dataSource.value
                               .addDataGridRow(value, controller);
+                          await AudioPlayer()
+                              .play(AssetSource('sounds/scanner-beep.mp3'));
+
                           controller.dataSource.refresh();
                         } else {
                           showSaleMaterialDialog(
@@ -220,7 +224,7 @@ class SalePage extends StatelessWidget {
                                       controller.selectedMaterial.value = index;
                                       controller.materials.refresh();
                                     },
-                                    onDoubleTap: () {
+                                    onDoubleTap: () async {
                                       var index1 = controller.dataSource.value
                                           .getMaterialIndex(controller
                                               .materials.value[index]);
@@ -243,6 +247,9 @@ class SalePage extends StatelessWidget {
                                                 controller
                                                     .materials.value[index],
                                                 controller);
+                                        await AudioPlayer().play(AssetSource(
+                                            'sounds/scanner-beep.mp3'));
+
                                         controller.materials.refresh();
                                         controller.dataSource.refresh();
                                       }

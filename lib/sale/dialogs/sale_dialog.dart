@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
@@ -1331,6 +1332,10 @@ Future<bool?> showSaleDialog(
                                                           saleController);
                                                   saleController.dataSource
                                                       .refresh();
+                                                  await AudioPlayer().play(
+                                                      AssetSource(
+                                                          'sounds/cash-register.mp3'));
+
                                                   Get.back();
                                                 }
                                               },

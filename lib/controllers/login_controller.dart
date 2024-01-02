@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
@@ -30,7 +31,7 @@ class LoginController extends GetxController {
           showErrorDialog("معلومات المستخدم غير صحيحة");
           // TODO limit the number of trys
         } else {
-          // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
+          await AudioPlayer().play(AssetSource('sounds/scanner-beep.mp3'));
 
           Get.off(() => const HomePage());
         }

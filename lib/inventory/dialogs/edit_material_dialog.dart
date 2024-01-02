@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -13,7 +14,6 @@ import '../../database/entities/currency.dart';
 import '../../utils/global_methods.dart';
 import 'add_currency_dialog.dart';
 
-// TODO make it maximum always
 Future<bool?> showEditMaterialDialog(
     MainController mainController, MyMaterial oldMaterial) async {
   return await showDialog(
@@ -43,9 +43,9 @@ Future<bool?> showEditMaterialDialog(
         MyMaterial? largerMaterial;
         final suppliedQuantityTextController = TextEditingController();
         suppliedQuantityTextController.text =
-            (oldMaterial.quantitySupplied ?? "").toString();
+            '${oldMaterial.quantitySupplied ?? ''}';
 
-        bool loadingLargerMaterial = true;
+        bool loadingLargerMaterial = false;
         final costPriceTextController = TextEditingController();
         costPriceTextController.text = oldMaterial.costPrice.toString();
         final salePriceTextController = TextEditingController();
@@ -67,9 +67,17 @@ Future<bool?> showEditMaterialDialog(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: StatefulBuilder(builder: (context, setState) {
-                    if (largerMaterial == null) {
+                    if (largerMaterial == null &&
+                        oldMaterial.largerMaterialID != null &&
+                        loadingLargerMaterial == false) {
+                      loadingLargerMaterial = true;
+
                       MyMaterialsDatabase.getMaterialLargerUnitItem(oldMaterial)
                           .then((value) {
+                        if (value != null) {
+                          largerMaterialTextController.text =
+                              '${value.barcode}, ${value.unit} ${value.name}';
+                        }
                         largerMaterial = value;
                         loadingLargerMaterial = false;
                         setState(() {});
@@ -126,8 +134,11 @@ Future<bool?> showEditMaterialDialog(
                                     child: BarcodeKeyboardListener(
                                       bufferDuration:
                                           const Duration(milliseconds: 200),
-                                      onBarcodeScanned: (barcode) {
+                                      onBarcodeScanned: (barcode) async {
                                         if (!visible) return;
+                                        await AudioPlayer().play(AssetSource(
+                                            'sounds/scanner-beep.mp3'));
+
                                         setState(() {
                                           barcodeTextController.text = barcode;
                                         });
@@ -229,10 +240,11 @@ Future<bool?> showEditMaterialDialog(
                                               horizontal: 10),
                                           child: TypeAheadField(
                                             controller: categoryTextController,
-                                            emptyBuilder: (context) =>
-                                                Container(
-                                              height: 0,
-                                            ),
+                                            emptyBuilder: (context) {
+                                              return const SizedBox(
+                                                height: 0,
+                                              );
+                                            },
                                             onSelected: (value) {
                                               setState(() {
                                                 categoryTextController.text =
@@ -820,6 +832,15 @@ Future<bool?> showEditMaterialDialog(
                                                 child: TypeAheadField(
                                                     controller:
                                                         largerMaterialTextController,
+                                                    emptyBuilder: (context) {
+                                                      return const SizedBox(
+                                                        height: 60,
+                                                        child: Center(
+                                                          child: Text(
+                                                              "لم يتم إيجاد مادة مناسبة"),
+                                                        ),
+                                                      );
+                                                    },
                                                     onSelected: (value) {
                                                       setState(() {
                                                         largerMaterial = value;
@@ -831,8 +852,9 @@ Future<bool?> showEditMaterialDialog(
                                                     suggestionsCallback:
                                                         (String pattern) async {
                                                       return await MyMaterialsDatabase
-                                                          .getMaterialsSuggestions(
-                                                              pattern, null);
+                                                          .getAvailableLargerMaterialsSuggestions(
+                                                              pattern,
+                                                              oldMaterial.id);
                                                     },
                                                     itemBuilder:
                                                         (context, suggestion) {
@@ -1077,9 +1099,13 @@ Future<bool?> showEditMaterialDialog(
                                           quantityTextController.text.trim());
                                       final unit =
                                           unitTextController.text.trim();
-                                      final suppliedQuantity = double.tryParse(
-                                          suppliedQuantityTextController.text
-                                              .trim());
+                                      final suppliedQuantity =
+                                          (largerMaterial == null)
+                                              ? null
+                                              : double.parse(
+                                                  suppliedQuantityTextController
+                                                      .text
+                                                      .trim());
                                       final costPrice = double.parse(
                                           costPriceTextController.text.trim());
                                       final salePrice = double.parse(

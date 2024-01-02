@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_listener/flutter_barcode_listener.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -100,8 +101,11 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                     child: BarcodeKeyboardListener(
                                       bufferDuration:
                                           const Duration(milliseconds: 200),
-                                      onBarcodeScanned: (barcode) {
+                                      onBarcodeScanned: (barcode) async {
                                         if (!visible) return;
+                                        await AudioPlayer().play(AssetSource(
+                                            'sounds/scanner-beep.mp3'));
+
                                         setState(() {
                                           barcodeTextController.text = barcode;
                                         });
@@ -789,6 +793,15 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           child: TypeAheadField(
                                               controller:
                                                   largerMaterialTextController,
+                                              emptyBuilder: (context) {
+                                                return const SizedBox(
+                                                  height: 60,
+                                                  child: Center(
+                                                    child: Text(
+                                                        "لم يتم إيجاد مادة مناسبة"),
+                                                  ),
+                                                );
+                                              },
                                               onSelected: (value) {
                                                 setState(() {
                                                   largerMaterial = value;
@@ -1022,9 +1035,13 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                           quantityTextController.text.trim());
                                       final unit =
                                           unitTextController.text.trim();
-                                      final suppliedQuantity = double.tryParse(
-                                          suppliedQuantityTextController.text
-                                              .trim());
+                                      final suppliedQuantity =
+                                          (largerMaterial == null)
+                                              ? null
+                                              : double.parse(
+                                                  suppliedQuantityTextController
+                                                      .text
+                                                      .trim());
                                       final costPrice = double.parse(
                                           costPriceTextController.text.trim());
                                       final salePrice = double.parse(

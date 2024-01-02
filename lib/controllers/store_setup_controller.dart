@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
@@ -71,7 +72,7 @@ class StoreSetupController extends GetxController {
         final mainController = Get.put(MainController());
         mainController.storeData.value = store;
         mainController.currentUser.value = user;
-        // AudioPlayer().play(AssetSource('assets/sounds/cash-register.mp3')); TODO
+        await AudioPlayer().play(AssetSource('sounds/scanner-beep.mp3'));
         await showSuccessDialog("تم إنشاء متجرك بنجاح");
 
         Get.off(() => const HomePage());

@@ -58,7 +58,7 @@ class MyMaterial {
       salePrice: map['sale_price'] as double,
       note: map['note'] as String?,
       largerMaterialID: map['larger_material_id'] as int?,
-      quantitySupplied: map['quantity_supplied'] as double?,
+      quantitySupplied: map['larger_quantity_supplied'] as double?,
     );
   }
 }

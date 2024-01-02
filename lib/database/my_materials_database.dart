@@ -1,3 +1,4 @@
+import 'package:moamri_accounting/database/items/my_material_item.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/audit.dart';
@@ -112,6 +113,29 @@ class MyMaterialsDatabase {
     return materials;
   }
 
+  static Future<List<MyMaterial>> getAvailableLargerMaterialsSuggestions(
+      String text, int? currentMaterialID) async {
+    String trimText = text.trim();
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query('materials',
+        distinct: true,
+        where: "barcode like ? or name like ?",
+        whereArgs: ["%$trimText%", "%$trimText%"],
+        limit: 10);
+    List<MyMaterial> materials = [];
+    for (var map in maps) {
+      if (map['id'] != currentMaterialID) {
+        if (map['larger_material_id'] != null) {
+          if (map['larger_material_id'] == currentMaterialID) {
+            continue;
+          }
+        }
+        materials.add(MyMaterial.fromMap(map));
+      }
+    }
+    return materials;
+  }
+
   static Future<int> insertMaterial(MyMaterial material, User actionBy) async {
     return await MyDatabase.myDatabase.transaction((txn) async {
       await txn.insert(
@@ -201,18 +225,20 @@ class MyMaterialsDatabase {
   static Future<MyMaterial> getMaterialByID(int id) async {
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
         .query('materials', where: "id = ?", whereArgs: [id]);
-    return MyMaterial.fromMap(maps
-        .first); // the maps can not be empty or this method can not be called with empty material
+    // if (maps.isEmpty) return null;
+    return MyMaterial.fromMap(maps.first);
   }
 
-  static Future<double> getMaterialTotalQuantity(int? id) async {
-    if (id == null) return 0.0;
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
-        .rawQuery('''SELECT * FROM materials WHERE id = $id''');
-    if (maps.isEmpty) return 0.0;
-    MyMaterial material = MyMaterial.fromMap(maps.first);
-    return material.quantity +
-        await getMaterialTotalQuantity(material.largerMaterialID);
+  static Future<MyMaterialItem?> getMyMaterialItem(
+    MyMaterial material,
+  ) async {
+    return MyMaterialItem(
+        material: material,
+        largerMaterial: (material.largerMaterialID == null)
+            ? null
+            : await getMyMaterialItem(
+                (await getMaterialByID(material.largerMaterialID!))),
+        smallerMaterial: null);
   }
 
   static Future<bool> isMaterialLargerToMaterialId(

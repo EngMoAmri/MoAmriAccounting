@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
@@ -171,12 +172,12 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   color: Colors.black,
                                                 ),
                                                 onPressed: () {
-                                                  var currentQuantity =
-                                                      int.tryParse(saleController
+                                                  var currentQuantity = double
+                                                          .tryParse(saleController
                                                               .materialDialogQuantityTextController
                                                               .text
                                                               .trim()) ??
-                                                          0;
+                                                      0;
                                                   if (currentQuantity == 1) {
                                                     return;
                                                   }
@@ -265,11 +266,11 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                       true) {
                                                     return "هذا الحقل مطلوب";
                                                   }
-                                                  if (int.tryParse(
+                                                  if (double.tryParse(
                                                           value?.trim() ??
                                                               '') ==
                                                       null) {
-                                                    return "أدخل عدد صحيح";
+                                                    return "أدخل كمية مناسبة";
                                                   }
 
                                                   return null;
@@ -289,12 +290,12 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   color: Colors.black,
                                                 ),
                                                 onPressed: () {
-                                                  var currentQuantity =
-                                                      int.tryParse(saleController
+                                                  var currentQuantity = double
+                                                          .tryParse(saleController
                                                               .materialDialogQuantityTextController
                                                               .text
                                                               .trim()) ??
-                                                          0;
+                                                      0;
                                                   // if (currentQuantity >=
                                                   //         material
                                                   //             .quantity &&
@@ -386,29 +387,67 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
-                                                  var availableQuantity =
+                                                  var materialItem =
                                                       await MyMaterialsDatabase
-                                                          .getMaterialTotalQuantity(
-                                                              material.id);
-                                                  // get the larger materials quantities which were selected
-                                                  var requiredQuantity =
-                                                      saleController
-                                                          .materialDialogQuantity
-                                                          .value;
-                                                  for (var saleData
-                                                      in saleController
-                                                          .dataSource
-                                                          .value
-                                                          .salesData) {
-                                                    if (await MyMaterialsDatabase
-                                                        .isMaterialLargerToMaterialId(
-                                                            material,
-                                                            saleData['Material']
-                                                                .id)) {
-                                                                  availableQuantity -= saleData
-                                                                  // TODO
-                                                                }
+                                                          .getMyMaterialItem(
+                                                              material);
+                                                  // first we set the quantity to current material
+                                                  var availableQuantity =
+                                                      materialItem!
+                                                          .material.quantity;
+                                                  //then we search in larger material
+                                                  while (materialItem
+                                                          ?.largerMaterial !=
+                                                      null) {
+                                                    var largerQuantity =
+                                                        materialItem!
+                                                            .largerMaterial!
+                                                            .material
+                                                            .quantity;
+                                                    // minus the selected one in sale page
+                                                    for (var saleData2
+                                                        in saleController
+                                                            .dataSource
+                                                            .value
+                                                            .salesData) {
+                                                      if (saleData2['Material']
+                                                              .id ==
+                                                          materialItem
+                                                              .largerMaterial!
+                                                              .material
+                                                              .id) {
+                                                        largerQuantity -=
+                                                            saleData2[
+                                                                'Quantity'];
+                                                      }
+                                                    }
+                                                    var quantity = (largerQuantity *
+                                                        materialItem.material
+                                                            .quantitySupplied!);
+                                                    var smallerMaterial =
+                                                        materialItem
+                                                            .smallerMaterial;
+                                                    // we multiply by smaller units until we reach the unit similar to the selected one
+                                                    while (smallerMaterial !=
+                                                        null) {
+                                                      quantity *= materialItem
+                                                          .smallerMaterial!
+                                                          .material
+                                                          .quantitySupplied!;
+                                                      smallerMaterial =
+                                                          smallerMaterial
+                                                              .smallerMaterial;
+                                                    }
+                                                    availableQuantity +=
+                                                        quantity;
+                                                    materialItem.largerMaterial
+                                                            ?.smallerMaterial =
+                                                        materialItem;
+                                                    materialItem = materialItem
+                                                        .largerMaterial;
                                                   }
+                                                  print(availableQuantity);
+                                                  // TODO make a button to open this dialog
                                                   if (availableQuantity <
                                                       saleController
                                                           .materialDialogQuantity
@@ -443,6 +482,9 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                           saleController);
                                                   saleController.dataSource
                                                       .refresh();
+                                                  await AudioPlayer().play(
+                                                      AssetSource(
+                                                          'sounds/scanner-beep.mp3'));
 
                                                   Get.back();
                                                 }

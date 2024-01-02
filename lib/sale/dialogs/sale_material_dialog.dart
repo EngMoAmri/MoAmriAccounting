@@ -387,77 +387,19 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
-                                                  var materialItem =
-                                                      await MyMaterialsDatabase
-                                                          .getMyMaterialItem(
-                                                              material);
-                                                  // first we set the quantity to current material
-                                                  var availableQuantity =
-                                                      materialItem!
-                                                          .material.quantity;
-                                                  //then we search in larger material
-                                                  while (materialItem
-                                                          ?.largerMaterial !=
-                                                      null) {
-                                                    var largerQuantity =
-                                                        materialItem!
-                                                            .largerMaterial!
-                                                            .material
-                                                            .quantity;
-                                                    // minus the selected one in sale page
-                                                    for (var saleData2
-                                                        in saleController
-                                                            .dataSource
-                                                            .value
-                                                            .salesData) {
-                                                      if (saleData2['Material']
-                                                              .id ==
-                                                          materialItem
-                                                              .largerMaterial!
-                                                              .material
-                                                              .id) {
-                                                        largerQuantity -=
-                                                            saleData2[
-                                                                'Quantity'];
-                                                      }
-                                                    }
-                                                    var quantity = (largerQuantity *
-                                                        materialItem.material
-                                                            .quantitySupplied!);
-                                                    var smallerMaterial =
-                                                        materialItem
-                                                            .smallerMaterial;
-                                                    // we multiply by smaller units until we reach the unit similar to the selected one
-                                                    while (smallerMaterial !=
-                                                        null) {
-                                                      quantity *= materialItem
-                                                          .smallerMaterial!
-                                                          .material
-                                                          .quantitySupplied!;
-                                                      smallerMaterial =
-                                                          smallerMaterial
-                                                              .smallerMaterial;
-                                                    }
-                                                    availableQuantity +=
-                                                        quantity;
-                                                    materialItem.largerMaterial
-                                                            ?.smallerMaterial =
-                                                        materialItem;
-                                                    materialItem = materialItem
-                                                        .largerMaterial;
-                                                  }
-                                                  print(availableQuantity);
                                                   // TODO make a button to open this dialog
+                                                  var availableQuantity =
+                                                      await MyMaterialsDatabase
+                                                          .getAvailableQuantity(
+                                                              material,
+                                                              saleController);
                                                   if (availableQuantity <
                                                       saleController
                                                           .materialDialogQuantity
                                                           .value) {
-                                                    var yes =
-                                                        await showConfirmationDialog(
-                                                            'تم تجاوز الكمية الموجودة في المستودع! هل تريد الاستمرار؟');
-                                                    if (yes != true) {
-                                                      return;
-                                                    }
+                                                    await showErrorDialog(
+                                                        'تم تجاوز الكمية الموجودة في المستودع!');
+                                                    return;
                                                   }
 
                                                   saleData['Quantity'] =

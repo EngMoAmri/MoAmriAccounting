@@ -1,4 +1,5 @@
 import 'package:moamri_accounting/database/items/my_material_item.dart';
+import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/audit.dart';
@@ -222,11 +223,18 @@ class MyMaterialsDatabase {
     });
   }
 
-  static Future<MyMaterial> getMaterialByID(int id) async {
-    List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
-        .query('materials', where: "id = ?", whereArgs: [id]);
-    // if (maps.isEmpty) return null;
-    return MyMaterial.fromMap(maps.first);
+  static Future<MyMaterial> getMaterialByID(int id, Transaction? tnx) async {
+    if (tnx == null) {
+      List<Map<String, dynamic>> maps = await MyDatabase.myDatabase
+          .query('materials', where: "id = ?", whereArgs: [id]);
+      // if (maps.isEmpty) return null;
+      return MyMaterial.fromMap(maps.first);
+    } else {
+      List<Map<String, dynamic>> maps =
+          await tnx.query('materials', where: "id = ?", whereArgs: [id]);
+      // if (maps.isEmpty) return null;
+      return MyMaterial.fromMap(maps.first);
+    }
   }
 
   static Future<MyMaterialItem?> getMyMaterialItem(
@@ -237,8 +245,76 @@ class MyMaterialsDatabase {
         largerMaterial: (material.largerMaterialID == null)
             ? null
             : await getMyMaterialItem(
-                (await getMaterialByID(material.largerMaterialID!))),
+                (await getMaterialByID(material.largerMaterialID!, null))),
         smallerMaterial: null);
+  }
+
+// TODO Sale
+  static Future<void> supplyMaterialQuantityFromLargerMaterialsTransaction(
+      MyMaterial material, double requiredQuantity, Transaction txn) async {
+    var availableQuantity = material.quantity;
+    var quantityToBeSupplied = requiredQuantity - availableQuantity;
+    if (quantityToBeSupplied <= 0 || (material.largerMaterialID == null)) {
+      return;
+    }
+    var largerMaterial = await getMaterialByID(material.largerMaterialID!, txn);
+    var requiredLargerQuantity =
+        (quantityToBeSupplied / material.quantitySupplied!).ceil().toDouble();
+    if (largerMaterial.quantity < requiredLargerQuantity) {
+      await supplyMaterialQuantityFromLargerMaterialsTransaction(
+          largerMaterial, requiredLargerQuantity, txn);
+    }
+    largerMaterial = await getMaterialByID(material.largerMaterialID!, txn);
+
+    largerMaterial.quantity -= requiredLargerQuantity;
+    await txn.update(
+      'materials',
+      largerMaterial.toMap(),
+      where: 'id = ?',
+      whereArgs: [material.largerMaterialID],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    material.quantity += (requiredLargerQuantity * material.quantitySupplied!);
+    await txn.update(
+      'materials',
+      material.toMap(),
+      where: 'id = ?',
+      whereArgs: [material.id],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<double> getAvailableQuantity(
+      MyMaterial material, SaleController? saleController) async {
+    var materialItem = await MyMaterialsDatabase.getMyMaterialItem(material);
+
+    // first we set the quantity to current material
+    var availableQuantity = materialItem!.material.quantity;
+    //then we search in larger material
+    while (materialItem?.largerMaterial != null) {
+      var largerQuantity = materialItem!.largerMaterial!.material.quantity;
+      if (saleController != null) {
+        // minus the selected one in sale page
+        for (var saleData2 in saleController.dataSource.value.salesData) {
+          if (saleData2['Material'].id ==
+              materialItem.largerMaterial!.material.id) {
+            largerQuantity -= saleData2['Quantity'];
+          }
+        }
+      }
+      var quantity = (largerQuantity * materialItem.material.quantitySupplied!);
+      var smallerMaterial = materialItem.smallerMaterial;
+      // we multiply by smaller units until we reach the unit similar to the selected one
+      while (smallerMaterial != null) {
+        quantity *= materialItem.smallerMaterial!.material.quantitySupplied!;
+        smallerMaterial = smallerMaterial.smallerMaterial;
+      }
+      availableQuantity += quantity;
+      materialItem.largerMaterial?.smallerMaterial = materialItem;
+      materialItem = materialItem.largerMaterial;
+    }
+    print(availableQuantity);
+    return availableQuantity;
   }
 
   static Future<bool> isMaterialLargerToMaterialId(

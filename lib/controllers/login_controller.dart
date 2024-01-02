@@ -32,7 +32,6 @@ class LoginController extends GetxController {
           // TODO limit the number of trys
         } else {
           await AudioPlayer().play(AssetSource('sounds/scanner-beep.mp3'));
-
           Get.off(() => const HomePage());
         }
       } catch (e) {

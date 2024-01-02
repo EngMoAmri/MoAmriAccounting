@@ -1,4 +1,5 @@
 import 'package:moamri_accounting/database/items/invoice_item.dart';
+import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'entities/audit.dart';
@@ -33,16 +34,11 @@ class InvoicesDatabase {
           invoiceMaterialItem.invoiceMaterial.toMap(),
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
-        // reduce the quantity
-        MyMaterial newMaterial = invoiceMaterialItem.material;
-        newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
-        await txn.update(
-          'materials',
-          newMaterial.toMap(),
-          where: 'id = ?',
-          whereArgs: [newMaterial.id],
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
+        await MyMaterialsDatabase
+            .supplyMaterialQuantityFromLargerMaterialsTransaction(
+                invoiceMaterialItem.material,
+                invoiceMaterialItem.invoiceMaterial.quantity,
+                txn);
       }
       for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
         await txn.insert(

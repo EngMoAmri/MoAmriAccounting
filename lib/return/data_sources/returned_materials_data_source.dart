@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
+import 'package:moamri_accounting/return/controllers/return_controller.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../database/entities/my_material.dart';
 import '../../utils/global_utils.dart';
 
-class SaleMaterialsDataSource extends DataGridSource {
+class ReturnedMaterialsDataSource extends DataGridSource {
   final List<Map<String, dynamic>> salesData = [];
   @override
   List<DataGridRow> get rows => salesData.map<DataGridRow>((saleData) {
@@ -28,7 +28,7 @@ class SaleMaterialsDataSource extends DataGridSource {
         ]);
       }).toList(growable: true);
 
-  void calculateTotals(SaleController controller) {
+  void calculateTotals(ReturnController controller) {
     controller.totals.value.clear();
     if (salesData.isNotEmpty) {
       for (var saleData in salesData) {
@@ -49,7 +49,7 @@ class SaleMaterialsDataSource extends DataGridSource {
     }
   }
 
-  void addDataGridRow(MyMaterial m, SaleController controller) {
+  void addDataGridRow(MyMaterial m, ReturnController controller) {
     salesData.add(
         {"Material": m, "Quantity": 1.0, "Total": m.salePrice, "Note": ''});
     calculateTotals(controller);
@@ -57,14 +57,14 @@ class SaleMaterialsDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  void removeDataGridRow(int index, SaleController controller) {
+  void removeDataGridRow(int index, ReturnController controller) {
     salesData.removeAt(index);
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
 
-  void clearDataGridRows(SaleController controller) {
+  void clearDataGridRows(ReturnController controller) {
     salesData.clear();
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.

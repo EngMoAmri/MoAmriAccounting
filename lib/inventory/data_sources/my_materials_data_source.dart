@@ -4,7 +4,7 @@ import 'package:moamri_accounting/inventory/controllers/inventory_controller.dar
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../database/entities/my_material.dart';
-import '../../utils/global_methods.dart';
+import '../../utils/global_utils.dart';
 
 class MyMaterialsDataSource extends DataGridSource {
   final List<MyMaterial> materialsData;
@@ -20,10 +20,10 @@ class MyMaterialsDataSource extends DataGridSource {
           DataGridCell(columnName: 'Unit', value: m.unit),
           DataGridCell(
               columnName: 'Cost Price',
-              value: '${GlobalMethods.getMoney(m.costPrice)} ${m.currency}'),
+              value: '${GlobalUtils.getMoney(m.costPrice)} ${m.currency}'),
           DataGridCell(
               columnName: 'Sale Price',
-              value: '${GlobalMethods.getMoney(m.salePrice)} ${m.currency}'),
+              value: '${GlobalUtils.getMoney(m.salePrice)} ${m.currency}'),
           DataGridCell(columnName: 'Note', value: m.note ?? ''),
           // DataGridCell(columnName: 'Expiry Date', value: m.), TODO
         ]);

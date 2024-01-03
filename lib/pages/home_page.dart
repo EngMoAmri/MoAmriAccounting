@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_side_menu/flutter_side_menu.dart';
 import 'package:get/get.dart';
+import 'package:moamri_accounting/return/pages/return_page.dart';
 import 'package:moamri_accounting/sale/pages/sale_page.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -190,16 +191,15 @@ class _HomePageState extends State<HomePage> {
                             isSelected: selectedPage == 3,
                             title: 'المرتجع',
                             onTap: () {
-                              // pageController.jumpToPage(3);
-                              // setState(() {
-                              //   selectedPage = 3;
-                              // });
+                              pageController.jumpToPage(3);
+                              setState(() {
+                                selectedPage = 3;
+                              });
                             },
                             icon: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 5),
-                              child: Image.asset(
-                                  'assets/images/cart.png'), // TODO change the image
+                              child: Image.asset('assets/images/return.png'),
                             )),
                         SideMenuItemDataTile(
                             isSelected: selectedPage == 4,
@@ -338,6 +338,11 @@ class _HomePageState extends State<HomePage> {
                         Row(
                           children: [
                             Expanded(child: SalePage()),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Expanded(child: ReturnPage()),
                           ],
                         ),
                         Container(

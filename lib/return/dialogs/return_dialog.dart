@@ -18,12 +18,12 @@ import 'package:moamri_accounting/database/items/invoice_material_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
 import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
+import 'package:moamri_accounting/utils/global_utils.dart';
 
 import '../../customers/controllers/customers_controller.dart';
 import '../../database/entities/customer.dart';
 import '../../inventory/controllers/inventory_controller.dart';
 import '../../inventory/dialogs/edit_currency_dialog.dart';
-import '../../utils/global_utils.dart';
 import '../print/print_invoice.dart';
 import 'print_order_dialog.dart';
 
@@ -1144,13 +1144,12 @@ Future<bool?> showSaleDialog(
                                                             invoiceOffersItems: [
                                                           //TODO
                                                         ]);
-                                                    invoiceItem.invoice.id =
-                                                        await InvoicesDatabase
-                                                            .insertInvoiceItem(
-                                                                invoiceItem,
-                                                                mainController
-                                                                    .currentUser
-                                                                    .value!);
+                                                    await InvoicesDatabase
+                                                        .insertInvoiceItem(
+                                                            invoiceItem,
+                                                            mainController
+                                                                .currentUser
+                                                                .value!);
                                                     if (printReceiptCheckBox) {
                                                       var printChoice =
                                                           mainController
@@ -1299,13 +1298,12 @@ Future<bool?> showSaleDialog(
                                                             invoiceOffersItems: [
                                                           //TODO
                                                         ]);
-                                                    invoiceItem.invoice.id =
-                                                        await InvoicesDatabase
-                                                            .insertInvoiceItem(
-                                                                invoiceItem,
-                                                                mainController
-                                                                    .currentUser
-                                                                    .value!);
+                                                    await InvoicesDatabase
+                                                        .insertInvoiceItem(
+                                                            invoiceItem,
+                                                            mainController
+                                                                .currentUser
+                                                                .value!);
                                                     if (printReceiptCheckBox) {
                                                       var printChoice =
                                                           mainController

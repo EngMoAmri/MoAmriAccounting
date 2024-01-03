@@ -249,7 +249,6 @@ class MyMaterialsDatabase {
         smallerMaterial: null);
   }
 
-// TODO Sale
   static Future<void> supplyMaterialQuantityFromLargerMaterialsTransaction(
       MyMaterial material, double requiredQuantity, Transaction txn) async {
     var availableQuantity = material.quantity;
@@ -286,7 +285,10 @@ class MyMaterialsDatabase {
 
   static Future<double> getAvailableQuantity(
       MyMaterial material, SaleController? saleController) async {
-    var materialItem = await MyMaterialsDatabase.getMyMaterialItem(material);
+    // the below line is just to get the real quanttity cos maybe the qunantity changed from inventory
+    var currentMaterial = await getMaterialByID(material.id!, null);
+    var materialItem =
+        await MyMaterialsDatabase.getMyMaterialItem(currentMaterial);
 
     // first we set the quantity to current material
     var availableQuantity = materialItem!.material.quantity;

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
@@ -9,7 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
-import '../../utils/global_methods.dart';
+import '../../utils/global_utils.dart';
 
 Future<dynamic> printMaterialsRoll(MainController mainController,
     InventoryController inventoryController) async {
@@ -29,8 +28,6 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
               Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
           bold: Font.ttf(
               await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
-  final dateFormat = intl.DateFormat('yyyy-MM-dd');
-  final timeFormat = intl.DateFormat('hh:mm a');
   // final img = await rootBundle.load('assets/images/customers.png');TODO
   // final imageBytes = img.buffer.asUint8List();
   // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
@@ -60,11 +57,13 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
           },
           children: [
             TableRow(children: [
-              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.dateFormat.format(DateTime.now()))),
               Text("التاريخ"),
             ]),
             TableRow(children: [
-              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.timeFormat.format(DateTime.now()))),
               Text("الوقت"),
             ]),
             TableRow(children: [
@@ -130,7 +129,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                           child: FittedBox(
                               fit: BoxFit.fitWidth,
                               child: Text(
-                                  "${GlobalMethods.getMoney(material.costPrice)} ${material.currency}")))
+                                  "${GlobalUtils.getMoney(material.costPrice)} ${material.currency}")))
                     ])
                   ]),
                   TableRow(children: [
@@ -141,7 +140,7 @@ Future<dynamic> printMaterialsRoll(MainController mainController,
                           child: FittedBox(
                               fit: BoxFit.fitWidth,
                               child: Text(
-                                  "${GlobalMethods.getMoney(material.salePrice)} ${material.currency}")))
+                                  "${GlobalUtils.getMoney(material.salePrice)} ${material.currency}")))
                     ])
                   ]),
                 ])),
@@ -200,8 +199,6 @@ Future<dynamic> printMaterialsA4(MainController mainController,
               Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
           bold: Font.ttf(
               await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
-  final dateFormat = intl.DateFormat('yyyy-MM-dd');
-  final timeFormat = intl.DateFormat('hh:mm a');
   List<Widget> widgets = [];
   widgets.add(SizedBox(height: 10));
   widgets.add(Directionality(
@@ -242,9 +239,11 @@ Future<dynamic> printMaterialsA4(MainController mainController,
             TableRow(children: [
               Center(child: Text(materialsCount.toString())),
               Text("عدد المواد", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.timeFormat.format(DateTime.now()))),
               Text("الوقت", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.dateFormat.format(DateTime.now()))),
               Text("التاريخ", style: TextStyle(fontWeight: FontWeight.bold)),
             ]),
           ])));
@@ -304,12 +303,12 @@ Future<dynamic> printMaterialsA4(MainController mainController,
             padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text(
-                    "${GlobalMethods.getMoney(material.salePrice)} ${material.currency}"))),
+                    "${GlobalUtils.getMoney(material.salePrice)} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(
                 child: Text(
-                    "${GlobalMethods.getMoney(material.costPrice)} ${material.currency}"))),
+                    "${GlobalUtils.getMoney(material.costPrice)} ${material.currency}"))),
         Padding(
             padding: const EdgeInsets.all(4),
             child: Center(child: Text(material.name))),

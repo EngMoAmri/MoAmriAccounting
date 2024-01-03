@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:moamri_accounting/controllers/main_controller.dart';
 import 'package:moamri_accounting/database/entities/currency.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/widgets.dart';
 
-import '../../utils/global_methods.dart';
+import '../../utils/global_utils.dart';
 
 Future<dynamic> printCurrenciesRoll(
     MainController mainController, List<Currency> currencies) async {
@@ -18,8 +17,6 @@ Future<dynamic> printCurrenciesRoll(
               Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
           bold: Font.ttf(
               await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
-  final dateFormat = intl.DateFormat('yyyy-MM-dd');
-  final timeFormat = intl.DateFormat('hh:mm a');
   // final img = await rootBundle.load('assets/images/customers.png');TODO
   // final imageBytes = img.buffer.asUint8List();
   // PdfImage logoImage = PdfImage.file(pdf.document, bytes: imageBytes);
@@ -49,11 +46,13 @@ Future<dynamic> printCurrenciesRoll(
           },
           children: [
             TableRow(children: [
-              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.dateFormat.format(DateTime.now()))),
               Text("التاريخ"),
             ]),
             TableRow(children: [
-              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.timeFormat.format(DateTime.now()))),
               Text("الوقت"),
             ]),
             TableRow(children: [
@@ -87,7 +86,7 @@ Future<dynamic> printCurrenciesRoll(
       Padding(
           padding: const EdgeInsets.all(4),
           child: Center(
-              child: Text(GlobalMethods.getMoney(currency.exchangeRate),
+              child: Text(GlobalUtils.getMoney(currency.exchangeRate),
                   textAlign: TextAlign.center))),
       Padding(
           padding: const EdgeInsets.all(4),
@@ -134,8 +133,6 @@ Future<dynamic> printCurrenciesA4(
               Font.ttf(await rootBundle.load("assets/fonts/Hacen-Tunisia.ttf")),
           bold: Font.ttf(
               await rootBundle.load("assets/fonts/Hacen Tunisia Bold.ttf"))));
-  final dateFormat = intl.DateFormat('yyyy-MM-dd');
-  final timeFormat = intl.DateFormat('hh:mm a');
   List<Widget> widgets = [];
   widgets.add(SizedBox(height: 10));
   widgets.add(Directionality(
@@ -177,9 +174,11 @@ Future<dynamic> printCurrenciesA4(
               Center(child: Text(currencies.length.toString())),
               Text("عدد العملات",
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(timeFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.timeFormat.format(DateTime.now()))),
               Text("الوقت", style: TextStyle(fontWeight: FontWeight.bold)),
-              Center(child: Text(dateFormat.format(DateTime.now()))),
+              Center(
+                  child: Text(GlobalUtils.dateFormat.format(DateTime.now()))),
               Text("التاريخ", style: TextStyle(fontWeight: FontWeight.bold)),
             ]),
           ])));
@@ -209,7 +208,7 @@ Future<dynamic> printCurrenciesA4(
       Padding(
           padding: const EdgeInsets.all(4),
           child: Center(
-              child: Text(GlobalMethods.getMoney(currency.exchangeRate),
+              child: Text(GlobalUtils.getMoney(currency.exchangeRate),
                   textAlign: TextAlign.center))),
       Padding(
           padding: const EdgeInsets.all(4),

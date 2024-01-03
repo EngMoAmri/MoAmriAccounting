@@ -1,10 +1,17 @@
+import 'package:moamri_accounting/database/customers_database.dart';
+import 'package:moamri_accounting/database/entities/invoice.dart';
 import 'package:moamri_accounting/database/items/invoice_item.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import '../utils/global_utils.dart';
 import 'entities/audit.dart';
+import 'entities/debt.dart';
+import 'entities/invoice_material.dart';
 import 'entities/my_material.dart';
+import 'entities/payment.dart';
 import 'entities/user.dart';
+import 'items/invoice_material_item.dart';
 import 'my_database.dart';
 
 class InvoicesDatabase {
@@ -39,6 +46,17 @@ class InvoicesDatabase {
                 invoiceMaterialItem.material,
                 invoiceMaterialItem.invoiceMaterial.quantity,
                 txn);
+
+        // reduce the quantity
+        MyMaterial newMaterial = invoiceMaterialItem.material;
+        newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
+        await txn.update(
+          'materials',
+          newMaterial.toMap(),
+          where: 'id = ?',
+          whereArgs: [newMaterial.id],
+          conflictAlgorithm: ConflictAlgorithm.fail,
+        );
       }
       for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
         await txn.insert(
@@ -90,6 +108,80 @@ class InvoicesDatabase {
       );
       return invoiceItem.invoice.id!;
     });
+  }
+
+  static Future<List<InvoiceItem>> getInvoicesSuggestions(String text) async {
+    String trimText = text.trim();
+    int? id = int.tryParse(trimText);
+    if (id == null) return [];
+    id -= GlobalUtils.idOffset; // this to get the rel id
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query('invoice',
+        distinct: true,
+        where: "CAST(id as TEXT) like ?",
+        whereArgs: ["%$trimText%"],
+        limit: 10);
+    List<InvoiceItem> invoices = [];
+    for (var map in maps) {
+      var invoice = Invoice.fromMap(map);
+      var payments = await getInvoicePayments(invoice.id!);
+      var debt = await getInvoiceDebt(invoice.id!);
+      var customer =
+          await CustomersDatabase.getCustomerByID(invoice.customerId);
+      var inoviceMaterialsItems = await getInvoiceMaterials(invoice.id!);
+      invoices.add(InvoiceItem(
+          invoice: invoice,
+          payments: payments,
+          debt: debt,
+          customer: customer,
+          inoviceMaterialsItems: inoviceMaterialsItems,
+          invoiceOffersItems: [/*TODO*/]));
+    }
+    return invoices;
+  }
+
+  static Future<List<Payment>> getInvoicePayments(int invoiceId) async {
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query(
+      'payments',
+      where: 'invoice_id = ?',
+      whereArgs: [invoiceId],
+    );
+    List<Payment> payments = [];
+    for (var map in maps) {
+      payments.add(Payment.fromMap(map));
+    }
+    return payments;
+  }
+
+  static Future<Debt?> getInvoiceDebt(int invoiceId) async {
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query(
+      'debts',
+      where: 'invoice_id = ?',
+      whereArgs: [invoiceId],
+    );
+    if (maps.isEmpty) return null;
+    return Debt.fromMap(maps.first);
+  }
+
+  static Future<List<InvoiceMaterialItem>> getInvoiceMaterials(
+      int invoiceId) async {
+    List<Map<String, dynamic>> maps;
+    maps = await MyDatabase.myDatabase.query(
+      'invoices_materials',
+      where: 'invoice_id = ?',
+      whereArgs: [invoiceId],
+    );
+    List<InvoiceMaterialItem> materials = [];
+    for (var map in maps) {
+      var invoiceMaterial = InvoiceMaterial.fromMap(map);
+      materials.add(InvoiceMaterialItem(
+          invoiceMaterial: invoiceMaterial,
+          material: await MyMaterialsDatabase.getMaterialByID(
+              invoiceMaterial.materialId, null)));
+    }
+    return materials;
   }
 
   // static Future<void> updateInvoice(InvoiceItem invoiceItem,

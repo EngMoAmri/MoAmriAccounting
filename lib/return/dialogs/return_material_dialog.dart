@@ -2,23 +2,22 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
-import 'package:moamri_accounting/database/my_materials_database.dart';
-import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
+import 'package:moamri_accounting/return/controllers/return_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
 import '../../utils/global_utils.dart';
 
-Future<bool?> showSaleMaterialDialog(MainController mainController,
-    SaleController saleController, int selectedIndex) async {
+Future<bool?> showReturnMaterialDialog(MainController mainController,
+    ReturnController returnController, int selectedIndex) async {
   Map<String, dynamic> saleData =
-      saleController.dataSource.value.salesData[selectedIndex];
+      returnController.dataSource.value.salesData[selectedIndex];
   MyMaterial material = saleData['Material'];
-  saleController.searchController.clear();
-  saleController.materialDialogQuantity.value = saleData['Quantity'];
-  saleController.materialDialogQuantityTextController.text =
+  returnController.searchController.clear();
+  returnController.materialDialogQuantity.value = saleData['Quantity'];
+  returnController.materialDialogQuantityTextController.text =
       "${saleData['Quantity']}";
-  saleController.materialDialogNoteTextController.text = saleData['Note'];
+  returnController.materialDialogNoteTextController.text = saleData['Note'];
 
   return await showDialog(
       context: Get.context!,
@@ -141,7 +140,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                 child: FittedBox(
                                                     fit: BoxFit.fitWidth,
                                                     child: Text(
-                                                        '${GlobalUtils.getMoney(saleController.materialDialogQuantity.value * material.salePrice)} ${material.currency}',
+                                                        '${GlobalUtils.getMoney(returnController.materialDialogQuantity.value * material.salePrice)} ${material.currency}',
                                                         textAlign: TextAlign
                                                             .center)))),
                                       ]),
@@ -150,7 +149,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                               Expanded(
                                 flex: 2,
                                 child: Form(
-                                  key: saleController.materialDialogFormKey,
+                                  key: returnController.materialDialogFormKey,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
@@ -172,22 +171,23 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   color: Colors.black,
                                                 ),
                                                 onPressed: () {
-                                                  var currentQuantity = double
-                                                          .tryParse(saleController
-                                                              .materialDialogQuantityTextController
-                                                              .text
-                                                              .trim()) ??
-                                                      0;
+                                                  var currentQuantity =
+                                                      double.tryParse(
+                                                              returnController
+                                                                  .materialDialogQuantityTextController
+                                                                  .text
+                                                                  .trim()) ??
+                                                          0;
                                                   if (currentQuantity == 1) {
                                                     return;
                                                   }
-                                                  saleController
+                                                  returnController
                                                       .materialDialogQuantityTextController
                                                       .text = (currentQuantity -
                                                           1)
                                                       .toString();
 
-                                                  saleController
+                                                  returnController
                                                           .materialDialogQuantity
                                                           .value =
                                                       currentQuantity - 1;
@@ -204,7 +204,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                 textCapitalization:
                                                     TextCapitalization
                                                         .sentences,
-                                                controller: saleController
+                                                controller: returnController
                                                     .materialDialogQuantityTextController,
                                                 decoration: InputDecoration(
                                                   filled: true,
@@ -251,13 +251,13 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   if (currentQuantity <= 0) {
                                                     showErrorDialog(
                                                         "لا يمكن أن تكون الكمية أقل من أو تساوي الصفر!");
-                                                    saleController
+                                                    returnController
                                                         .materialDialogQuantity
                                                         .value = material.quantity;
                                                     return;
                                                   }
 
-                                                  saleController
+                                                  returnController
                                                       .materialDialogQuantity
                                                       .value = currentQuantity;
                                                 },
@@ -290,12 +290,13 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   color: Colors.black,
                                                 ),
                                                 onPressed: () {
-                                                  var currentQuantity = double
-                                                          .tryParse(saleController
-                                                              .materialDialogQuantityTextController
-                                                              .text
-                                                              .trim()) ??
-                                                      0;
+                                                  var currentQuantity =
+                                                      double.tryParse(
+                                                              returnController
+                                                                  .materialDialogQuantityTextController
+                                                                  .text
+                                                                  .trim()) ??
+                                                          0;
                                                   // if (currentQuantity >=
                                                   //         material
                                                   //             .quantity &&
@@ -307,12 +308,12 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                                   //       "الكمية المتوفرة في المستودع تم تجاوزها!");
                                                   //   return;
                                                   // }
-                                                  saleController
+                                                  returnController
                                                       .materialDialogQuantityTextController
                                                       .text = (currentQuantity +
                                                           1)
                                                       .toString();
-                                                  saleController
+                                                  returnController
                                                           .materialDialogQuantity
                                                           .value =
                                                       currentQuantity + 1;
@@ -336,7 +337,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 4.0, horizontal: 18),
                                         child: TextFormField(
-                                            controller: saleController
+                                            controller: returnController
                                                 .materialDialogNoteTextController,
                                             decoration: InputDecoration(
                                               counterText: '',
@@ -383,46 +384,34 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                                         Expanded(
                                           child: OutlinedButton.icon(
                                               onPressed: () async {
-                                                if (saleController
+                                                if (returnController
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
                                                   // TODO make a button to open this dialog
-                                                  var availableQuantity =
-                                                      await MyMaterialsDatabase
-                                                          .getAvailableQuantity(
-                                                              material,
-                                                              saleController);
-                                                  if (availableQuantity <
-                                                      saleController
-                                                          .materialDialogQuantity
-                                                          .value) {
-                                                    await showErrorDialog(
-                                                        'تم تجاوز الكمية الموجودة في المستودع!');
-                                                    return;
-                                                  }
 
                                                   saleData['Quantity'] =
-                                                      saleController
+                                                      returnController
                                                           .materialDialogQuantity
                                                           .value;
                                                   saleData[
-                                                      'Total'] = saleController
+                                                      'Total'] = returnController
                                                           .materialDialogQuantity
                                                           .value *
                                                       material.salePrice;
-                                                  saleData['Note'] = saleController
-                                                      .materialDialogNoteTextController
-                                                      .text
-                                                      .trim();
-                                                  saleController
+                                                  saleData['Note'] =
+                                                      returnController
+                                                          .materialDialogNoteTextController
+                                                          .text
+                                                          .trim();
+                                                  returnController
                                                       .dataSource.value
                                                       .notifyListeners();
-                                                  saleController
+                                                  returnController
                                                       .dataSource.value
                                                       .calculateTotals(
-                                                          saleController);
-                                                  saleController.dataSource
+                                                          returnController);
+                                                  returnController.dataSource
                                                       .refresh();
                                                   await AudioPlayer().play(
                                                       AssetSource(

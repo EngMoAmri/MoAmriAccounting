@@ -22,9 +22,6 @@ Future<dynamic> printInvoiceRoll(
   widgets.add(Center(
       child: Text("فاتورة مبيعات",
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
-  widgets.add(Center(
-      child: Text("${invoiceItem.invoice.id! + GlobalUtils.idOffset}",
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))));
   widgets.add(SizedBox(height: 4));
   widgets.add(Center(
       child: Text(mainController.storeData.value!.name,
@@ -305,11 +302,6 @@ Future<dynamic> printInvoiceA4(
       child: Directionality(
           textDirection: TextDirection.rtl,
           child: Text("فاتورة مبيعات",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)))));
-  widgets.add(Center(
-      child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Text("${invoiceItem.invoice.id! + GlobalUtils.idOffset}",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)))));
   widgets.add(SizedBox(height: 4));
   widgets.add(Directionality(

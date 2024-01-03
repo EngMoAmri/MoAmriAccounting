@@ -11,7 +11,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../database/currencies_database.dart';
 import '../../database/entities/currency.dart';
 import '../../database/my_materials_database.dart';
-import '../../utils/global_methods.dart';
+import '../../sale/controllers/sale_controller.dart';
+import '../../utils/global_utils.dart';
 import 'add_currency_dialog.dart';
 
 Future<bool?> showAddMaterialDialog(MainController mainController) async {
@@ -768,7 +769,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10),
                                             child: Text(
-                                                "الربح: ${GlobalMethods.getMoney(profit)} ${currency?.name ?? ''}"),
+                                                "الربح: ${GlobalUtils.getMoney(profit)} ${currency?.name ?? ''}"),
                                           ),
                                         ),
                                       ),
@@ -1069,6 +1070,10 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                     .currentUser.value!);
                                         await showSuccessDialog(
                                             "تم إضافة المادة بنجاح");
+                                        SaleController saleController =
+                                            Get.find();
+                                        saleController.getCategories();
+
                                         Get.back(result: true);
                                       } catch (e) {
                                         setState(() {

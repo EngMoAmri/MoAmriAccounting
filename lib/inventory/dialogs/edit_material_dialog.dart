@@ -11,7 +11,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../database/currencies_database.dart';
 import '../../database/entities/currency.dart';
-import '../../utils/global_methods.dart';
+import '../../sale/controllers/sale_controller.dart';
+import '../../utils/global_utils.dart';
 import 'add_currency_dialog.dart';
 
 Future<bool?> showEditMaterialDialog(
@@ -802,7 +803,7 @@ Future<bool?> showEditMaterialDialog(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10),
                                             child: Text(
-                                                "الربح: ${GlobalMethods.getMoney(profit)} ${currency?.name ?? ''}"),
+                                                "الربح: ${GlobalUtils.getMoney(profit)} ${currency?.name ?? ''}"),
                                           ),
                                         ),
                                       ),
@@ -1134,6 +1135,12 @@ Future<bool?> showEditMaterialDialog(
                                                     .currentUser.value!);
                                         await showSuccessDialog(
                                             "تم تعديل المادة بنجاح");
+
+                                        SaleController saleController =
+                                            Get.find();
+                                        saleController.getCategories();
+                                        // saleController.dataSource.value
+                                        //     .clearDataGridRows(saleController);
                                         Get.back(result: true);
                                       } catch (e) {
                                         setState(() {

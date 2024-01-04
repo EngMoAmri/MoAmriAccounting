@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/database/items/invoice_item.dart';
+import 'package:moamri_accounting/return/data_sources/bill_materials_data_source.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../data_sources/returned_materials_data_source.dart';
-import '../../database/entities/my_material.dart';
-import '../../database/my_materials_database.dart';
 
 class ReturnController extends GetxController {
-  final searchController = TextEditingController();
   final billIDController = TextEditingController();
   Rx<InvoiceItem?> invoiceItem = Rx(null);
   Rx<bool> searching = false.obs;
-  Rx<bool?> visible = Rx(null);
   Rx<Map<String, double>> totals = Rx({});
   Rx<String> totalString = ''.obs;
 
-  Rx<bool> loadingCategories = true.obs;
-  Rx<List<String>> categories = Rx([]);
-  Rx<int> selectedCategory = 0.obs;
-  Rx<bool> loadingMaterials = false.obs;
-  Rx<List<MyMaterial>> materials = Rx([]);
-  Rx<int> selectedMaterial = (-1).obs;
-  final DataGridController dataGridController = DataGridController();
+  final DataGridController billDataGridController = DataGridController();
+  final DataGridController returnedDataGridController = DataGridController();
   Rx<Map<String, double>> columnWidths = Rx({
     'Barcode': double.nan,
     'Name': double.nan,
@@ -33,28 +25,9 @@ class ReturnController extends GetxController {
     'Note': double.nan
   });
 
-  Rx<ReturnedMaterialsDataSource> dataSource =
+  Rx<BillMaterialsDataSource> billDataSource = Rx(BillMaterialsDataSource());
+  Rx<ReturnedMaterialsDataSource> returnedDataSource =
       Rx(ReturnedMaterialsDataSource());
-
-  Future<void> getCategories() async {
-    loadingCategories.value = true;
-    categories.value.clear();
-    categories.value.addAll(await MyMaterialsDatabase.getMaterialsCategories());
-    categories.refresh();
-    loadingCategories.value = false;
-    if (categories.value.isNotEmpty) {
-      getCategoryMaterials();
-    }
-  }
-
-  Future<void> getCategoryMaterials() async {
-    loadingMaterials.value = true;
-    materials.value.clear();
-    materials.value.addAll(await MyMaterialsDatabase.getCategoryMaterials(
-        categories.value[selectedCategory.value]));
-    materials.refresh();
-    loadingMaterials.value = false;
-  }
 
   // sale material dialog variables
   final materialDialogFormKey = GlobalKey<FormState>();
@@ -62,9 +35,18 @@ class ReturnController extends GetxController {
   Rx<double> materialDialogQuantity = 1.0.obs;
   final materialDialogNoteTextController = TextEditingController();
 
-  @override
-  void onInit() {
-    getCategories();
-    super.onInit();
+  setBillDataSource() {
+    List<Map<String, dynamic>> salesData = [];
+    for (var materialItem in invoiceItem.value!.inoviceMaterialsItems) {
+      salesData.add({
+        'Material': materialItem.material,
+        'Quantity': materialItem.invoiceMaterial.quantity,
+        'Total': materialItem.invoiceMaterial.quantity *
+            materialItem.material.salePrice,
+        'Note': materialItem.invoiceMaterial.note,
+      });
+    }
+    billDataSource.value.setDataGridRows(salesData, this);
+    billDataSource.refresh();
   }
 }

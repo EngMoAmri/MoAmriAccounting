@@ -1124,26 +1124,27 @@ Future<bool?> showSaleDialog(
                                                           InvoiceMaterialItem(
                                                               material: saleData[
                                                                   'Material'],
-                                                              invoiceMaterial: InvoiceMaterial(
-                                                                  materialId:
-                                                                      saleData[
-                                                                              'Material']
-                                                                          .id,
-                                                                  quantity:
-                                                                      saleData[
-                                                                          'Quantity'])));
+                                                              invoiceMaterial:
+                                                                  InvoiceMaterial(
+                                                                materialId:
+                                                                    saleData[
+                                                                            'Material']
+                                                                        .id,
+                                                                quantity: saleData[
+                                                                    'Quantity'],
+                                                                note: saleData[
+                                                                    'Note'],
+                                                              )));
                                                     }
                                                     InvoiceItem invoiceItem =
                                                         InvoiceItem(
-                                                            invoice: invoice,
-                                                            payments: payments,
-                                                            debt: null,
-                                                            customer: null,
-                                                            inoviceMaterialsItems:
-                                                                inoviceMaterialsItem,
-                                                            invoiceOffersItems: [
-                                                          //TODO
-                                                        ]);
+                                                      invoice: invoice,
+                                                      payments: payments,
+                                                      debt: null,
+                                                      customer: null,
+                                                      inoviceMaterialsItems:
+                                                          inoviceMaterialsItem,
+                                                    );
                                                     invoiceItem.invoice.id =
                                                         await InvoicesDatabase
                                                             .insertInvoiceItem(
@@ -1279,26 +1280,27 @@ Future<bool?> showSaleDialog(
                                                           InvoiceMaterialItem(
                                                               material: saleData[
                                                                   'Material'],
-                                                              invoiceMaterial: InvoiceMaterial(
-                                                                  materialId:
-                                                                      saleData[
-                                                                              'Material']
-                                                                          .id,
-                                                                  quantity:
-                                                                      saleData[
-                                                                          'Quantity'])));
+                                                              invoiceMaterial:
+                                                                  InvoiceMaterial(
+                                                                materialId:
+                                                                    saleData[
+                                                                            'Material']
+                                                                        .id,
+                                                                quantity: saleData[
+                                                                    'Quantity'],
+                                                                note: saleData[
+                                                                    'Note'],
+                                                              )));
                                                     }
                                                     InvoiceItem invoiceItem =
                                                         InvoiceItem(
-                                                            invoice: invoice,
-                                                            payments: payments,
-                                                            debt: debt,
-                                                            customer: null,
-                                                            inoviceMaterialsItems:
-                                                                inoviceMaterialsItem,
-                                                            invoiceOffersItems: [
-                                                          //TODO
-                                                        ]);
+                                                      invoice: invoice,
+                                                      payments: payments,
+                                                      debt: debt,
+                                                      customer: null,
+                                                      inoviceMaterialsItems:
+                                                          inoviceMaterialsItem,
+                                                    );
                                                     invoiceItem.invoice.id =
                                                         await InvoicesDatabase
                                                             .insertInvoiceItem(

@@ -23,7 +23,7 @@ Future<dynamic> printInvoiceRoll(
       child: Text("فاتورة مبيعات",
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold))));
   widgets.add(Center(
-      child: Text("${invoiceItem.invoice.id! + GlobalUtils.idOffset}",
+      child: Text("${invoiceItem.invoice.id!}",
           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold))));
   widgets.add(SizedBox(height: 4));
   widgets.add(Center(
@@ -69,9 +69,8 @@ Future<dynamic> printInvoiceRoll(
             ]),
             TableRow(children: [
               Center(
-                  child: Text((invoiceItem.inoviceMaterialsItems.length +
-                          invoiceItem.invoiceOffersItems.length)
-                      .toString())),
+                  child: Text(
+                      invoiceItem.inoviceMaterialsItems.length.toString())),
               Text("عدد المواد"),
             ]),
           ])));
@@ -309,7 +308,7 @@ Future<dynamic> printInvoiceA4(
   widgets.add(Center(
       child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Text("${invoiceItem.invoice.id! + GlobalUtils.idOffset}",
+          child: Text("${invoiceItem.invoice.id!}",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)))));
   widgets.add(SizedBox(height: 4));
   widgets.add(Directionality(
@@ -341,9 +340,8 @@ Future<dynamic> printInvoiceA4(
             ]),
             TableRow(children: [
               Center(
-                  child: Text((invoiceItem.inoviceMaterialsItems.length +
-                          invoiceItem.invoiceOffersItems.length)
-                      .toString())),
+                  child: Text(
+                      invoiceItem.inoviceMaterialsItems.length.toString())),
               Text("عدد المواد", style: TextStyle(fontWeight: FontWeight.bold)),
               Center(
                   child: Text(GlobalUtils.timeFormat.format(

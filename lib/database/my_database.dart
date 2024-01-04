@@ -73,6 +73,15 @@ class MyDatabase {
       role TEXT CHECK( role IN ('admin','cashier') ) NOT NULL DEFAULT 'cashier'
     )
     ''');
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'users';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'users', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS units (
@@ -118,25 +127,25 @@ class MyDatabase {
     )
     ''');
 
-    await myDatabase.execute("""
-    CREATE TABLE IF NOT EXISTS offers(
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
-      price REAl NOT NULL,
-      note TEXT
-    )
-    """);
+    // await myDatabase.execute("""
+    // CREATE TABLE IF NOT EXISTS offers(
+    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE,
+    //   price REAl NOT NULL,
+    //   note TEXT
+    // )
+    // """);
 
-    await myDatabase.execute("""
-    CREATE TABLE IF NOT EXISTS offers_materials(
-      offer_id INTEGER, 
-      material_id INTEGER,
-      quantity REAL NOT NULL, 
-      PRIMARY KEY(offer_id, material_id),
-      FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE, 
-      FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE RESTRICT
-    )
-    """);
+    // await myDatabase.execute("""
+    // CREATE TABLE IF NOT EXISTS offers_materials(
+    //   offer_id INTEGER,
+    //   material_id INTEGER,
+    //   quantity REAL NOT NULL,
+    //   PRIMARY KEY(offer_id, material_id),
+    //   FOREIGN KEY(offer_id) REFERENCES offers(id) ON DELETE CASCADE,
+    //   FOREIGN KEY(material_id) REFERENCES materials(id) ON DELETE RESTRICT
+    // )
+    // """);
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS customers(
@@ -147,6 +156,15 @@ class MyDatabase {
       description TEXT
     )
     ''');
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'customers';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'customers', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS invoices (
@@ -159,23 +177,33 @@ class MyDatabase {
       note TEXT
     )
     ''');
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'invoices';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'invoices', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
 
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS invoices_materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
       material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL
+      quantity REAL NOT NULL,
+      note TEXT
     )
     ''');
-    await myDatabase.execute('''
-    CREATE TABLE IF NOT EXISTS invoices_offers (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-      offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
-      quantity REAL NOT NULL
-    )
-    ''');
+    // await myDatabase.execute('''
+    // CREATE TABLE IF NOT EXISTS invoices_offers (
+    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    //   offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
+    //   quantity REAL NOT NULL
+    // )
+    // ''');
 
     await myDatabase.execute("""
     CREATE TABLE IF NOT EXISTS payments(
@@ -189,6 +217,15 @@ class MyDatabase {
     )
     """);
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'payments';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'payments', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     // here we can not delete the customer except if we delete all his/her debts
     await myDatabase.execute("""
     CREATE TABLE IF NOT EXISTS debts(
@@ -202,6 +239,15 @@ class MyDatabase {
     )
     """);
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'debts';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'debts', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS suppliers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -213,10 +259,19 @@ class MyDatabase {
     )
     ''');
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'suppliers';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'suppliers', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS purchases (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE NO ACTION,
+      supplier_id INTEGER REFERENCES suppliers(id) ON DELETE NO ACTION,
       date INTEGER NOT NULL, 
       type TEXT CHECK( type IN ('purchase','return') ) NOT NULL,
       discount REAL,
@@ -224,6 +279,15 @@ class MyDatabase {
     )
     ''');
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'purchases';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'purchases', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS purchases_materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -247,6 +311,15 @@ class MyDatabase {
     )
     """);
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'purchases_payments';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'purchases_payments', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     // here we can not delete the customer except if we delete all his/her debts
     await myDatabase.execute("""
     CREATE TABLE IF NOT EXISTS purchases_debts(
@@ -260,6 +333,15 @@ class MyDatabase {
     )
     """);
 
+    await myDatabase.execute(
+      '''
+    BEGIN TRANSACTION;
+    UPDATE sqlite_sequence SET seq = 100000 WHERE name = 'purchases_debts';
+    INSERT INTO sqlite_sequence (name,seq) SELECT 'purchases_debts', 100000 WHERE NOT EXISTS 
+              (SELECT changes() AS change FROM sqlite_sequence WHERE change <> 0);
+    COMMIT;
+    ''',
+    );
     ////////////////////////////////////////////////////////////////////////////////////////////
   }
 
@@ -316,7 +398,6 @@ class MyDatabase {
 
   static Future close() async => MyDatabase.myDatabase.close();
 }
-
 
 /*
 // TODO ENCRYPTION

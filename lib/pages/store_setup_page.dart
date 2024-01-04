@@ -13,6 +13,7 @@ class StoreSetupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final StoreSetupController controller = Get.put(StoreSetupController());
+    // TODO show this as login dialog
     WindowOptions windowOptions = const WindowOptions(
       size: Size(800, 500),
       maximumSize: Size(800, 500),

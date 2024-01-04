@@ -11,9 +11,9 @@ import '../../utils/global_utils.dart';
 Future<bool?> showReturnMaterialDialog(MainController mainController,
     ReturnController returnController, int selectedIndex) async {
   Map<String, dynamic> saleData =
-      returnController.dataSource.value.salesData[selectedIndex];
+      returnController.billDataSource.value.salesData[selectedIndex];
   MyMaterial material = saleData['Material'];
-  returnController.searchController.clear();
+  // returnController.searchController.clear();
   returnController.materialDialogQuantity.value = saleData['Quantity'];
   returnController.materialDialogQuantityTextController.text =
       "${saleData['Quantity']}";
@@ -404,20 +404,20 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                           .materialDialogNoteTextController
                                                           .text
                                                           .trim();
-                                                  returnController
-                                                      .dataSource.value
-                                                      .notifyListeners();
-                                                  returnController
-                                                      .dataSource.value
-                                                      .calculateTotals(
-                                                          returnController);
-                                                  returnController.dataSource
-                                                      .refresh();
-                                                  await AudioPlayer().play(
-                                                      AssetSource(
-                                                          'sounds/scanner-beep.mp3'));
+                                                  // returnController
+                                                  //     .dataSource.value
+                                                  //     .notifyListeners();
+                                                  // returnController
+                                                  //     .dataSource.value
+                                                  //     .calculateTotals(
+                                                  //         returnController);
+                                                  // returnController.dataSource
+                                                  //     .refresh();
+                                                  // await AudioPlayer().play(
+                                                  //     AssetSource(
+                                                  //         'sounds/scanner-beep.mp3'));
 
-                                                  Get.back();
+                                                  // Get.back();
                                                 }
                                               },
                                               style: ButtonStyle(

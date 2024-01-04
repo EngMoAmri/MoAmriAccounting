@@ -4,7 +4,6 @@ import 'package:moamri_accounting/database/items/invoice_item.dart';
 import 'package:moamri_accounting/database/my_materials_database.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import '../utils/global_utils.dart';
 import 'entities/audit.dart';
 import 'entities/debt.dart';
 import 'entities/invoice_material.dart';
@@ -27,9 +26,9 @@ class InvoicesDatabase {
       for (var invoiceMaterialItem in invoiceItem.inoviceMaterialsItems) {
         invoiceMaterialItem.invoiceMaterial.invoiceId = invoiceItem.invoice.id;
       }
-      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
-        invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
-      }
+      // for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+      //   invoiceOfferItem.invoiceOffer.invoiceId = invoiceItem.invoice.id;
+      // }
       for (var payment in invoiceItem.payments) {
         payment.invoiceId = invoiceItem.invoice.id;
       }
@@ -58,26 +57,26 @@ class InvoicesDatabase {
           conflictAlgorithm: ConflictAlgorithm.fail,
         );
       }
-      for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
-        await txn.insert(
-          'invoices_offers',
-          invoiceOfferItem.invoiceOffer.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.fail,
-        );
-        if (invoiceOfferItem.invoiceOffer.quantity > 0) {
-          throw Exception('TODO reduce the quantity with in update function');
-        }
-        // reduce the quantity
-        // MyMaterial newMaterial = invoiceOfferItem.offer;
-        // newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
-        // await txn.update(
-        //   'materials',
-        //   newMaterial.toMap(),
-        //   where: 'id = ?',
-        //   whereArgs: [newMaterial.id],
-        //   conflictAlgorithm: ConflictAlgorithm.fail,
-        // );
-      }
+      // for (var invoiceOfferItem in invoiceItem.invoiceOffersItems) {
+      //   await txn.insert(
+      //     'invoices_offers',
+      //     invoiceOfferItem.invoiceOffer.toMap(),
+      //     conflictAlgorithm: ConflictAlgorithm.fail,
+      //   );
+      //   if (invoiceOfferItem.invoiceOffer.quantity > 0) {
+      //     throw Exception('TODO reduce the quantity with in update function');
+      //   }
+      //   // reduce the quantity
+      //   // MyMaterial newMaterial = invoiceOfferItem.offer;
+      //   // newMaterial.quantity -= invoiceMaterialItem.invoiceMaterial.quantity;
+      //   // await txn.update(
+      //   //   'materials',
+      //   //   newMaterial.toMap(),
+      //   //   where: 'id = ?',
+      //   //   whereArgs: [newMaterial.id],
+      //   //   conflictAlgorithm: ConflictAlgorithm.fail,
+      //   // );
+      // }
       for (var payment in invoiceItem.payments) {
         await txn.insert(
           'payments',
@@ -114,9 +113,8 @@ class InvoicesDatabase {
     String trimText = text.trim();
     int? id = int.tryParse(trimText);
     if (id == null) return [];
-    id -= GlobalUtils.idOffset; // this to get the rel id
     List<Map<String, dynamic>> maps;
-    maps = await MyDatabase.myDatabase.query('invoice',
+    maps = await MyDatabase.myDatabase.query('invoices',
         distinct: true,
         where: "CAST(id as TEXT) like ?",
         whereArgs: ["%$trimText%"],
@@ -130,12 +128,12 @@ class InvoicesDatabase {
           await CustomersDatabase.getCustomerByID(invoice.customerId);
       var inoviceMaterialsItems = await getInvoiceMaterials(invoice.id!);
       invoices.add(InvoiceItem(
-          invoice: invoice,
-          payments: payments,
-          debt: debt,
-          customer: customer,
-          inoviceMaterialsItems: inoviceMaterialsItems,
-          invoiceOffersItems: [/*TODO*/]));
+        invoice: invoice,
+        payments: payments,
+        debt: debt,
+        customer: customer,
+        inoviceMaterialsItems: inoviceMaterialsItems,
+      ));
     }
     return invoices;
   }

@@ -66,9 +66,8 @@ Future<dynamic> printInvoiceRoll(
             ]),
             TableRow(children: [
               Center(
-                  child: Text((invoiceItem.inoviceMaterialsItems.length +
-                          invoiceItem.invoiceOffersItems.length)
-                      .toString())),
+                  child: Text(
+                      invoiceItem.inoviceMaterialsItems.length.toString())),
               Text("عدد المواد"),
             ]),
           ])));
@@ -333,9 +332,8 @@ Future<dynamic> printInvoiceA4(
             ]),
             TableRow(children: [
               Center(
-                  child: Text((invoiceItem.inoviceMaterialsItems.length +
-                          invoiceItem.invoiceOffersItems.length)
-                      .toString())),
+                  child: Text(
+                      invoiceItem.inoviceMaterialsItems.length.toString())),
               Text("عدد المواد", style: TextStyle(fontWeight: FontWeight.bold)),
               Center(
                   child: Text(GlobalUtils.timeFormat.format(

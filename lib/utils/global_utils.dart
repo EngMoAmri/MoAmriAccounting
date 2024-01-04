@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class GlobalUtils {
-  static const idOffset = 100000;
+  // static const idOffset = 100000;
   static final dateFormat = DateFormat('yyyy-MM-dd');
   static final timeFormat = DateFormat('hh:mm a');
 

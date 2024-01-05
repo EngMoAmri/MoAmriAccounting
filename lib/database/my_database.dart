@@ -191,8 +191,9 @@ class MyDatabase {
     CREATE TABLE IF NOT EXISTS invoices_materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
       quantity REAL NOT NULL,
+      price REAL NOT NULL,
       note TEXT
     )
     ''');
@@ -200,7 +201,8 @@ class MyDatabase {
     // CREATE TABLE IF NOT EXISTS invoices_offers (
     //   id INTEGER PRIMARY KEY AUTOINCREMENT,
     //   invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-    //   offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE NO ACTION,
+    //   offer_id INTEGER NOT NULL REFERENCES offers(id) ON DELETE RESTRICT,
+    // price REAL NOT NULL,
     //   quantity REAL NOT NULL
     // )
     // ''');
@@ -288,11 +290,12 @@ class MyDatabase {
     COMMIT;
     ''',
     );
+    // TODO check in deletable material
     await myDatabase.execute('''
     CREATE TABLE IF NOT EXISTS purchases_materials (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       purchase_id INTEGER NOT NULL REFERENCES purchases(id) ON DELETE CASCADE,
-      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE NO ACTION,
+      material_id INTEGER NOT NULL REFERENCES materials(id) ON DELETE RESTRICT,
       quantity REAL NOT NULL,
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE, 
       cost_price REAL NOT NULL

@@ -20,7 +20,7 @@ class MyMaterialsDatabase {
         '''SELECT * FROM materials WHERE larger_material_id = $materialId''');
     if (maps.isNotEmpty) return false;
     List<Map<String, dynamic>> maps2 = await MyDatabase.myDatabase.rawQuery(
-        '''SELECT * FROM offers_materials WHERE material_id = $materialId''');
+        '''SELECT * FROM invoices_materials WHERE material_id = $materialId''');
     if (maps2.isNotEmpty) return false;
     return true;
   }

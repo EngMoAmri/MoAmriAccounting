@@ -113,7 +113,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                 child: FittedBox(
                                                     fit: BoxFit.fitWidth,
                                                     child: Text(
-                                                        "${GlobalUtils.getMoney(material.salePrice)} ${material.currency}")))),
+                                                        "${GlobalUtils.getMoney(saleData['Price'])} ${material.currency}")))),
                                       ]),
                                       const TableRow(
                                           decoration: BoxDecoration(
@@ -140,7 +140,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                 child: FittedBox(
                                                     fit: BoxFit.fitWidth,
                                                     child: Text(
-                                                        '${GlobalUtils.getMoney(returnController.materialDialogQuantity.value * material.salePrice)} ${material.currency}',
+                                                        '${GlobalUtils.getMoney(returnController.materialDialogQuantity.value * saleData['Price'])} ${material.currency}',
                                                         textAlign: TextAlign
                                                             .center)))),
                                       ]),
@@ -398,7 +398,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                       'Total'] = returnController
                                                           .materialDialogQuantity
                                                           .value *
-                                                      material.salePrice;
+                                                      saleData['Price'];
                                                   saleData['Note'] =
                                                       returnController
                                                           .materialDialogNoteTextController

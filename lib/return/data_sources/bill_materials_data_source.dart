@@ -17,7 +17,8 @@ class BillMaterialsDataSource extends DataGridSource {
           DataGridCell(columnName: 'Unit', value: m.unit),
           DataGridCell(
               columnName: 'Price',
-              value: '${GlobalUtils.getMoney(m.salePrice)} ${m.currency}'),
+              value:
+                  '${GlobalUtils.getMoney(saleData['Price'])} ${m.currency}'),
           DataGridCell(
               columnName: 'Quantity', value: "${saleData['Quantity']}"),
           DataGridCell(

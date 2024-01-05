@@ -40,9 +40,10 @@ class ReturnController extends GetxController {
     for (var materialItem in invoiceItem.value!.inoviceMaterialsItems) {
       salesData.add({
         'Material': materialItem.material,
+        'Price': materialItem.invoiceMaterial.price,
         'Quantity': materialItem.invoiceMaterial.quantity,
         'Total': materialItem.invoiceMaterial.quantity *
-            materialItem.material.salePrice,
+            materialItem.invoiceMaterial.price,
         'Note': materialItem.invoiceMaterial.note,
       });
     }

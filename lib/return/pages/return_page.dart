@@ -10,8 +10,6 @@ import '../../database/invoices_database.dart';
 import '../controllers/return_controller.dart';
 import '../dialogs/return_material_dialog.dart';
 
-// TODO if store is just created check out sale pge
-// TODO clear bill id text input
 class ReturnPage extends StatelessWidget {
   ReturnPage({super.key});
   final MainController mainController = Get.find();
@@ -42,6 +40,7 @@ class ReturnPage extends StatelessWidget {
                       onSelected: (value) async {
                         controller.invoiceItem.value = value;
                         controller.setBillDataSource();
+                        controller.billIDController.clear();
                       },
                       suggestionsCallback: (String pattern) async {
                         return await InvoicesDatabase.getInvoicesSuggestions(
@@ -121,12 +120,8 @@ class ReturnPage extends StatelessWidget {
                   headerGridLinesVisibility: GridLinesVisibility.both,
                   source: controller.billDataSource.value,
                   isScrollbarAlwaysShown: true,
-                  onCellTap: (details) {
+                  onCellDoubleTap: (details) {
                     if (details.rowColumnIndex.rowIndex < 1) return;
-                    if ((details.rowColumnIndex.rowIndex - 1) !=
-                        controller.billDataGridController.selectedIndex) {
-                      return;
-                    }
                     showReturnMaterialDialog(mainController, controller,
                         details.rowColumnIndex.rowIndex - 1);
                   },

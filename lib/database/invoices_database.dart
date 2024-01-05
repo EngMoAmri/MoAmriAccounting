@@ -126,7 +126,7 @@ class InvoicesDatabase {
       var debt = await getInvoiceDebt(invoice.id!);
       var customer =
           await CustomersDatabase.getCustomerByID(invoice.customerId);
-      var inoviceMaterialsItems = await getInvoiceMaterials(invoice.id!);
+      var inoviceMaterialsItems = await getInvoiceMaterials(invoice);
       invoices.add(InvoiceItem(
         invoice: invoice,
         payments: payments,
@@ -164,12 +164,12 @@ class InvoicesDatabase {
   }
 
   static Future<List<InvoiceMaterialItem>> getInvoiceMaterials(
-      int invoiceId) async {
+      Invoice invoice) async {
     List<Map<String, dynamic>> maps;
     maps = await MyDatabase.myDatabase.query(
       'invoices_materials',
       where: 'invoice_id = ?',
-      whereArgs: [invoiceId],
+      whereArgs: [invoice.id],
     );
     List<InvoiceMaterialItem> materials = [];
     for (var map in maps) {

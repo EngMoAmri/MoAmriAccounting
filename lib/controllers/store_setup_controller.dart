@@ -69,10 +69,12 @@ class StoreSetupController extends GetxController {
         user.id = await MyDatabase.insertUser(user, null);
         await CurrenciesDatabase.insertCurrency(
             Currency(name: currency, exchangeRate: 1), user);
+
         await MyDatabase.setStoreData(store);
         final mainController = Get.put(MainController());
         mainController.storeData.value = store;
         mainController.currentUser.value = user;
+        await mainController.getCurrenies();
         await AudioPlayer().play(AssetSource('sounds/scanner-beep.mp3'));
         await showSuccessDialog("تم إنشاء متجرك بنجاح");
         WindowOptions windowOptions = const WindowOptions(

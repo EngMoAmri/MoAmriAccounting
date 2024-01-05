@@ -304,15 +304,21 @@ class SalePage extends StatelessWidget {
                   headerGridLinesVisibility: GridLinesVisibility.both,
                   source: controller.dataSource.value,
                   isScrollbarAlwaysShown: true,
-                  onCellTap: (details) {
+                  onCellDoubleTap: (details) {
                     if (details.rowColumnIndex.rowIndex < 1) return;
-                    if ((details.rowColumnIndex.rowIndex - 1) !=
-                        controller.dataGridController.selectedIndex) {
-                      return;
-                    }
                     showSaleMaterialDialog(mainController, controller,
                         details.rowColumnIndex.rowIndex - 1);
                   },
+
+                  // onCellTap: (details) {
+                  //   if (details.rowColumnIndex.rowIndex < 1) return;
+                  //   if ((details.rowColumnIndex.rowIndex - 1) !=
+                  //       controller.dataGridController.selectedIndex) {
+                  //     return;
+                  //   }
+                  //   showSaleMaterialDialog(mainController, controller,
+                  //       details.rowColumnIndex.rowIndex - 1);
+                  // },
                   selectionMode: SelectionMode.single,
                   frozenColumnsCount: 2,
                   columns: [

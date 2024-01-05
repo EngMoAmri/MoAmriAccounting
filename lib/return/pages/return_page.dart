@@ -30,6 +30,11 @@ class ReturnPage extends StatelessWidget {
                   child: TypeAheadField(
                       controller: controller.billIDController,
                       emptyBuilder: (context) {
+                        if (controller.billIDController.text.isEmpty) {
+                          return const SizedBox(
+                            height: 0,
+                          );
+                        }
                         return const SizedBox(
                           height: 60,
                           child: Center(

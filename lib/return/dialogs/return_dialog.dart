@@ -1132,6 +1132,8 @@ Future<bool?> showSaleDialog(
                                                                         .id,
                                                                 quantity: saleData[
                                                                     'Quantity'],
+                                                                price: saleData[
+                                                                    'Price'],
                                                                 note: saleData[
                                                                     'Note'],
                                                               )));
@@ -1287,6 +1289,8 @@ Future<bool?> showSaleDialog(
                                                                         .id,
                                                                 quantity: saleData[
                                                                     'Quantity'],
+                                                                price: saleData[
+                                                                    'Price'],
                                                                 note: saleData[
                                                                     'Note'],
                                                               )));

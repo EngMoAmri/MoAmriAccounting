@@ -367,9 +367,7 @@ Future<bool?> showSaleMaterialDialog(MainController mainController,
                               ),
                             ],
                           ),
-                          const Divider(
-                              // height: 1,
-                              ),
+                          const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

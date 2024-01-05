@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moamri_accounting/controllers/main_controller.dart';
+import 'package:moamri_accounting/database/entities/invoice_material.dart';
 import 'package:moamri_accounting/return/controllers/return_controller.dart';
 import 'package:moamri_accounting/database/entities/my_material.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
@@ -12,7 +13,15 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
     ReturnController returnController, int selectedIndex) async {
   Map<String, dynamic> saleData =
       returnController.billDataSource.value.salesData[selectedIndex];
+  InvoiceMaterial? invoiceMaterial;
   MyMaterial material = saleData['Material'];
+  for (var inoviceMaterialItem
+      in returnController.invoiceItem.value!.inoviceMaterialsItems) {
+    if (material.id == inoviceMaterialItem.invoiceMaterial.materialId) {
+      invoiceMaterial = inoviceMaterialItem.invoiceMaterial;
+      break;
+    }
+  }
   // returnController.searchController.clear();
   returnController.materialDialogQuantity.value = saleData['Quantity'];
   returnController.materialDialogQuantityTextController.text =
@@ -300,12 +309,11 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                   // if (currentQuantity >=
                                                   //         material
                                                   //             .quantity &&
-                                                  //     (largerMaterial1
-                                                  //                 ?.quantity ??
-                                                  //             0) <
+                                                  //     (invoiceMaterial
+                                                  //                 !.quantity) <
                                                   //         1) {
                                                   //   showErrorDialog(
-                                                  //       "الكمية المتوفرة في المستودع تم تجاوزها!");
+                                                  //       "لا يمكن إرجاع كمية أكثر من المباعة!");
                                                   //   return;
                                                   // }
                                                   returnController
@@ -368,9 +376,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                               ),
                             ],
                           ),
-                          const Divider(
-                              // height: 1,
-                              ),
+                          const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -388,22 +394,41 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
-                                                  // TODO make a button to open this dialog
+                                                  if (returnController
+                                                              .materialDialogQuantity
+                                                              .value >=
+                                                          material.quantity &&
+                                                      (invoiceMaterial!
+                                                              .quantity) <
+                                                          1) {
+                                                    var ok =
+                                                        await showConfirmationDialog(
+                                                            "الكمية المرجعة أكثر من المباعة! استمرار؟");
+                                                    if (!ok) return;
+                                                  }
+                                                  // TODO complete here
+                                                  Map<String, dynamic>
+                                                      returnedData = {
+                                                    'Material': material,
+                                                    'Quantity': returnController
+                                                        .materialDialogQuantity
+                                                        .value,
+                                                    'Total': returnController
+                                                            .materialDialogQuantity
+                                                            .value *
+                                                        saleData['Price'],
+                                                    'Price': saleData['Price'],
+                                                    'Note': returnController
+                                                        .materialDialogNoteTextController
+                                                        .text
+                                                        .trim()
+                                                  };
+                                                  returnController
+                                                      .returnedDataSource.value
+                                                      .addDataGridRow(
+                                                          returnedData,
+                                                          returnController);
 
-                                                  saleData['Quantity'] =
-                                                      returnController
-                                                          .materialDialogQuantity
-                                                          .value;
-                                                  saleData[
-                                                      'Total'] = returnController
-                                                          .materialDialogQuantity
-                                                          .value *
-                                                      saleData['Price'];
-                                                  saleData['Note'] =
-                                                      returnController
-                                                          .materialDialogNoteTextController
-                                                          .text
-                                                          .trim();
                                                   // returnController
                                                   //     .dataSource.value
                                                   //     .notifyListeners();
@@ -411,13 +436,14 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                   //     .dataSource.value
                                                   //     .calculateTotals(
                                                   //         returnController);
-                                                  // returnController.dataSource
-                                                  //     .refresh();
-                                                  // await AudioPlayer().play(
-                                                  //     AssetSource(
-                                                  //         'sounds/scanner-beep.mp3'));
+                                                  returnController
+                                                      .returnedDataSource
+                                                      .refresh();
+                                                  await AudioPlayer().play(
+                                                      AssetSource(
+                                                          'sounds/scanner-beep.mp3'));
 
-                                                  // Get.back();
+                                                  Get.back();
                                                 }
                                               },
                                               style: ButtonStyle(

@@ -6,9 +6,9 @@ import '../../database/entities/my_material.dart';
 import '../../utils/global_utils.dart';
 
 class ReturnedMaterialsDataSource extends DataGridSource {
-  final List<Map<String, dynamic>> salesData = [];
+  final List<Map<String, dynamic>> returnsData = [];
   @override
-  List<DataGridRow> get rows => salesData.map<DataGridRow>((saleData) {
+  List<DataGridRow> get rows => returnsData.map<DataGridRow>((saleData) {
         var m = saleData['Material'] as MyMaterial;
 
         return DataGridRow(cells: [
@@ -17,7 +17,8 @@ class ReturnedMaterialsDataSource extends DataGridSource {
           DataGridCell(columnName: 'Unit', value: m.unit),
           DataGridCell(
               columnName: 'Price',
-              value: '${GlobalUtils.getMoney(m.salePrice)} ${m.currency}'),
+              value:
+                  '${GlobalUtils.getMoney(saleData['Price'])} ${m.currency}'),
           DataGridCell(
               columnName: 'Quantity', value: "${saleData['Quantity']}"),
           DataGridCell(
@@ -30,8 +31,8 @@ class ReturnedMaterialsDataSource extends DataGridSource {
 
   void calculateTotals(ReturnController controller) {
     controller.totals.value.clear();
-    if (salesData.isNotEmpty) {
-      for (var saleData in salesData) {
+    if (returnsData.isNotEmpty) {
+      for (var saleData in returnsData) {
         var material = saleData["Material"] as MyMaterial;
         controller.totals.value[material.currency] =
             (controller.totals.value[material.currency] ?? 0.0) +
@@ -49,23 +50,23 @@ class ReturnedMaterialsDataSource extends DataGridSource {
     }
   }
 
-  void addDataGridRow(MyMaterial m, ReturnController controller) {
-    salesData.add(
-        {"Material": m, "Quantity": 1.0, "Total": m.salePrice, "Note": ''});
+  void addDataGridRow(
+      Map<String, dynamic> returnedData, ReturnController controller) {
+    returnsData.add(returnedData);
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
 
   void removeDataGridRow(int index, ReturnController controller) {
-    salesData.removeAt(index);
+    returnsData.removeAt(index);
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }
 
   void clearDataGridRows(ReturnController controller) {
-    salesData.clear();
+    returnsData.clear();
     calculateTotals(controller);
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
@@ -73,9 +74,9 @@ class ReturnedMaterialsDataSource extends DataGridSource {
 
   /// This method will return the index of the row contains the material. if not found -1
   int getMaterialIndex(MyMaterial m) {
-    for (var element in salesData) {
+    for (var element in returnsData) {
       if (element["Material"].id == m.id) {
-        return salesData.indexOf(element);
+        return returnsData.indexOf(element);
       }
     }
     return -1;

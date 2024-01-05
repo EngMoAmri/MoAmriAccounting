@@ -160,6 +160,7 @@ class CustomersDatabase {
       if (debt.isEmpty) {
         debt = 'لا يوجد دين';
       }
+      debt = debt.trim();
       customersWithDebts.add(CustomerDebtItem(customer: customer, debt: debt));
     }
     return customersWithDebts;

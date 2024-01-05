@@ -39,6 +39,11 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
         final noteTextController = TextEditingController();
         var adding = false;
         var visible = false;
+        final FocusNode nameFocusNode = FocusNode();
+        final FocusNode suppliedQuantityFocusNode = FocusNode();
+        final FocusNode costPriceFocusNode = FocusNode();
+        final FocusNode salePriceFocusNode = FocusNode();
+
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -103,7 +108,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                       bufferDuration:
                                           const Duration(milliseconds: 200),
                                       onBarcodeScanned: (barcode) async {
-                                        if (!visible) return;
+                                        if (!visible || barcode.isEmpty) return;
                                         await AudioPlayer().play(AssetSource(
                                             'sounds/scanner-beep.mp3'));
 
@@ -212,6 +217,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               height: 0,
                                             ),
                                             onSelected: (value) {
+                                              nameFocusNode.requestFocus();
                                               setState(() {
                                                 categoryTextController.text =
                                                     value;
@@ -294,6 +300,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             textCapitalization:
                                                 TextCapitalization.sentences,
                                             controller: nameTextController,
+                                            focusNode: nameFocusNode,
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
@@ -389,6 +396,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                               height: 0,
                                             ),
                                             onSelected: (value) {
+                                              costPriceFocusNode.requestFocus();
                                               setState(() {
                                                 unitTextController.text = value;
                                               });
@@ -484,6 +492,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             textCapitalization:
                                                 TextCapitalization.sentences,
                                             controller: costPriceTextController,
+                                            focusNode: costPriceFocusNode,
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
@@ -542,6 +551,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                             height: 0,
                                                           ),
                                                           onSelected: (value) {
+                                                            salePriceFocusNode
+                                                                .requestFocus();
                                                             setState(() {
                                                               currency = value;
                                                               currencyTextController
@@ -727,6 +738,7 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                             textCapitalization:
                                                 TextCapitalization.sentences,
                                             controller: salePriceTextController,
+                                            focusNode: salePriceFocusNode,
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,
@@ -804,6 +816,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                 );
                                               },
                                               onSelected: (value) {
+                                                suppliedQuantityFocusNode
+                                                    .requestFocus();
                                                 setState(() {
                                                   largerMaterial = value;
                                                   largerMaterialTextController
@@ -876,6 +890,8 @@ Future<bool?> showAddMaterialDialog(MainController mainController) async {
                                                 TextCapitalization.sentences,
                                             controller:
                                                 suppliedQuantityTextController,
+                                            focusNode:
+                                                suppliedQuantityFocusNode,
                                             decoration: InputDecoration(
                                               filled: true,
                                               fillColor: Colors.white,

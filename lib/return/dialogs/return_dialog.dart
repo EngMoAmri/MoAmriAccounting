@@ -16,7 +16,7 @@ import 'package:moamri_accounting/database/items/customer_debt_item.dart';
 import 'package:moamri_accounting/database/items/invoice_item.dart';
 import 'package:moamri_accounting/database/items/invoice_material_item.dart';
 import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
-import 'package:moamri_accounting/sale/controllers/sale_controller.dart';
+import 'package:moamri_accounting/return/controllers/return_controller.dart';
 import 'package:moamri_accounting/sale/dialogs/add_payment_currency_dialog.dart';
 import 'package:moamri_accounting/utils/global_utils.dart';
 
@@ -27,26 +27,17 @@ import '../../inventory/dialogs/edit_currency_dialog.dart';
 import '../print/print_invoice.dart';
 import 'print_order_dialog.dart';
 
-Future<bool?> showSaleDialog(
-    MainController mainController, SaleController saleController) async {
+Future<bool?> showReturnDialog(
+    MainController mainController, ReturnController returnController) async {
   return await showDialog(
       context: Get.context!,
       builder: (BuildContext context) {
-        final formKey = GlobalKey<FormState>();
-        final customerTextController = TextEditingController();
-
-        // here to make the customer can pay with difference currencies
-        Map<Currency, TextEditingController> differenetCurrenciesPayments = {};
-
-        CustomerDebtItem? customerDebtItem;
-        final paymentWithMainCurrencyTextController = TextEditingController();
-        final discountTextController = TextEditingController();
         final noteTextController = TextEditingController();
-        var registerTheRestAsDebtCheckBox = false;
         var printReceiptCheckBox = true;
         double totalInMainCurrency = 0;
-        for (var saleData in saleController.dataSource.value.salesData) {
-          MyMaterial material = saleData['Material'];
+        // TODO return the items
+        for (var returnedData in returnController.invoiceItem.value.) {
+          MyMaterial material = returnedData['Material'];
           double rateExchange = 0.0;
           for (var currency in mainController.currencies.value) {
             if (currency.name == material.currency) {
@@ -54,7 +45,7 @@ Future<bool?> showSaleDialog(
               break;
             }
           }
-          totalInMainCurrency += rateExchange * saleData['Total'];
+          totalInMainCurrency += rateExchange * returnedData['Total'];
         }
         double totalWithDiscount = totalInMainCurrency;
         double paymentTotalWithMainCurrency = 0;
@@ -392,7 +383,7 @@ Future<bool?> showSaleDialog(
                                                                 .all(4),
                                                         child: Center(
                                                             child: Text(
-                                                                saleController
+                                                                returnController
                                                                     .totalString
                                                                     .value,
                                                                 textAlign:
@@ -1116,7 +1107,7 @@ Future<bool?> showSaleDialog(
                                                         [];
 
                                                     for (var saleData
-                                                        in saleController
+                                                        in returnController
                                                             .dataSource
                                                             .value
                                                             .salesData) {
@@ -1273,7 +1264,7 @@ Future<bool?> showSaleDialog(
                                                         [];
 
                                                     for (var saleData
-                                                        in saleController
+                                                        in returnController
                                                             .dataSource
                                                             .value
                                                             .salesData) {
@@ -1334,10 +1325,10 @@ Future<bool?> showSaleDialog(
                                                     }
                                                   }
 
-                                                  saleController
+                                                  returnController
                                                       .dataSource.value
                                                       .clearDataGridRows(
-                                                          saleController);
+                                                          returnController);
                                                   InventoryController
                                                       inventoryController =
                                                       Get.find();
@@ -1348,7 +1339,7 @@ Future<bool?> showSaleDialog(
                                                       Get.find();
                                                   customersController
                                                       .firstLoad();
-                                                  saleController.dataSource
+                                                  returnController.dataSource
                                                       .refresh();
                                                   await AudioPlayer().play(
                                                       AssetSource(

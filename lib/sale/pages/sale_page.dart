@@ -304,27 +304,21 @@ class SalePage extends StatelessWidget {
                   headerGridLinesVisibility: GridLinesVisibility.both,
                   source: controller.dataSource.value,
                   isScrollbarAlwaysShown: true,
-                  onCellDoubleTap: (details) {
+                  onCellTap: (details) {
                     if (details.rowColumnIndex.rowIndex < 1) return;
+                    if ((details.rowColumnIndex.rowIndex - 1) !=
+                        controller.dataGridController.selectedIndex) {
+                      return;
+                    }
                     showSaleMaterialDialog(mainController, controller,
                         details.rowColumnIndex.rowIndex - 1);
                   },
-
-                  // onCellTap: (details) {
-                  //   if (details.rowColumnIndex.rowIndex < 1) return;
-                  //   if ((details.rowColumnIndex.rowIndex - 1) !=
-                  //       controller.dataGridController.selectedIndex) {
-                  //     return;
-                  //   }
-                  //   showSaleMaterialDialog(mainController, controller,
-                  //       details.rowColumnIndex.rowIndex - 1);
-                  // },
                   selectionMode: SelectionMode.single,
                   frozenColumnsCount: 2,
                   columns: [
                     GridColumn(
                         columnName: 'Barcode',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Barcode']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -335,7 +329,7 @@ class SalePage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Name',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Name']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -346,7 +340,7 @@ class SalePage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -357,7 +351,7 @@ class SalePage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit Price',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit Price']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -368,7 +362,7 @@ class SalePage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Quantity',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Quantity']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -379,7 +373,7 @@ class SalePage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Total',
-                        columnWidthMode: ColumnWidthMode.fitByColumnName,
+                        width: controller.columnWidths.value['Total']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),

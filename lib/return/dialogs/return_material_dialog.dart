@@ -9,12 +9,22 @@ import 'package:moamri_accounting/dialogs/alerts_dialogs.dart';
 
 import '../../utils/global_utils.dart';
 
-Future<bool?> showReturnMaterialDialog(MainController mainController,
-    ReturnController returnController, int selectedIndex) async {
-  Map<String, dynamic> saleData =
-      returnController.billDataSource.value.salesData[selectedIndex];
+Future<bool?> showReturnMaterialDialog(
+    MainController mainController,
+    ReturnController returnController,
+    int selectedIndex,
+    MyMaterial selectedMaterial) async {
+  bool edit = false;
+  try {
+    edit = returnController.returnedDataSource.value
+            .returnsData[selectedIndex]['Material'].id ==
+        selectedMaterial.id;
+  } catch (_) {}
+  Map<String, dynamic> itemData = (edit)
+      ? returnController.returnedDataSource.value.returnsData[selectedIndex]
+      : returnController.billDataSource.value.salesData[selectedIndex];
   InvoiceMaterial? invoiceMaterial;
-  MyMaterial material = saleData['Material'];
+  MyMaterial material = itemData['Material'];
   for (var inoviceMaterialItem
       in returnController.invoiceItem.value!.inoviceMaterialsItems) {
     if (material.id == inoviceMaterialItem.invoiceMaterial.materialId) {
@@ -23,10 +33,10 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
     }
   }
   // returnController.searchController.clear();
-  returnController.materialDialogQuantity.value = saleData['Quantity'];
+  returnController.materialDialogQuantity.value = itemData['Quantity'];
   returnController.materialDialogQuantityTextController.text =
-      "${saleData['Quantity']}";
-  returnController.materialDialogNoteTextController.text = saleData['Note'];
+      "${itemData['Quantity']}";
+  returnController.materialDialogNoteTextController.text = itemData['Note'];
 
   return await showDialog(
       context: Get.context!,
@@ -122,7 +132,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                 child: FittedBox(
                                                     fit: BoxFit.fitWidth,
                                                     child: Text(
-                                                        "${GlobalUtils.getMoney(saleData['Price'])} ${material.currency}")))),
+                                                        "${GlobalUtils.getMoney(itemData['Price'])} ${material.currency}")))),
                                       ]),
                                       const TableRow(
                                           decoration: BoxDecoration(
@@ -149,7 +159,7 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                 child: FittedBox(
                                                     fit: BoxFit.fitWidth,
                                                     child: Text(
-                                                        '${GlobalUtils.getMoney(returnController.materialDialogQuantity.value * saleData['Price'])} ${material.currency}',
+                                                        '${GlobalUtils.getMoney(returnController.materialDialogQuantity.value * itemData['Price'])} ${material.currency}',
                                                         textAlign: TextAlign
                                                             .center)))),
                                       ]),
@@ -394,48 +404,77 @@ Future<bool?> showReturnMaterialDialog(MainController mainController,
                                                     .materialDialogFormKey
                                                     .currentState!
                                                     .validate()) {
-                                                  if (returnController
-                                                              .materialDialogQuantity
-                                                              .value >=
-                                                          material.quantity &&
-                                                      (invoiceMaterial!
-                                                              .quantity) <
-                                                          1) {
+                                                  var currentQuantity =
+                                                      double.tryParse(
+                                                              returnController
+                                                                  .materialDialogQuantityTextController
+                                                                  .text
+                                                                  .trim()) ??
+                                                          0;
+
+                                                  if (currentQuantity < 1) {
+                                                    await showErrorDialog(
+                                                        "لا يمكن أنت تكون الكمية المرتجعة أقل من 1 !");
+                                                    return;
+                                                  }
+
+                                                  if (currentQuantity >
+                                                      invoiceMaterial!
+                                                          .quantity) {
                                                     var ok =
                                                         await showConfirmationDialog(
                                                             "الكمية المرجعة أكثر من المباعة! استمرار؟");
                                                     if (!ok) return;
                                                   }
-                                                  // TODO complete here
-                                                  Map<String, dynamic>
-                                                      returnedData = {
-                                                    'Material': material,
-                                                    'Quantity': returnController
-                                                        .materialDialogQuantity
-                                                        .value,
-                                                    'Total': returnController
-                                                            .materialDialogQuantity
-                                                            .value *
-                                                        saleData['Price'],
-                                                    'Price': saleData['Price'],
-                                                    'Note': returnController
-                                                        .materialDialogNoteTextController
-                                                        .text
-                                                        .trim()
-                                                  };
-                                                  returnController
-                                                      .returnedDataSource.value
-                                                      .addDataGridRow(
-                                                          returnedData,
-                                                          returnController);
-
-                                                  // returnController
-                                                  //     .dataSource.value
-                                                  //     .notifyListeners();
-                                                  // returnController
-                                                  //     .dataSource.value
-                                                  //     .calculateTotals(
-                                                  //         returnController);
+                                                  if (!edit) {
+                                                    Map<String, dynamic>
+                                                        returnedData = {
+                                                      'Material': material,
+                                                      'Quantity':
+                                                          currentQuantity,
+                                                      'Total': currentQuantity *
+                                                          itemData['Price'],
+                                                      'Price':
+                                                          itemData['Price'],
+                                                      'Note': returnController
+                                                          .materialDialogNoteTextController
+                                                          .text
+                                                          .trim()
+                                                    };
+                                                    returnController
+                                                        .returnedDataSource
+                                                        .value
+                                                        .addDataGridRow(
+                                                            returnedData,
+                                                            returnController);
+                                                  } else {
+                                                    returnController
+                                                            .returnedDataSource
+                                                            .value
+                                                            .returnsData[
+                                                        selectedIndex] = {
+                                                      'Material': material,
+                                                      'Quantity':
+                                                          currentQuantity,
+                                                      'Total': currentQuantity *
+                                                          itemData['Price'],
+                                                      'Price':
+                                                          itemData['Price'],
+                                                      'Note': returnController
+                                                          .materialDialogNoteTextController
+                                                          .text
+                                                          .trim()
+                                                    };
+                                                    returnController
+                                                        .returnedDataSource
+                                                        .value
+                                                        .notifyListeners();
+                                                    returnController
+                                                        .returnedDataSource
+                                                        .value
+                                                        .calculateTotals(
+                                                            returnController);
+                                                  }
                                                   returnController
                                                       .returnedDataSource
                                                       .refresh();

@@ -118,6 +118,7 @@ class InvoicesDatabase {
         distinct: true,
         where: "CAST(id as TEXT) like ?",
         whereArgs: ["%$trimText%"],
+        orderBy: 'id DESC',
         limit: 10);
     List<InvoiceItem> invoices = [];
     for (var map in maps) {

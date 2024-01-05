@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
@@ -7,7 +8,9 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../database/invoices_database.dart';
+import '../../dialogs/alerts_dialogs.dart';
 import '../controllers/return_controller.dart';
+import '../dialogs/return_dialog.dart';
 import '../dialogs/return_material_dialog.dart';
 
 class ReturnPage extends StatelessWidget {
@@ -44,6 +47,9 @@ class ReturnPage extends StatelessWidget {
                       },
                       onSelected: (value) async {
                         controller.invoiceItem.value = value;
+                        await AudioPlayer()
+                            .play(AssetSource('sounds/scanner-beep.mp3'));
+
                         controller.setBillDataSource();
                         controller.billIDController.clear();
                       },
@@ -125,17 +131,26 @@ class ReturnPage extends StatelessWidget {
                   headerGridLinesVisibility: GridLinesVisibility.both,
                   source: controller.billDataSource.value,
                   isScrollbarAlwaysShown: true,
-                  onCellDoubleTap: (details) {
+                  onCellTap: (details) {
                     if (details.rowColumnIndex.rowIndex < 1) return;
-                    showReturnMaterialDialog(mainController, controller,
-                        details.rowColumnIndex.rowIndex - 1);
+                    if ((details.rowColumnIndex.rowIndex - 1) !=
+                        controller.billDataGridController.selectedIndex) {
+                      return;
+                    }
+                    showReturnMaterialDialog(
+                        mainController,
+                        controller,
+                        details.rowColumnIndex.rowIndex - 1,
+                        controller.billDataSource.value
+                                .salesData[details.rowColumnIndex.rowIndex - 1]
+                            ['Material']);
                   },
                   selectionMode: SelectionMode.single,
                   frozenColumnsCount: 2,
                   columns: [
                     GridColumn(
                         columnName: 'Barcode',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Barcode']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -146,7 +161,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Name',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Name']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -157,7 +172,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -168,7 +183,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit Price',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit Price']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -179,7 +194,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Quantity',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Quantity']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -190,7 +205,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Total',
-                        columnWidthMode: ColumnWidthMode.fitByColumnName,
+                        width: controller.columnWidths.value['Total']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -257,15 +272,19 @@ class ReturnPage extends StatelessWidget {
                         controller.returnedDataGridController.selectedIndex) {
                       return;
                     }
-                    showReturnMaterialDialog(mainController, controller,
-                        details.rowColumnIndex.rowIndex - 1);
+                    showReturnMaterialDialog(
+                        mainController,
+                        controller,
+                        details.rowColumnIndex.rowIndex - 1,
+                        controller.returnedDataSource.value.returnsData[
+                            details.rowColumnIndex.rowIndex - 1]['Material']);
                   },
                   selectionMode: SelectionMode.single,
                   frozenColumnsCount: 2,
                   columns: [
                     GridColumn(
                         columnName: 'Barcode',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Barcode']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -276,7 +295,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Name',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Name']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -287,7 +306,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -298,7 +317,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Unit Price',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Unit Price']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -309,7 +328,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Quantity',
-                        columnWidthMode: ColumnWidthMode.fitByCellValue,
+                        width: controller.columnWidths.value['Quantity']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -320,7 +339,7 @@ class ReturnPage extends StatelessWidget {
                             ))),
                     GridColumn(
                         columnName: 'Total',
-                        columnWidthMode: ColumnWidthMode.fitByColumnName,
+                        width: controller.columnWidths.value['Total']!,
                         minimumWidth: 120,
                         label: Container(
                             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -351,14 +370,15 @@ class ReturnPage extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    // if (controller.dataGridController.selectedIndex >= 0) {
-                    //   controller.dataSource.value.removeDataGridRow(
-                    //       controller.dataGridController.selectedIndex,
-                    //       controller);
-                    //   controller.dataSource.refresh();
-                    // } else {
-                    //   showErrorDialog("يرجى إختيار المادة المراد إزالتها");
-                    // }
+                    if (controller.returnedDataGridController.selectedIndex >=
+                        0) {
+                      controller.returnedDataSource.value.removeDataGridRow(
+                          controller.returnedDataGridController.selectedIndex,
+                          controller);
+                      controller.returnedDataSource.refresh();
+                    } else {
+                      showErrorDialog("يرجى إختيار المادة المراد إزالتها");
+                    }
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -381,15 +401,19 @@ class ReturnPage extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    // if (!(await showConfirmationDialog(
-                    //         "هل أنت متأكد من أنك تريد تفريغ قائمة البيع؟!") ??
-                    //     false)) {
-                    //   return;
-                    // }
+                    if (!(await showConfirmationDialog(
+                            "هل أنت متأكد من أنك تريد تفريغ العناصر؟!") ??
+                        false)) {
+                      return;
+                    }
 
-                    // controller.dataSource.value
-                    //     .clearDataGridRows(controller);
-                    // controller.dataSource.refresh();
+                    controller.billDataSource.value
+                        .clearDataGridRows(controller);
+                    controller.billDataSource.refresh();
+                    controller.returnedDataSource.value
+                        .clearDataGridRows(controller);
+                    controller.returnedDataSource.refresh();
+                    controller.invoiceItem.value = null;
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -398,10 +422,10 @@ class ReturnPage extends StatelessWidget {
                       backgroundColor: MaterialStateProperty.all(Colors.red),
                       foregroundColor: MaterialStateProperty.all(Colors.white)),
                   icon: const Icon(Icons.clear),
-                  label: FittedBox(
+                  label: const FittedBox(
                       fit: BoxFit.fitWidth,
-                      child: const Text(
-                        'تفريغ العناصر المرتجعة',
+                      child: Text(
+                        'تفريغ العناصر',
                       )),
                 ),
               ),
@@ -411,13 +435,13 @@ class ReturnPage extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    // showReturnDialog(mainController, controller);
-                    // var printType = await showPrintDialog("الطلب");
-                    // if (printType == "حراري") {
-                    //   await printOrderRoll(mainController, controller);
-                    // } else {
-                    //   await printOrderA4(mainController, controller);
-                    // }
+                    showReturnDialog(mainController, controller);
+                    var printType = await showPrintDialog("الطلب");
+                    if (printType == "حراري") {
+                      await printOrderRoll(mainController, controller);
+                    } else {
+                      await printOrderA4(mainController, controller);
+                    }
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(

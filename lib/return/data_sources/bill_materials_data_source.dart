@@ -39,14 +39,15 @@ class BillMaterialsDataSource extends DataGridSource {
                 saleData["Total"];
       }
       controller.totals.refresh();
-      controller.totalString.value = "";
+      controller.billTotalString.value = "";
       for (var currency in controller.totals.value.keys.toList()) {
-        controller.totalString.value +=
+        controller.billTotalString.value +=
             '${GlobalUtils.getMoney(controller.totals.value[currency])} $currency \n';
       }
-      controller.totalString.value = controller.totalString.value.trim();
+      controller.billTotalString.value =
+          controller.billTotalString.value.trim();
     } else {
-      controller.totalString.value = '';
+      controller.billTotalString.value = '';
     }
   }
 
@@ -55,6 +56,7 @@ class BillMaterialsDataSource extends DataGridSource {
     this.salesData.clear();
     this.salesData.addAll(salesData);
     calculateTotals(controller);
+
     // To refresh the DataGrid based on CRUD operation.
     notifyListeners();
   }

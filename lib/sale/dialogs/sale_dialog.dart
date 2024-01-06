@@ -1063,6 +1063,7 @@ Future<bool?> showSaleDialog(
                                                           amount: double.parse(
                                                               paymentWithMainCurrencyTextController
                                                                   .text),
+                                                          exchangeRate: 1.0,
                                                           currency:
                                                               mainController
                                                                   .storeData
@@ -1087,6 +1088,9 @@ Future<bool?> showSaleDialog(
                                                                 differenetCurrenciesPayments[
                                                                         currencyPayment]!
                                                                     .text),
+                                                            exchangeRate:
+                                                                currencyPayment
+                                                                    .exchangeRate,
                                                             currency:
                                                                 currencyPayment
                                                                     .name,
@@ -1195,6 +1199,7 @@ Future<bool?> showSaleDialog(
                                                           amount: double.parse(
                                                               paymentWithMainCurrencyTextController
                                                                   .text),
+                                                          exchangeRate: 1,
                                                           currency:
                                                               mainController
                                                                   .storeData
@@ -1222,6 +1227,9 @@ Future<bool?> showSaleDialog(
                                                                 differenetCurrenciesPayments[
                                                                         currencyPayment]!
                                                                     .text),
+                                                            exchangeRate:
+                                                                currencyPayment
+                                                                    .exchangeRate,
                                                             currency:
                                                                 currencyPayment
                                                                     .name,
@@ -1245,11 +1253,6 @@ Future<bool?> showSaleDialog(
                                                               customerDebtItem!
                                                                   .customer.id!,
                                                           amount: stillToBePaid,
-                                                          currency:
-                                                              mainController
-                                                                  .storeData
-                                                                  .value!
-                                                                  .currency,
                                                           note: noteTextController
                                                                   .text.isEmpty
                                                               ? null

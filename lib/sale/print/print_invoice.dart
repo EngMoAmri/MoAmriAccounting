@@ -260,7 +260,7 @@ Future<dynamic> printInvoiceRoll(
 
     widgets.add(Row(children: [
       Expanded(child: Text(GlobalUtils.getMoney(invoiceItem.debt!.amount))),
-      Text(invoiceItem.debt!.currency),
+      Text(mainController.storeData.value!.currency),
       SizedBox(width: 10)
     ]));
   }
@@ -572,7 +572,7 @@ Future<dynamic> printInvoiceA4(
       SizedBox(width: 10),
       Directionality(
           textDirection: TextDirection.rtl,
-          child: Text(invoiceItem.debt!.currency)),
+          child: Text(mainController.storeData.value!.currency)),
       Expanded(child: Text(GlobalUtils.getMoney(invoiceItem.debt!.amount))),
     ]));
   }

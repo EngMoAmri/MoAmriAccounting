@@ -215,6 +215,7 @@ class MyDatabase {
       date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
       currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE NO ACTION ON UPDATE CASCADE,
+      exchange_rate REAL NOT NULL, 
       note TEXT
     )
     """);
@@ -236,7 +237,6 @@ class MyDatabase {
       customer_id INTEGER REFERENCES customers(id) ON DELETE RESTRICT,  
       date INTEGER NOT NULL, 
       amount REAL NOT NULL, 
-      currency TEXT NOT NULL REFERENCES currencies(name) ON DELETE RESTRICT ON UPDATE CASCADE, 
       note TEXT
     )
     """);

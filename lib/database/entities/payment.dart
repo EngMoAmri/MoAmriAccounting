@@ -7,6 +7,7 @@ class Payment {
   final double amount;
   // the same invoice can have multiple payments with differenet currencies
   final String currency;
+  final double exchangeRate;
   final String? note;
 
   Payment({
@@ -16,6 +17,7 @@ class Payment {
     required this.date,
     required this.amount,
     required this.currency,
+    required this.exchangeRate,
     required this.note,
   });
 
@@ -27,6 +29,7 @@ class Payment {
       'date': date,
       'amount': amount,
       'currency': currency,
+      'exchange_rate': exchangeRate,
       'note': note,
     };
   }
@@ -40,6 +43,7 @@ class Payment {
       date: map['date'] as int,
       amount: map['amount'] as double,
       currency: map['currency'] as String,
+      exchangeRate: map['exchange_rate'] as double,
       note: map['note'] as String?,
     );
   }

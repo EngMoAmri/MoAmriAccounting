@@ -11,8 +11,10 @@ class ReturnController extends GetxController {
   Rx<InvoiceItem?> invoiceItem = Rx(null);
   Rx<bool> searching = false.obs;
   Rx<Map<String, double>> totals = Rx({});
-  Rx<String> totalString = ''.obs;
-
+  Rx<String> billTotalString = ''.obs;
+  Rx<String> returnTotalString = ''.obs;
+  Rx<double> billTotalInMainCurrency = 0.0.obs;
+  Rx<double> returnTotalInMainCurrency = 0.0.obs;
   final DataGridController billDataGridController = DataGridController();
   final DataGridController returnedDataGridController = DataGridController();
   Rx<Map<String, double>> columnWidths = Rx({
@@ -38,6 +40,7 @@ class ReturnController extends GetxController {
   setBillDataSource() {
     List<Map<String, dynamic>> salesData = [];
     for (var materialItem in invoiceItem.value!.inoviceMaterialsItems) {
+      // TODO I know it fine , but to be sure please check if the material price has been change
       salesData.add({
         'Material': materialItem.material,
         'Price': materialItem.invoiceMaterial.price,
@@ -47,6 +50,7 @@ class ReturnController extends GetxController {
         'Note': materialItem.invoiceMaterial.note,
       });
     }
+
     billDataSource.value.setDataGridRows(salesData, this);
     billDataSource.refresh();
   }

@@ -131,12 +131,20 @@ class CustomersDatabase {
   static Future<List<CustomerDebtItem>> getCustomersWithDebts(
       MainController mainController, int page,
       {orderBy, dir}) async {
+    // THis if there is mutliple debt currency
+    // List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.rawQuery('''
+    //     SELECT c.*, SUM(IFNULL((d.amount *
+    //         (SELECT exchange_rate
+    //          FROM currencies
+    //          WHERE name=d.currency)
+    //       ), 0)) as debt
+    //     FROM customers AS c LEFT JOIN debts as d ON c.id = d.customer_id
+    //     GROUP BY c.id
+    //     ORDER BY ${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"}
+    //     LIMIT ${page * 40}, 40
+    //  ''');
     List<Map<String, dynamic>> maps = await MyDatabase.myDatabase.rawQuery('''
-        SELECT c.*, SUM(IFNULL((d.amount * 
-            (SELECT exchange_rate 
-             FROM currencies 
-             WHERE name=d.currency)
-          ), 0)) as debt
+        SELECT c.*, SUM(d.amount) as debt
         FROM customers AS c LEFT JOIN debts as d ON c.id = d.customer_id 
         GROUP BY c.id
         ORDER BY ${orderBy ?? "id"} COLLATE NOCASE ${dir ?? "ASC"} 
@@ -145,21 +153,21 @@ class CustomersDatabase {
     List<CustomerDebtItem> customersWithDebts = [];
     for (var map in maps) {
       var customer = Customer.fromMap(map);
-      List<Map<String, dynamic>> debtsMaps =
-          await MyDatabase.myDatabase.rawQuery("""
-        SELECT currency, SUM(amount) AS total_debt
-        FROM debts
-        WHERE customer_id = ${customer.id} 
-        GROUP BY currency;
-      """);
-      String debt = '';
-      for (var debtMap in debtsMaps) {
-        debt =
-            '$debt${GlobalUtils.getMoney(debtMap['total_debt'])} ${debtMap['currency']}\n';
-      }
-      if (debt.isEmpty) {
-        debt = 'لا يوجد دين';
-      }
+      // List<Map<String, dynamic>> debtsMaps =
+      //     await MyDatabase.myDatabase.rawQuery("""
+      //   SELECT currency, SUM(amount) AS total_debt
+      //   FROM debts
+      //   WHERE customer_id = ${customer.id}
+      //   GROUP BY currency;
+      // """);
+      String debt = (map['debt'] ?? 'لا يوجد دين').toString();
+      // for (var debtMap in debtsMaps) {
+      //   debt =
+      //       '$debt${GlobalUtils.getMoney(debtMap['total_debt'])} ${debtMap['currency']}\n';
+      // }
+      // if (debt.isEmpty) {
+      //   debt = 'لا يوجد دين';
+      // }
       debt = debt.trim();
       customersWithDebts.add(CustomerDebtItem(customer: customer, debt: debt));
     }

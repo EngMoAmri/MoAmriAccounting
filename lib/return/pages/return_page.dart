@@ -435,13 +435,23 @@ class ReturnPage extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    showReturnDialog(mainController, controller);
-                    var printType = await showPrintDialog("الطلب");
-                    if (printType == "حراري") {
-                      await printOrderRoll(mainController, controller);
-                    } else {
-                      await printOrderA4(mainController, controller);
+                    if (controller.invoiceItem.value == null) {
+                      showErrorDialog('يرجى أختيار فاتورة');
+                      return;
                     }
+                    if (controller
+                        .returnedDataSource.value.returnsData.isEmpty) {
+                      showErrorDialog('يرجى أختيار الأشياء المراد إرجاعها');
+                      return;
+                    }
+                    showReturnDialog(mainController, controller);
+                    throw Exception('Complete');
+                    // var printType = await showPrintDialog("الطلب");
+                    // if (printType == "حراري") {
+                    //   await printOrderRoll(mainController, controller);
+                    // } else {
+                    //   await printOrderA4(mainController, controller);
+                    // }
                   },
                   style: ButtonStyle(
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(

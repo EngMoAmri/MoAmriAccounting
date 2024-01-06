@@ -39,14 +39,15 @@ class ReturnedMaterialsDataSource extends DataGridSource {
                 saleData["Total"];
       }
       controller.totals.refresh();
-      controller.totalString.value = "";
+      controller.returnTotalString.value = "";
       for (var currency in controller.totals.value.keys.toList()) {
-        controller.totalString.value +=
+        controller.returnTotalString.value +=
             '${GlobalUtils.getMoney(controller.totals.value[currency])} $currency \n';
       }
-      controller.totalString.value = controller.totalString.value.trim();
+      controller.returnTotalString.value =
+          controller.returnTotalString.value.trim();
     } else {
-      controller.totalString.value = '';
+      controller.returnTotalString.value = '';
     }
   }
 
